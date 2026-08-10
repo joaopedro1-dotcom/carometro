@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carômetro Escolar - Jardim Vitória</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
+        :root { --verde: #0d5c3a; --verde-escuro: #073823; --dourado: #d4af37; --fundo: #f4f7f5; }
+        body { background: var(--fundo); color: #333; min-height: 100vh; }
+
+        /* TELA DE LOGIN */
+        #tela-login { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--verde-escuro), var(--verde)); }
+        .box-login { background: white; padding: 30px; border-radius: 12px; border-top: 5px solid var(--dourado); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .logo-svg { width: 80px; height: 80px; margin-bottom: 10px; }
+
+        .campo { margin-bottom: 15px; text-align: left; }
+        .campo label { display: block; font-size: 12px; font-weight: bold; color: var(--verde); margin-bottom: 5px; }
+        .campo input, .campo select, .campo textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+
+        .btn { width: 100%; padding: 12px; background: var(--dourado); color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; }
+        .btn:hover { background: #b89528; }
+
+        /* PAINEL */
+        #painel { display: none; }
+        header { background: var(--verde); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--dourado); }
+        .header-logo { display: flex; align-items: center; gap: 12px; }
+        .header-logo .logo-svg { width: 45px; height: 45px; margin: 0; }
+
+        .conteudo { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .barra-top { background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .busca { flex: 1; min-width: 180px; }
+
+        /* GRID DOS CARDS */
+        .grid-alunos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        .card-aluno { background: white; border-radius: 10px; padding: 15px; text-align: center; border-top: 4px solid var(--verde); position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
+        .card-aluno:hover { transform: translateY(-4px); border-top-color: var(--dourado); }
+        .foto-aluno { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--dourado); object-fit: cover; margin-bottom: 10px; }
+        .turma-tag { background: #eaf4ee; color: var(--verde); font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-top: 5px; }
+
+        .acoes-card { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; color: white; font-weight: bold; }
+        .btn-edit { background: #007bff; }
+        .btn-del { background: #dc3545; }
+
+        /* HOVER COM DETALHES DO ALUNO */
+        .detalhes-hover { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 230px; background: var(--verde-escuro); color: white; padding: 12px; border-radius: 8px; z-index: 10; font-size: 12px; text-align: left; border: 1px solid var(--dourado); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .card-aluno:hover .detalhes-hover { display: block; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
+        .modal-box { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; border-top: 5px solid var(--dourado); max-height: 90vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGO SVG (EMBUTIDA NO CÓDIGO - NUNCA SUMA) -->
+    <svg id="svgTemplate" style="display:none;">
+        <g id="logo-icon">
+            <circle cx="50" cy="50" r="48" fill="#0d5c3a" stroke="#d4af37" stroke-width="4"/>
+            <path d="M50 20 L80 40 L80 70 L50 90 L20 70 L20 40 Z" fill="none" stroke="#d4af37" stroke-width="3"/>
+            <text x="50" y="58" font-family="Arial" font-size="22" fill="#ffffff" font-weight="bold" text-anchor="middle">JV</text>
+        </g>
+    </svg>
+
+    <!-- TELA DE LOGIN -->
+    <div id="tela-login">
+        <div class="box-login">
+            <svg class="logo-svg" viewBox="0 0 100 100"><use href="#logo-icon"/></svg>
+            <h2 style="color: var(--verde); margin-bottom: 2px;">Jardim Vitória</h2>
+            <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Carômetro & Consulta</p>
+            
+            <form onsubmit="realizarLogin(event)">
+                <div class="campo">
+                    <label>USUÁRIO</label>
+                    <input type="text" id="userInput" placeholder="admin ou professor" required>
+                </div>
+                <div class="campo">
+                    <label>SENHA</label>
+                    <input type="password" id="passInput" placeholder="Digite a senha..." required>
+                </div>
+                <button type="submit" class="btn">Entrar no Sistema</button>
+            </form>
+            <p id="erro" style="color:red; font-size:12px; margin-top:10px; display:none;"></p>
+        </div>
+    </div>
+
+    <!-- PAINEL PRINCIPAL -->
+    <div id="painel">
+        <header>
+            <div class="header-logo">
+                <svg class="logo-svg" viewBox="0 0 100 100"><use href="#logo-icon"/></svg>
+                <div>
+                    <h3 style="font-size:16px;">ESCOLA MUNICIPAL JARDIM VITÓRIA</h3>
+                    <small id="txtPerfil" style="color: var(--dourado);"></small>
+                </div>
+            </div>
+            <button onclick="sair()" style="background:transparent; border:1px solid var(--dourado); color:var(--dourado); padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Sair</button>
+        </header>
+
+        <div class="conteudo">
+            <div class="barra-top">
+                <input type="text" id="buscaNome" class="busca campo" style="margin:0;" placeholder="🔍 Buscar por nome..." onkeyup="filtrar()">
+                <select id="filtroTurma" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
+                    <option value="">Todas as Turmas</option>
+                    <option value="1º Ano A">1º Ano A</option>
+                    <option value="1º Ano B">1º Ano B</option>
+                    <option value="2º Ano A">2º Ano A</option>
+                    <option value="2º Ano B">2º Ano B</option>
+                    <option value="3º Ano A">3º Ano A</option>
+                </select>
+                <button id="btnCadastrar" class="btn" style="width:auto; display:none;" onclick="abrirModal()">+ Cadastrar Aluno</button>
+                <button class="btn" style="width:auto; background:var(--verde);" onclick="carregarDadosNuvem()">🔄 Sincronizar</button>
+            </div>
+
+            <div class="grid-alunos" id="gridAlunos"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CADASTRO / EDIÇÃO -->
+    <div class="modal" id="modalCad">
+        <div class="modal-box">
+            <h3 id="modalTitulo" style="color: var(--verde); margin-bottom: 15px;">Cadastrar Novo Aluno</h3>
+            <form onsubmit="salvarAluno(event)">
+                <input type="hidden" id="editIndex">
+                <div class="campo"><label>Nome Completo</label><input type="text" id="cadNome" required></div>
+                <div class="campo">
+                    <label>Turma</label>
+                    <select id="cadTurma" required>
+                        <option value="1º Ano A">1º Ano A</option>
+                        <option value="1º Ano B">1º Ano B</option>
+                        <option value="2º Ano A">2º Ano A</option>
+                        <option value="2º Ano B">2º Ano B</option>
+                        <option value="3º Ano A">3º Ano A</option>
+                    </select>
+                </div>
+                <div class="campo"><label>Foto do Aluno</label><input type="file" id="cadFoto" accept="image/*" onchange="converterFoto(event)"></div>
+                <div class="campo"><label>Responsável</label><input type="text" id="cadResp" required></div>
+                <div class="campo"><label>Telefone</label><input type="text" id="cadTel" required></div>
+                <div class="campo"><label>Alergias / Observações</label><textarea id="cadObs" rows="2"></textarea></div>
+                
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="button" class="btn" style="background:#ccc;" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" id="btnSalvarModal" class="btn">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // NUVEM COMPARTILHADA
+        const BIN_ID = "65c82270dc74654018a287b4";
+        const API_KEY = "$2a$10$R90uT8.yZpxfM/m5V.Kk8.vG38.qM2hM5UaBq5yP2b.s43A9r.22S";
+
+        let listaAlunos = [];
+        let fotoTemp = "";
+        let ehAdmin = false;
+
+        function realizarLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('userInput').value.trim().toLowerCase();
+            const p = document.getElementById('passInput').value;
+
+            if (u === 'admin' && p === '123') {
+                iniciarSessao('Administrador / Secretaria', true);
+            } else if (u === 'professor' && p === '123') {
+                iniciarSessao('Professor (Consulta)', false);
+            } else {
+                const err = document.getElementById('erro');
+                err.innerText = "Usuário ou senha incorretos!";
+                err.style.display = "block";
+            }
+        }
+
+        function iniciarSessao(perfil, adminFlag) {
+            ehAdmin = adminFlag;
+            document.getElementById('tela-login').style.display = 'none';
+            document.getElementById('painel').style.display = 'block';
+            document.getElementById('txtPerfil').innerText = perfil;
+            
+            if (ehAdmin) {
+                document.getElementById('btnCadastrar').style.display = 'block';
+            }
+
+            const dadosLocais = localStorage.getItem('carometro_dados');
+            if(dadosLocais) {
+                listaAlunos = JSON.parse(dadosLocais);
+                renderizar(listaAlunos);
+            }
+            carregarDadosNuvem();
+        }
+
+        function sair() { location.reload(); }
+
+        function carregarDadosNuvem() {
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            })
+            .then(res => res.json())
+            .then(data => {
+                listaAlunos = data.record || [];
+                localStorage.setItem('carometro_dados', JSON.stringify(listaAlunos));
+                renderizar(listaAlunos);
+            })
+            .catch(() => {
+                console.log("Modo offline ativado.");
+            });
+        }
+
+        function salvarNaNuvem() {
+            localStorage.setItem('carometro_dados', JSON.stringify(listaAlunos));
+            renderizar(listaAlunos);
+
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': API_KEY
+                },
+                body: JSON.stringify(listaAlunos)
+            })
+            .then(() => {
+                fecharModal();
+            })
+            .catch(() => {
+                alert("Salvo no computador! Quando a internet voltar, clique em Sincronizar.");
+                fecharModal();
+            });
+        }
+
+        function converterFoto(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => { fotoTemp = reader.result; };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function salvarAluno(e) {
+            e.preventDefault();
+            const index = document.getElementById('editIndex').value;
+            const nome = document.getElementById('cadNome').value;
+            const fotoPadrao = `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=0d5c3a&color=fff`;
+
+            const alunoObj = {
+                id: index !== "" ? listaAlunos[index].id : Date.now(),
+                nome: nome,
+                turma: document.getElementById('cadTurma').value,
+                foto: fotoTemp || (index !== "" ? listaAlunos[index].foto : fotoPadrao),
+                resp: document.getElementById('cadResp').value,
+                tel: document.getElementById('cadTel').value,
+                obs: document.getElementById('cadObs').value || 'Nenhuma'
+            };
+
+            if(index !== "") {
+                listaAlunos[index] = alunoObj;
+            } else {
+                listaAlunos.push(alunoObj);
+            }
+
+            salvarNaNuvem();
+            e.target.reset();
+            fotoTemp = "";
+            document.getElementById('editIndex').value = "";
+        }
+
+        function editarAluno(i) {
+            const a = listaAlunos[i];
+            document.getElementById('editIndex').value = i;
+            document.getElementById('cadNome').value = a.nome;
+            document.getElementById('cadTurma').value = a.turma;
+            document.getElementById('cadResp').value = a.resp;
+            document.getElementById('cadTel').value = a.tel;
+            document.getElementById('cadObs').value = a.obs;
+            fotoTemp = a.foto;
+
+            document.getElementById('modalTitulo').innerText = "Editar Aluno";
+            abrirModal();
+        }
+
+        function excluirAluno(i) {
+            if(confirm(`Tem certeza que deseja excluir o(a) aluno(a) ${listaAlunos[i].nome}?`)) {
+                listaAlunos.splice(i, 1);
+                salvarNaNuvem();
+            }
+        }
+
+        function renderizar(alunos) {
+            const grid = document.getElementById('gridAlunos');
+            grid.innerHTML = '';
+
+            if (alunos.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Nenhum aluno encontrado.</p>';
+                return;
+            }
+
+            alunos.forEach((aluno, index) => {
+                const card = document.createElement('div');
+                card.className = 'card-aluno';
+                
+                let botoesAdmin = '';
+                if(ehAdmin) {
+                    botoesAdmin = `
+                        <div class="acoes-card">
+                            <button class="btn-sm btn-edit" onclick="editarAluno(${index})">Editar</button>
+                            <button class="btn-sm btn-del" onclick="excluirAluno(${index})">Excluir</button>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    <img src="${aluno.foto}" class="foto-aluno" alt="Foto">
+                    <br><strong>${aluno.nome}</strong><br>
+                    <span class="turma-tag">${aluno.turma}</span>
+                    ${botoesAdmin}
+                    
+                    <div class="detalhes-hover">
+                        <p><strong>Responsável:</strong> ${aluno.resp}</p>
+                        <p><strong>Telefone:</strong> ${aluno.tel}</p>
+                        <p><strong>Alergias/Obs:</strong> ${aluno.obs}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filtrar() {
+            const busca = document.getElementById('buscaNome').value.toLowerCase();
+            const turma = document.getElementById('filtroTurma').value;
+
+            const filtrados = listaAlunos.filter(a => {
+                const bateuNome = a.nome.toLowerCase().includes(busca);
+                const bateuTurma = turma === "" || a.turma === turma;
+                return bateuNome && bateuTurma;
+            });
+
+            renderizar(filtrados);
+        }
+
+        function abrirModal() { 
+            document.getElementById('modalCad').style.display = 'flex'; 
+        }
+        function fecharModal() { 
+            document.getElementById('modalCad').style.display = 'none'; 
+            document.getElementById('editIndex').value = "";
+            document.getElementById('modalTitulo').innerText = "Cadastrar Novo Aluno";
+        }
+    </script>
+</body>
+</html>
