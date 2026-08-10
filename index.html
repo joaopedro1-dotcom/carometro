@@ -28,6 +28,8 @@
         .campo { margin-bottom: 15px; text-align: left; }
         .campo label { display: block; font-size: 12px; font-weight: bold; color: var(--verde); margin-bottom: 5px; }
         .campo input, .campo select, .campo textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .campo-inline { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+        .campo-inline input { width: auto; cursor: pointer; }
 
         .btn { width: 100%; padding: 12px; background: var(--dourado); color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; }
         .btn:hover { background: #b89528; }
@@ -46,10 +48,22 @@
 
         /* GRID DOS CARDS */
         .grid-alunos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        
+        /* CARD PADRÃO */
         .card-aluno { background: white; border-radius: 10px; padding: 15px; text-align: center; border-top: 4px solid var(--verde); position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
         .card-aluno:hover { transform: translateY(-4px); border-top-color: var(--dourado); }
+        
+        /* ESTILO PARA ALUNO PcD / DEFICIÊNCIA (COR DE FUNDO DESTACADA) */
+        .card-aluno.aluno-pcd {
+            background-color: #fff9e6; /* Amarelo suave/palha para destaque */
+            border: 2px solid var(--dourado);
+            border-top: 5px solid var(--dourado);
+        }
+
         .foto-aluno { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--dourado); object-fit: cover; margin-bottom: 10px; }
-        .turma-tag { background: #eaf4ee; color: var(--verde); font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 12px; display: inline-block; margin-top: 5px; }
+        .turma-tag { background: #eaf4ee; color: var(--verde); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; display: inline-block; margin: 3px 2px; }
+        .tag-pcd { background: #ffe8a1; color: #8a6d0b; border: 1px solid #d4af37; }
+        .tag-integrada { background: #e3f2fd; color: #0d47a1; }
 
         .acoes-card { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
         .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; color: white; font-weight: bold; }
@@ -114,7 +128,8 @@
                 </div>
             </div>
             <div>
-                <button id="btnGerenciarUsers" onclick="abrirModalUsers()" style="display:none; background:var(--dourado); border:none; color:white; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">👥 Gerenciar Usuários</button>
+                <button id="btnGerenciarUsers" onclick="abrirModalUsers()" style="display:none; background:var(--dourado); border:none; color:white; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">👥 Usuários</button>
+                <button id="btnVirarAno" onclick="avancarAnoLetivo()" style="display:none; background:#28a745; border:none; color:white; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">📅 Avançar Ano</button>
                 <button onclick="sair()" style="background:transparent; border:1px solid var(--dourado); color:var(--dourado); padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Sair</button>
             </div>
         </header>
@@ -122,6 +137,7 @@
         <div class="conteudo">
             <div class="barra-top">
                 <input type="text" id="buscaNome" class="busca campo" style="margin:0;" placeholder="🔍 Buscar por nome..." onkeyup="filtrar()">
+                
                 <select id="filtroTurma" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
                     <option value="">Todas as Turmas</option>
                     <option value="1º Ano A">1º Ano A</option>
@@ -129,7 +145,18 @@
                     <option value="2º Ano A">2º Ano A</option>
                     <option value="2º Ano B">2º Ano B</option>
                     <option value="3º Ano A">3º Ano A</option>
+                    <option value="3º Ano B">3º Ano B</option>
+                    <option value="4º Ano A">4º Ano A</option>
+                    <option value="5º Ano A">5º Ano A</option>
+                    <option value="Concluído">Alunos Concluídos/Egressos</option>
                 </select>
+
+                <select id="filtroProjeto" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
+                    <option value="">Todos os Alunos</option>
+                    <option value="integrada">☀️ Apenas Educação Integral (Projeto)</option>
+                    <option value="pcd">♿ Apenas Alunos PcD/Inclusão</option>
+                </select>
+
                 <button id="btnCadastrar" class="btn" style="width:auto; display:none;" onclick="abrirModal()">+ Cadastrar Aluno</button>
                 <button class="btn btn-secundario" style="width:auto;" onclick="carregarDadosNuvem()">🔄 Sincronizar</button>
             </div>
@@ -145,6 +172,7 @@
             <form onsubmit="salvarAluno(event)">
                 <input type="hidden" id="editIndex">
                 <div class="campo"><label>Nome Completo</label><input type="text" id="cadNome" required></div>
+                
                 <div class="campo">
                     <label>Turma</label>
                     <select id="cadTurma" required>
@@ -153,12 +181,27 @@
                         <option value="2º Ano A">2º Ano A</option>
                         <option value="2º Ano B">2º Ano B</option>
                         <option value="3º Ano A">3º Ano A</option>
+                        <option value="3º Ano B">3º Ano B</option>
+                        <option value="4º Ano A">4º Ano A</option>
+                        <option value="5º Ano A">5º Ano A</option>
                     </select>
                 </div>
+
+                <!-- OPÇÕES ESPECIAIS -->
+                <div class="campo-inline">
+                    <input type="checkbox" id="cadIntegrada">
+                    <label for="cadIntegrada" style="color:#0d47a1; font-weight:bold;">☀️ Participa do Projeto Educação Integral</label>
+                </div>
+
+                <div class="campo-inline">
+                    <input type="checkbox" id="cadPcd">
+                    <label for="cadPcd" style="color:#8a6d0b; font-weight:bold;">♿ Aluno PcD / Necessidade Especial (Destaque Amarelo)</label>
+                </div>
+
                 <div class="campo"><label>Foto do Aluno</label><input type="file" id="cadFoto" accept="image/*" onchange="converterFoto(event)"></div>
                 <div class="campo"><label>Responsável</label><input type="text" id="cadResp" required></div>
                 <div class="campo"><label>Telefone</label><input type="text" id="cadTel" required></div>
-                <div class="campo"><label>Alergias / Observações</label><textarea id="cadObs" rows="2"></textarea></div>
+                <div class="campo"><label>Alergias / Laudo / Observações</label><textarea id="cadObs" rows="2"></textarea></div>
                 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="button" class="btn" style="background:#ccc;" onclick="fecharModal()">Cancelar</button>
@@ -269,6 +312,7 @@
             if (ehAdmin) {
                 document.getElementById('btnCadastrar').style.display = 'block';
                 document.getElementById('btnGerenciarUsers').style.display = 'inline-block';
+                document.getElementById('btnVirarAno').style.display = 'inline-block';
             }
 
             renderizar(dadosSistema.alunos);
@@ -283,9 +327,7 @@
                 try {
                     dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais));
                     renderizar(dadosSistema.alunos);
-                } catch(err) {
-                    console.log("Erro ao ler cache local.");
-                }
+                } catch(err) { console.log("Erro local."); }
             }
 
             fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
@@ -297,9 +339,7 @@
                 localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
                 renderizar(dadosSistema.alunos);
             })
-            .catch(() => {
-                console.log("Modo offline ativo.");
-            });
+            .catch(() => { console.log("Modo offline."); });
         }
 
         function salvarNaNuvem() {
@@ -315,9 +355,7 @@
                 },
                 body: JSON.stringify(dadosSistema)
             })
-            .catch(() => {
-                alert("Salvo localmente no dispositivo!");
-            });
+            .catch(() => { alert("Salvo localmente!"); });
         }
 
         function converterFoto(e) {
@@ -339,6 +377,8 @@
                 id: index !== "" ? dadosSistema.alunos[index].id : Date.now(),
                 nome: nome,
                 turma: document.getElementById('cadTurma').value,
+                integrada: document.getElementById('cadIntegrada').checked,
+                pcd: document.getElementById('cadPcd').checked,
                 foto: fotoTemp || (index !== "" ? dadosSistema.alunos[index].foto : fotoPadrao),
                 resp: document.getElementById('cadResp').value,
                 tel: document.getElementById('cadTel').value,
@@ -363,6 +403,8 @@
             document.getElementById('editIndex').value = i;
             document.getElementById('cadNome').value = a.nome;
             document.getElementById('cadTurma').value = a.turma;
+            document.getElementById('cadIntegrada').checked = !!a.integrada;
+            document.getElementById('cadPcd').checked = !!a.pcd;
             document.getElementById('cadResp').value = a.resp;
             document.getElementById('cadTel').value = a.tel;
             document.getElementById('cadObs').value = a.obs;
@@ -379,18 +421,45 @@
             }
         }
 
+        /* FUNÇÃO DE VIRADA DE ANO LETIVO */
+        function avancarAnoLetivo() {
+            if(!confirm("⚠️ DESEJA AVANÇAR O ANO LETIVO DE TODOS OS ALUNOS?\n\n- Alunos do 1º Ano vão para o 2º Ano;\n- Alunos do 2º Ano vão para o 3º Ano;\n- Alunos do 5º Ano passarão para 'Concluído'.\n\nEssa ação atualizará a turma de todos os alunos cadastrados.")) {
+                return;
+            }
+
+            const mapaTurmas = {
+                "1º Ano A": "2º Ano A",
+                "1º Ano B": "2º Ano B",
+                "2º Ano A": "3º Ano A",
+                "2º Ano B": "3º Ano B",
+                "3º Ano A": "4º Ano A",
+                "3º Ano B": "4º Ano B",
+                "4º Ano A": "5º Ano A",
+                "5º Ano A": "Concluído"
+            };
+
+            dadosSistema.alunos.forEach(aluno => {
+                if(mapaTurmas[aluno.turma]) {
+                    aluno.turma = mapaTurmas[aluno.turma];
+                }
+            });
+
+            salvarNaNuvem();
+            alert("Ano letivo avançado com sucesso!");
+        }
+
         function renderizar(alunos) {
             const grid = document.getElementById('gridAlunos');
             grid.innerHTML = '';
 
             if (!alunos || alunos.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Nenhum aluno cadastrado.</p>';
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Nenhum aluno encontrado.</p>';
                 return;
             }
 
             alunos.forEach((aluno, index) => {
                 const card = document.createElement('div');
-                card.className = 'card-aluno';
+                card.className = `card-aluno ${aluno.pcd ? 'aluno-pcd' : ''}`;
                 
                 let botoesAdmin = '';
                 if(ehAdmin) {
@@ -402,16 +471,21 @@
                     `;
                 }
 
+                let tagPcd = aluno.pcd ? '<span class="turma-tag tag-pcd">♿ PcD</span>' : '';
+                let tagIntegrada = aluno.integrada ? '<span class="turma-tag tag-integrada">☀️ Projeto</span>' : '';
+
                 card.innerHTML = `
                     <img src="${aluno.foto}" class="foto-aluno" alt="Foto">
                     <br><strong>${aluno.nome}</strong><br>
                     <span class="turma-tag">${aluno.turma}</span>
+                    ${tagIntegrada}
+                    ${tagPcd}
                     ${botoesAdmin}
                     
                     <div class="detalhes-hover">
                         <p><strong>Responsável:</strong> ${aluno.resp}</p>
                         <p><strong>Telefone:</strong> ${aluno.tel}</p>
-                        <p><strong>Alergias/Obs:</strong> ${aluno.obs}</p>
+                        <p><strong>Obs/Laudo:</strong> ${aluno.obs}</p>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -421,11 +495,17 @@
         function filtrar() {
             const busca = document.getElementById('buscaNome').value.toLowerCase();
             const turma = document.getElementById('filtroTurma').value;
+            const projeto = document.getElementById('filtroProjeto').value;
 
             const filtrados = dadosSistema.alunos.filter(a => {
                 const bateuNome = a.nome.toLowerCase().includes(busca);
                 const bateuTurma = turma === "" || a.turma === turma;
-                return bateuNome && bateuTurma;
+                
+                let bateuProjeto = true;
+                if(projeto === 'integrada') bateuProjeto = !!a.integrada;
+                if(projeto === 'pcd') bateuProjeto = !!a.pcd;
+
+                return bateuNome && bateuTurma && bateuProjeto;
             });
 
             renderizar(filtrados);
@@ -494,6 +574,8 @@
         function fecharModal() { 
             document.getElementById('modalCad').style.display = 'none'; 
             document.getElementById('editIndex').value = "";
+            document.getElementById('cadIntegrada').checked = false;
+            document.getElementById('cadPcd').checked = false;
             document.getElementById('modalTitulo').innerText = "Cadastrar Novo Aluno";
         }
     </script>
