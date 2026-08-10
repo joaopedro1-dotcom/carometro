@@ -53,7 +53,7 @@
         .card-aluno { background: white; border-radius: 10px; padding: 15px; text-align: center; border-top: 4px solid var(--verde); position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
         .card-aluno:hover { transform: translateY(-4px); border-top-color: var(--dourado); }
         
-        /* ESTILO PARA ALUNO PcD / DEFICIÊNCIA */
+        /* ESTILO PARA ALUNO PcD */
         .card-aluno.aluno-pcd {
             background-color: #fff9e6;
             border: 2px solid var(--dourado);
@@ -65,7 +65,6 @@
         .tag-pcd { background: #ffe8a1; color: #8a6d0b; border: 1px solid #d4af37; }
         .tag-integrada { background: #e3f2fd; color: #0d47a1; }
 
-        /* CAIXA DE OBSERVAÇÕES VISÍVEL PARA PROFESSORES */
         .box-obs-aluno {
             background: #f8f9fa;
             border-left: 3px solid var(--verde);
@@ -84,23 +83,19 @@
         .btn-edit { background: #007bff; }
         .btn-del { background: #dc3545; }
 
-        /* HOVER COM DETALHES COMPLEMENTARES */
         .detalhes-hover { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 240px; background: var(--verde-escuro); color: white; padding: 12px; border-radius: 8px; z-index: 10; font-size: 12px; text-align: left; border: 1px solid var(--dourado); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         .card-aluno:hover .detalhes-hover { display: block; }
 
-        /* TABELA DE USUÁRIOS */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
         th { background: var(--verde); color: white; }
 
-        /* MODAL */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
         .modal-box { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 450px; border-top: 5px solid var(--dourado); max-height: 90vh; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <!-- LOGO SVG -->
     <svg id="svgTemplate" style="display:none;">
         <g id="logo-icon">
             <circle cx="50" cy="50" r="48" fill="#0d5c3a" stroke="#d4af37" stroke-width="4"/>
@@ -201,7 +196,6 @@
                     </select>
                 </div>
 
-                <!-- OPÇÕES ESPECIAIS -->
                 <div class="campo-inline">
                     <input type="checkbox" id="cadIntegrada">
                     <label for="cadIntegrada" style="color:#0d47a1; font-weight:bold;">☀️ Participa do Projeto Educação Integral</label>
@@ -297,12 +291,26 @@
             return dados;
         }
 
+        // CARREGA DADOS DO LOCALSTORAGE IMEDIATAMENTE
+        (function carregarInicialLocal() {
+            const dadosLocais = localStorage.getItem('carometro_dados');
+            if (dadosLocais) {
+                try {
+                    dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais));
+                } catch(e){}
+            }
+        })();
+
         function realizarLogin(e) {
             e.preventDefault();
             const u = document.getElementById('userInput').value.trim().toLowerCase();
             const p = document.getElementById('passInput').value;
 
-            dadosSistema = garantirEstruturaDados(dadosSistema);
+            // Garante leitura atualizada antes de validar
+            const dadosLocais = localStorage.getItem('carometro_dados');
+            if (dadosLocais) {
+                try { dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais)); } catch(err){}
+            }
 
             const contaEncontrada = dadosSistema.usuarios.find(item => item.user.toLowerCase() === u && item.pass === p);
 
@@ -336,24 +344,18 @@
         function sair() { location.reload(); }
 
         function carregarDadosNuvem() {
-            const dadosLocais = localStorage.getItem('carometro_dados');
-            if (dadosLocais) {
-                try {
-                    dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais));
-                    renderizar(dadosSistema.alunos);
-                } catch(err) { console.log("Erro local."); }
-            }
-
             fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { "X-Master-Key": API_KEY }
             })
             .then(res => res.json())
             .then(data => {
-                dadosSistema = garantirEstruturaDados(data.record);
-                localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
-                renderizar(dadosSistema.alunos);
+                if(data && data.record) {
+                    dadosSistema = garantirEstruturaDados(data.record);
+                    localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
+                    renderizar(dadosSistema.alunos);
+                }
             })
-            .catch(() => { console.log("Modo offline."); });
+            .catch(() => { console.log("Modo offline ativo."); });
         }
 
         function salvarNaNuvem() {
@@ -369,7 +371,9 @@
                 },
                 body: JSON.stringify(dadosSistema)
             })
-            .catch(() => { alert("Salvo localmente!"); });
+            .then(res => res.json())
+            .then(res => console.log("Sincronizado na nuvem com sucesso!"))
+            .catch(() => { console.log("Salvo apenas localmente."); });
         }
 
         function converterFoto(e) {
@@ -436,7 +440,7 @@
         }
 
         function avancarAnoLetivo() {
-            if(!confirm("⚠️ DESEJA AVANÇAR O ANO LETIVO DE TODOS OS ALUNOS?\n\n- Alunos do 1º Ano vão para o 2º Ano;\n- Alunos do 2º Ano vão para o 3º Ano;\n- Alunos do 5º Ano passarão para 'Concluído'.\n\nEssa ação atualizará a turma de todos os alunos cadastrados.")) {
+            if(!confirm("⚠️ DESEJA AVANÇAR O ANO LETIVO DE TODOS OS ALUNOS?\n\n- Alunos do 1º Ano vão para o 2º Ano;\n- Alunos do 2º Ano vão para o 3º Ano;\n- Alunos do 5º Ano passarão para 'Concluído'.")) {
                 return;
             }
 
@@ -555,10 +559,15 @@
             }
 
             dadosSistema.usuarios.push({ user: u, pass: p, perfil: perfil });
+            
+            // Força salvamento
             salvarNaNuvem();
             renderizarTabelaUsuarios();
-            e.target.reset();
-            alert("Usuário criado com sucesso!");
+            
+            document.getElementById('novoUser').value = '';
+            document.getElementById('novaSenha').value = '';
+            
+            alert(`Usuário "${u}" criado com sucesso!`);
         }
 
         function excluirUsuario(index) {
