@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carômetro Escolar - Jardim Vitória</title>
 
-    <!-- CONFIGURAÇÃO DO APP E ÍCONE -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -20,7 +19,6 @@
         :root { --verde: #0d5c3a; --verde-escuro: #073823; --dourado: #d4af37; --fundo: #f4f7f5; }
         body { background: var(--fundo); color: #333; min-height: 100vh; }
 
-        /* TELA DE LOGIN */
         #tela-login { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--verde-escuro), var(--verde)); }
         .box-login { background: white; padding: 30px; border-radius: 12px; border-top: 5px solid var(--dourado); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .logo-svg { width: 80px; height: 80px; margin-bottom: 10px; }
@@ -28,6 +26,12 @@
         .campo { margin-bottom: 15px; text-align: left; }
         .campo label { display: block; font-size: 12px; font-weight: bold; color: var(--verde); margin-bottom: 5px; }
         .campo input, .campo select, .campo textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        
+        .box-turnos { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
+        .box-turnos-titulo { font-size: 12px; font-weight: bold; color: var(--verde); margin-bottom: 6px; }
+        .opcoes-inline { display: flex; gap: 15px; align-items: center; font-size: 13px; margin-top: 4px; }
+        .opcoes-inline label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; color: #333; }
+
         .campo-inline { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
         .campo-inline input { width: auto; cursor: pointer; }
 
@@ -36,7 +40,6 @@
         .btn-secundario { background: var(--verde); }
         .btn-secundario:hover { background: var(--verde-escuro); }
 
-        /* PAINEL */
         #painel { display: none; }
         header { background: var(--verde); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--dourado); }
         .header-logo { display: flex; align-items: center; gap: 12px; }
@@ -46,14 +49,11 @@
         .barra-top { background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .busca { flex: 1; min-width: 180px; }
 
-        /* GRID DOS CARDS */
         .grid-alunos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         
-        /* CARD PADRÃO */
         .card-aluno { background: white; border-radius: 10px; padding: 15px; text-align: center; border-top: 4px solid var(--verde); position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
         .card-aluno:hover { transform: translateY(-4px); border-top-color: var(--dourado); }
         
-        /* ESTILO PARA ALUNO PcD */
         .card-aluno.aluno-pcd {
             background-color: #fff9e6;
             border: 2px solid var(--dourado);
@@ -63,7 +63,7 @@
         .foto-aluno { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--dourado); object-fit: cover; margin-bottom: 10px; }
         .turma-tag { background: #eaf4ee; color: var(--verde); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; display: inline-block; margin: 3px 2px; }
         .tag-pcd { background: #ffe8a1; color: #8a6d0b; border: 1px solid #d4af37; }
-        .tag-integrada { background: #e3f2fd; color: #0d47a1; }
+        .tag-integrada { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
 
         .box-obs-aluno {
             background: #f8f9fa;
@@ -146,7 +146,7 @@
             <div class="barra-top">
                 <input type="text" id="buscaNome" class="busca campo" style="margin:0;" placeholder="🔍 Buscar por aluno..." onkeyup="filtrar()">
                 
-                <input type="text" id="filtroTurma" class="campo" style="margin:0; width:180px;" placeholder="🏫 Filtrar Turma..." onkeyup="filtrar()">
+                <input type="text" id="filtroTurma" class="campo" style="margin:0; width:220px;" placeholder="🏫 Filtrar Ano/Sala (ex: 1º Ano A)..." onkeyup="filtrar()">
 
                 <select id="filtroProjeto" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
                     <option value="">Todos os Alunos</option>
@@ -175,13 +175,26 @@
                 </div>
                 
                 <div class="campo">
-                    <label>Turma / Turno</label>
-                    <input type="text" id="cadTurma" placeholder="Ex: 1º Ano A - Manhã, 5º B - Tarde" required>
+                    <label>Ano e Turma (Ex: 1º Ano A, Sala 04)</label>
+                    <input type="text" id="cadTurma" placeholder="Digite o ano e sala do aluno..." required>
                 </div>
 
-                <div class="campo-inline">
-                    <input type="checkbox" id="cadIntegrada">
-                    <label for="cadIntegrada" style="color:#0d47a1; font-weight:bold;">☀️ Participa do Projeto Educação Integral</label>
+                <!-- TURNO DO ENSINO REGULAR -->
+                <div class="box-turnos">
+                    <div class="box-turnos-titulo">🏫 Ensino Regular (Turno)</div>
+                    <div class="opcoes-inline">
+                        <label><input type="checkbox" id="regManha"> 🌅 Manhã</label>
+                        <label><input type="checkbox" id="regTarde"> 🌆 Tarde</label>
+                    </div>
+                </div>
+
+                <!-- EDUCAÇÃO INTEGRAL / CONTRA-TURNO -->
+                <div class="box-turnos" style="background:#e3f2fd; border-color:#90caf9;">
+                    <div class="box-turnos-titulo" style="color:#0d47a1;">☀️ Projeto Educação Integral (Contra-turno)</div>
+                    <div class="opcoes-inline">
+                        <label><input type="checkbox" id="intManha"> 🌅 Manhã</label>
+                        <label><input type="checkbox" id="intTarde"> 🌆 Tarde</label>
+                    </div>
                 </div>
 
                 <div class="campo-inline">
@@ -274,7 +287,6 @@
             return dados;
         }
 
-        // CARREGA DADOS LOCALMENTE AO INICIAR
         (function carregarInicialLocal() {
             const dadosLocais = localStorage.getItem('carometro_dados');
             if (dadosLocais) {
@@ -371,13 +383,23 @@
             const index = document.getElementById('editIndex').value;
             const nome = document.getElementById('cadNome').value.trim();
             const turma = document.getElementById('cadTurma').value.trim();
+
+            const regM = document.getElementById('regManha').checked;
+            const regT = document.getElementById('regTarde').checked;
+            const intM = document.getElementById('intManha').checked;
+            const intT = document.getElementById('intTarde').checked;
+
             const fotoPadrao = `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=0d5c3a&color=fff`;
 
             const alunoObj = {
                 id: index !== "" ? dadosSistema.alunos[index].id : Date.now(),
                 nome: nome,
                 turma: turma,
-                integrada: document.getElementById('cadIntegrada').checked,
+                regManha: regM,
+                regTarde: regT,
+                intManha: intM,
+                intTarde: intT,
+                integrada: (intM || intT),
                 pcd: document.getElementById('cadPcd').checked,
                 foto: fotoTemp || (index !== "" ? dadosSistema.alunos[index].foto : fotoPadrao),
                 resp: document.getElementById('cadResp').value.trim(),
@@ -403,7 +425,12 @@
             document.getElementById('editIndex').value = i;
             document.getElementById('cadNome').value = a.nome;
             document.getElementById('cadTurma').value = a.turma;
-            document.getElementById('cadIntegrada').checked = !!a.integrada;
+            
+            document.getElementById('regManha').checked = !!a.regManha;
+            document.getElementById('regTarde').checked = !!a.regTarde;
+            document.getElementById('intManha').checked = !!a.intManha;
+            document.getElementById('intTarde').checked = !!a.intTarde;
+
             document.getElementById('cadPcd').checked = !!a.pcd;
             document.getElementById('cadResp').value = a.resp;
             document.getElementById('cadTel').value = a.tel;
@@ -444,14 +471,29 @@
                     `;
                 }
 
+                // Montar as tags de Turno
+                let turnosRegulares = [];
+                if(aluno.regManha) turnosRegulares.push('Manhã');
+                if(aluno.regTarde) turnosRegulares.push('Tarde');
+                let txtTurnoReg = turnosRegulares.length > 0 ? ` (${turnosRegulares.join('/')})` : '';
+
+                let turnosProjeto = [];
+                if(aluno.intManha) turnosProjeto.push('Manhã');
+                if(aluno.intTarde) turnosProjeto.push('Tarde');
+                
+                let tagIntegrada = '';
+                if(turnosProjeto.length > 0 || aluno.integrada) {
+                    let txtProj = turnosProjeto.length > 0 ? `☀️ Integral (${turnosProjeto.join('/')})` : '☀️ Projeto Integral';
+                    tagIntegrada = `<span class="turma-tag tag-integrada">${txtProj}</span>`;
+                }
+
                 let tagPcd = aluno.pcd ? '<span class="turma-tag tag-pcd">♿ PcD</span>' : '';
-                let tagIntegrada = aluno.integrada ? '<span class="turma-tag tag-integrada">☀️ Projeto</span>' : '';
                 let textoObs = aluno.obs && aluno.obs !== 'Nenhuma' ? aluno.obs : 'Sem observações';
 
                 card.innerHTML = `
                     <img src="${aluno.foto}" class="foto-aluno" alt="Foto">
                     <br><strong>${aluno.nome}</strong><br>
-                    <span class="turma-tag">${aluno.turma}</span>
+                    <span class="turma-tag">${aluno.turma}${txtTurnoReg}</span>
                     ${tagIntegrada}
                     ${tagPcd}
                     
@@ -462,7 +504,8 @@
                     ${botoesAdmin}
                     
                     <div class="detalhes-hover">
-                        <p><strong>Turma:</strong> ${aluno.turma}</p>
+                        <p><strong>Turma Regular:</strong> ${aluno.turma}${txtTurnoReg}</p>
+                        ${tagIntegrada ? `<p><strong>Contra-turno:</strong> ${turnosProjeto.join('/') || 'Sim'}</p>` : ''}
                         <p><strong>Responsável:</strong> ${aluno.resp}</p>
                         <p><strong>Telefone:</strong> ${aluno.tel}</p>
                         <p><strong>Obs/Laudo:</strong> ${textoObs}</p>
@@ -479,10 +522,11 @@
 
             const filtrados = dadosSistema.alunos.filter(a => {
                 const bateuNome = a.nome.toLowerCase().includes(busca);
-                const bateuTurma = a.turma.toLowerCase().includes(buscaTurma);
+                const tRegular = a.turma ? a.turma.toLowerCase() : '';
+                const bateuTurma = tRegular.includes(buscaTurma);
                 
                 let bateuProjeto = true;
-                if(projeto === 'integrada') bateuProjeto = !!a.integrada;
+                if(projeto === 'integrada') bateuProjeto = !!(a.integrada || a.intManha || a.intTarde);
                 if(projeto === 'pcd') bateuProjeto = !!a.pcd;
 
                 return bateuNome && bateuTurma && bateuProjeto;
@@ -491,7 +535,6 @@
             renderizar(filtrados);
         }
 
-        /* GERENCIAMENTO DE USUÁRIOS */
         function abrirModalUsers() {
             dadosSistema = garantirEstruturaDados(dadosSistema);
             renderizarTabelaUsuarios();
@@ -554,11 +597,17 @@
             });
         }
 
-        function abrirModal() { document.getElementById('modalCad').style.display = 'flex'; }
+        function abrirModal() { 
+            document.getElementById('modalCad').style.display = 'flex'; 
+        }
+
         function fecharModal() { 
             document.getElementById('modalCad').style.display = 'none'; 
             document.getElementById('editIndex').value = "";
-            document.getElementById('cadIntegrada').checked = false;
+            document.getElementById('regManha').checked = false;
+            document.getElementById('regTarde').checked = false;
+            document.getElementById('intManha').checked = false;
+            document.getElementById('intTarde').checked = false;
             document.getElementById('cadPcd').checked = false;
             document.getElementById('modalTitulo').innerText = "Cadastrar Novo Aluno";
         }
