@@ -208,25 +208,44 @@
     </div>
 
     <script>
-        // NUVEM COMPARTILHADA
         const BIN_ID = "65c82270dc74654018a287b4";
         const API_KEY = "$2a$10$R90uT8.yZpxfM/m5V.Kk8.vG38.qM2hM5UaBq5yP2b.s43A9r.22S";
 
+        const USUARIOS_PADRAO = [
+            { user: "admin", pass: "123", perfil: "admin" },
+            { user: "professor", pass: "123", perfil: "professor" }
+        ];
+
         let dadosSistema = {
             alunos: [],
-            usuarios: [
-                { user: "admin", pass: "123", perfil: "admin" },
-                { user: "professor", pass: "123", perfil: "professor" }
-            ]
+            usuarios: USUARIOS_PADRAO
         };
 
         let fotoTemp = "";
         let ehAdmin = false;
 
+        function garantirEstruturaDados(dados) {
+            if (!dados || typeof dados !== 'object') {
+                return { alunos: [], usuarios: USUARIOS_PADRAO };
+            }
+            if (Array.isArray(dados)) {
+                return { alunos: dados, usuarios: USUARIOS_PADRAO };
+            }
+            if (!Array.isArray(dados.alunos)) {
+                dados.alunos = [];
+            }
+            if (!Array.isArray(dados.usuarios) || dados.usuarios.length === 0) {
+                dados.usuarios = USUARIOS_PADRAO;
+            }
+            return dados;
+        }
+
         function realizarLogin(e) {
             e.preventDefault();
             const u = document.getElementById('userInput').value.trim().toLowerCase();
             const p = document.getElementById('passInput').value;
+
+            dadosSistema = garantirEstruturaDados(dadosSistema);
 
             const contaEncontrada = dadosSistema.usuarios.find(item => item.user.toLowerCase() === u && item.pass === p);
 
@@ -259,24 +278,22 @@
         function sair() { location.reload(); }
 
         function carregarDadosNuvem() {
-            // Tenta carregar do cache local primeiro
             const dadosLocais = localStorage.getItem('carometro_dados');
-            if(dadosLocais) {
-                dadosSistema = JSON.parse(dadosLocais);
-                renderizar(dadosSistema.alunos);
+            if (dadosLocais) {
+                try {
+                    dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais));
+                    renderizar(dadosSistema.alunos);
+                } catch(err) {
+                    console.log("Erro ao ler cache local.");
+                }
             }
 
-            // Busca atualizado da Nuvem
             fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { "X-Master-Key": API_KEY }
             })
             .then(res => res.json())
             .then(data => {
-                if(data.record && data.record.alunos) {
-                    dadosSistema = data.record;
-                } else if(Array.isArray(data.record)) {
-                    dadosSistema.alunos = data.record; // retrocompatibilidade
-                }
+                dadosSistema = garantirEstruturaDados(data.record);
                 localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
                 renderizar(dadosSistema.alunos);
             })
@@ -286,6 +303,7 @@
         }
 
         function salvarNaNuvem() {
+            dadosSistema = garantirEstruturaDados(dadosSistema);
             localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
             renderizar(dadosSistema.alunos);
 
@@ -415,9 +433,11 @@
 
         /* GERENCIAMENTO DE USUÁRIOS */
         function abrirModalUsers() {
+            dadosSistema = garantirEstruturaDados(dadosSistema);
             renderizarTabelaUsuarios();
             document.getElementById('modalUsers').style.display = 'flex';
         }
+
         function fecharModalUsers() {
             document.getElementById('modalUsers').style.display = 'none';
         }
@@ -427,6 +447,8 @@
             const u = document.getElementById('novoUser').value.trim();
             const p = document.getElementById('novaSenha').value.trim();
             const perfil = document.getElementById('novoPerfil').value;
+
+            dadosSistema = garantirEstruturaDados(dadosSistema);
 
             if(dadosSistema.usuarios.some(x => x.user.toLowerCase() === u.toLowerCase())) {
                 alert("Já existe um usuário com esse login!");
@@ -441,6 +463,7 @@
         }
 
         function excluirUsuario(index) {
+            dadosSistema = garantirEstruturaDados(dadosSistema);
             if(dadosSistema.usuarios[index].user === 'admin') {
                 alert("Não é possível apagar o admin principal!");
                 return;
@@ -455,6 +478,7 @@
         function renderizarTabelaUsuarios() {
             const tbody = document.getElementById('tabelaUsuarios');
             tbody.innerHTML = '';
+            dadosSistema = garantirEstruturaDados(dadosSistema);
             dadosSistema.usuarios.forEach((u, i) => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
