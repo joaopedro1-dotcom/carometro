@@ -138,27 +138,15 @@
             </div>
             <div>
                 <button id="btnGerenciarUsers" onclick="abrirModalUsers()" style="display:none; background:var(--dourado); border:none; color:white; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">👥 Usuários</button>
-                <button id="btnVirarAno" onclick="avancarAnoLetivo()" style="display:none; background:#28a745; border:none; color:white; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">📅 Avançar Ano</button>
                 <button onclick="sair()" style="background:transparent; border:1px solid var(--dourado); color:var(--dourado); padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Sair</button>
             </div>
         </header>
 
         <div class="conteudo">
             <div class="barra-top">
-                <input type="text" id="buscaNome" class="busca campo" style="margin:0;" placeholder="🔍 Buscar por nome..." onkeyup="filtrar()">
+                <input type="text" id="buscaNome" class="busca campo" style="margin:0;" placeholder="🔍 Buscar por aluno..." onkeyup="filtrar()">
                 
-                <select id="filtroTurma" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
-                    <option value="">Todas as Turmas</option>
-                    <option value="1º Ano A">1º Ano A</option>
-                    <option value="1º Ano B">1º Ano B</option>
-                    <option value="2º Ano A">2º Ano A</option>
-                    <option value="2º Ano B">2º Ano B</option>
-                    <option value="3º Ano A">3º Ano A</option>
-                    <option value="3º Ano B">3º Ano B</option>
-                    <option value="4º Ano A">4º Ano A</option>
-                    <option value="5º Ano A">5º Ano A</option>
-                    <option value="Concluído">Alunos Concluídos/Egressos</option>
-                </select>
+                <input type="text" id="filtroTurma" class="campo" style="margin:0; width:180px;" placeholder="🏫 Filtrar Turma..." onkeyup="filtrar()">
 
                 <select id="filtroProjeto" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
                     <option value="">Todos os Alunos</option>
@@ -180,20 +168,15 @@
             <h3 id="modalTitulo" style="color: var(--verde); margin-bottom: 15px;">Cadastrar Novo Aluno</h3>
             <form onsubmit="salvarAluno(event)">
                 <input type="hidden" id="editIndex">
-                <div class="campo"><label>Nome Completo</label><input type="text" id="cadNome" required></div>
                 
                 <div class="campo">
-                    <label>Turma</label>
-                    <select id="cadTurma" required>
-                        <option value="1º Ano A">1º Ano A</option>
-                        <option value="1º Ano B">1º Ano B</option>
-                        <option value="2º Ano A">2º Ano A</option>
-                        <option value="2º Ano B">2º Ano B</option>
-                        <option value="3º Ano A">3º Ano A</option>
-                        <option value="3º Ano B">3º Ano B</option>
-                        <option value="4º Ano A">4º Ano A</option>
-                        <option value="5º Ano A">5º Ano A</option>
-                    </select>
+                    <label>Nome Completo do Aluno</label>
+                    <input type="text" id="cadNome" placeholder="Ex: João da Silva" required>
+                </div>
+                
+                <div class="campo">
+                    <label>Turma / Turno</label>
+                    <input type="text" id="cadTurma" placeholder="Ex: 1º Ano A - Manhã, 5º B - Tarde" required>
                 </div>
 
                 <div class="campo-inline">
@@ -207,13 +190,13 @@
                 </div>
 
                 <div class="campo"><label>Foto do Aluno</label><input type="file" id="cadFoto" accept="image/*" onchange="converterFoto(event)"></div>
-                <div class="campo"><label>Responsável</label><input type="text" id="cadResp" required></div>
-                <div class="campo"><label>Telefone</label><input type="text" id="cadTel" required></div>
-                <div class="campo"><label>Alergias / Laudo / Observações</label><textarea id="cadObs" rows="2"></textarea></div>
+                <div class="campo"><label>Nome do Responsável</label><input type="text" id="cadResp" placeholder="Ex: Maria (Mãe)" required></div>
+                <div class="campo"><label>Telefone de Contato</label><input type="text" id="cadTel" placeholder="Ex: (31) 99999-9999" required></div>
+                <div class="campo"><label>Alergias / Laudo / Observações</label><textarea id="cadObs" rows="2" placeholder="Observações do aluno..."></textarea></div>
                 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="button" class="btn" style="background:#ccc;" onclick="fecharModal()">Cancelar</button>
-                    <button type="submit" id="btnSalvarModal" class="btn">Salvar</button>
+                    <button type="submit" id="btnSalvarModal" class="btn">Salvar Aluno</button>
                 </div>
             </form>
         </div>
@@ -291,7 +274,7 @@
             return dados;
         }
 
-        // CARREGA DADOS DO LOCALSTORAGE IMEDIATAMENTE
+        // CARREGA DADOS LOCALMENTE AO INICIAR
         (function carregarInicialLocal() {
             const dadosLocais = localStorage.getItem('carometro_dados');
             if (dadosLocais) {
@@ -306,7 +289,6 @@
             const u = document.getElementById('userInput').value.trim().toLowerCase();
             const p = document.getElementById('passInput').value;
 
-            // Garante leitura atualizada antes de validar
             const dadosLocais = localStorage.getItem('carometro_dados');
             if (dadosLocais) {
                 try { dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais)); } catch(err){}
@@ -334,7 +316,6 @@
             if (ehAdmin) {
                 document.getElementById('btnCadastrar').style.display = 'block';
                 document.getElementById('btnGerenciarUsers').style.display = 'inline-block';
-                document.getElementById('btnVirarAno').style.display = 'inline-block';
             }
 
             renderizar(dadosSistema.alunos);
@@ -372,8 +353,8 @@
                 body: JSON.stringify(dadosSistema)
             })
             .then(res => res.json())
-            .then(res => console.log("Sincronizado na nuvem com sucesso!"))
-            .catch(() => { console.log("Salvo apenas localmente."); });
+            .then(res => console.log("Sincronizado na nuvem!"))
+            .catch(() => { console.log("Salvo localmente."); });
         }
 
         function converterFoto(e) {
@@ -388,19 +369,20 @@
         function salvarAluno(e) {
             e.preventDefault();
             const index = document.getElementById('editIndex').value;
-            const nome = document.getElementById('cadNome').value;
+            const nome = document.getElementById('cadNome').value.trim();
+            const turma = document.getElementById('cadTurma').value.trim();
             const fotoPadrao = `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=0d5c3a&color=fff`;
 
             const alunoObj = {
                 id: index !== "" ? dadosSistema.alunos[index].id : Date.now(),
                 nome: nome,
-                turma: document.getElementById('cadTurma').value,
+                turma: turma,
                 integrada: document.getElementById('cadIntegrada').checked,
                 pcd: document.getElementById('cadPcd').checked,
                 foto: fotoTemp || (index !== "" ? dadosSistema.alunos[index].foto : fotoPadrao),
-                resp: document.getElementById('cadResp').value,
-                tel: document.getElementById('cadTel').value,
-                obs: document.getElementById('cadObs').value || 'Nenhuma'
+                resp: document.getElementById('cadResp').value.trim(),
+                tel: document.getElementById('cadTel').value.trim(),
+                obs: document.getElementById('cadObs').value.trim() || 'Nenhuma'
             };
 
             if(index !== "") {
@@ -439,38 +421,12 @@
             }
         }
 
-        function avancarAnoLetivo() {
-            if(!confirm("⚠️ DESEJA AVANÇAR O ANO LETIVO DE TODOS OS ALUNOS?\n\n- Alunos do 1º Ano vão para o 2º Ano;\n- Alunos do 2º Ano vão para o 3º Ano;\n- Alunos do 5º Ano passarão para 'Concluído'.")) {
-                return;
-            }
-
-            const mapaTurmas = {
-                "1º Ano A": "2º Ano A",
-                "1º Ano B": "2º Ano B",
-                "2º Ano A": "3º Ano A",
-                "2º Ano B": "3º Ano B",
-                "3º Ano A": "4º Ano A",
-                "3º Ano B": "4º Ano B",
-                "4º Ano A": "5º Ano A",
-                "5º Ano A": "Concluído"
-            };
-
-            dadosSistema.alunos.forEach(aluno => {
-                if(mapaTurmas[aluno.turma]) {
-                    aluno.turma = mapaTurmas[aluno.turma];
-                }
-            });
-
-            salvarNaNuvem();
-            alert("Ano letivo avançado com sucesso!");
-        }
-
         function renderizar(alunos) {
             const grid = document.getElementById('gridAlunos');
             grid.innerHTML = '';
 
             if (!alunos || alunos.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666;">Nenhum aluno encontrado.</p>';
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666; padding: 20px;">Nenhum aluno encontrado.</p>';
                 return;
             }
 
@@ -506,6 +462,7 @@
                     ${botoesAdmin}
                     
                     <div class="detalhes-hover">
+                        <p><strong>Turma:</strong> ${aluno.turma}</p>
                         <p><strong>Responsável:</strong> ${aluno.resp}</p>
                         <p><strong>Telefone:</strong> ${aluno.tel}</p>
                         <p><strong>Obs/Laudo:</strong> ${textoObs}</p>
@@ -517,12 +474,12 @@
 
         function filtrar() {
             const busca = document.getElementById('buscaNome').value.toLowerCase();
-            const turma = document.getElementById('filtroTurma').value;
+            const buscaTurma = document.getElementById('filtroTurma').value.toLowerCase();
             const projeto = document.getElementById('filtroProjeto').value;
 
             const filtrados = dadosSistema.alunos.filter(a => {
                 const bateuNome = a.nome.toLowerCase().includes(busca);
-                const bateuTurma = turma === "" || a.turma === turma;
+                const bateuTurma = a.turma.toLowerCase().includes(buscaTurma);
                 
                 let bateuProjeto = true;
                 if(projeto === 'integrada') bateuProjeto = !!a.integrada;
@@ -560,7 +517,6 @@
 
             dadosSistema.usuarios.push({ user: u, pass: p, perfil: perfil });
             
-            // Força salvamento
             salvarNaNuvem();
             renderizarTabelaUsuarios();
             
