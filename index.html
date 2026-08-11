@@ -94,6 +94,10 @@
                     <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
                     <span>Turmas & Carômetro</span>
                 </button>
+                <button onclick="trocarAba('inativos')" id="tabBtnInativos" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2">
+                    <i data-lucide="archive" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Alunos Desligados / Saíram</span>
+                </button>
                 <button onclick="abrirModalCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
                     <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
                     <span>+ Novo Aluno</span>
@@ -104,7 +108,7 @@
                 </button>
             </div>
 
-            <!-- SEÇÃO 1: TURMAS / CARÔMETRO -->
+            <!-- SEÇÃO 1: TURMAS / CARÔMETRO (ATIVOS) -->
             <section id="secTurmas" class="space-y-6">
                 <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-wrap gap-4 items-center justify-between no-print">
                     <div class="flex gap-4 flex-1 min-w-[280px]">
@@ -125,13 +129,30 @@
                     </button>
                 </div>
 
-                <!-- CARDS DOS ALUNOS COM FOTO AMPLIADA -->
                 <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                    <!-- Cards inseridos via JS -->
+                    <!-- Cards ativos via JS -->
                 </div>
             </section>
 
-            <!-- SEÇÃO DE GERENCIAR USUÁRIOS -->
+            <!-- SEÇÃO 2: ALUNOS INATIVOS / TRANSFERIDOS -->
+            <section id="secInativos" class="hidden space-y-6">
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-center justify-between no-print">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="archive" class="w-6 h-6 text-amber-700"></i>
+                        <div>
+                            <h3 class="font-bold text-amber-950">Histórico de Alunos Desligados / Transferidos</h3>
+                            <p class="text-xs text-amber-800">Estes alunos não aparecem nas turmas ativas, mas todos os seus dados e contatos continuam salvos aqui.</p>
+                        </div>
+                    </div>
+                    <input type="text" id="searchAlunoInativo" oninput="renderizarAlunosInativos()" placeholder="Buscar nos arquivados..." class="px-3 py-2 border rounded-lg outline-none text-sm w-64 bg-white">
+                </div>
+
+                <div id="gridAlunosInativos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 opacity-90">
+                    <!-- Cards inativos via JS -->
+                </div>
+            </section>
+
+            <!-- SEÇÃO 3: GERENCIAR USUÁRIOS -->
             <section id="secUsuarios" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl border border-emerald-100 shadow-sm no-print">
                 <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
                     <i data-lucide="shield" class="text-emerald-700"></i>
@@ -171,7 +192,7 @@
         </div>
     </main>
 
-    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO (COM NOVOS CAMPOS) -->
+    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO -->
     <div id="modalAluno" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
@@ -207,7 +228,6 @@
                     </div>
                 </div>
 
-                <!-- CONTATO E RESPONSÁVEL (NOVOS CAMPOS) -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome do Responsável</label>
@@ -219,7 +239,6 @@
                     </div>
                 </div>
 
-                <!-- ENDEREÇO (NOVO CAMPO) -->
                 <div>
                     <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Endereço Residencial</label>
                     <input type="text" id="alunoEndereco" placeholder="Rua, Número, Bairro" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
@@ -340,19 +359,25 @@
 
             atualizarSelectTurmas();
             renderizarAlunos();
+            renderizarAlunosInativos();
             renderizarListaUsuarios();
         }
 
         function trocarAba(aba) {
             document.getElementById('secTurmas').classList.add('hidden');
+            document.getElementById('secInativos').classList.add('hidden');
             document.getElementById('secUsuarios').classList.add('hidden');
 
             document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
+            document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
             if(document.getElementById('tabBtnUsuarios')) document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 admin-only";
 
             if (aba === 'turmas') {
                 document.getElementById('secTurmas').classList.remove('hidden');
                 document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
+            } else if (aba === 'inativos') {
+                document.getElementById('secInativos').classList.remove('hidden');
+                document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
             } else if (aba === 'usuarios') {
                 document.getElementById('secUsuarios').classList.remove('hidden');
                 document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg admin-only";
@@ -433,7 +458,8 @@
                     integrada,
                     ne,
                     corCard,
-                    foto: fotoData
+                    foto: fotoData,
+                    inativo: false
                 };
                 alunos.push(novoAluno);
             }
@@ -442,6 +468,7 @@
             fecharModalAluno();
             atualizarSelectTurmas();
             renderizarAlunos();
+            renderizarAlunosInativos();
         }
 
         function editarAluno(id) {
@@ -469,12 +496,29 @@
             document.getElementById('modalAluno').classList.remove('hidden');
         }
 
+        function arquivarAluno(id, tornarInativo = true) {
+            if (usuarioLogado.role === 'leitor') return;
+            const msg = tornarInativo 
+                ? 'Mover este aluno para a pasta de "Alunos Saíram / Desligados"?' 
+                : 'Restaurar este aluno para as turmas ativas?';
+            
+            if (confirm(msg)) {
+                alunos = alunos.map(a => a.id === id ? { ...a, inativo: tornarInativo } : a);
+                localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
+                atualizarSelectTurmas();
+                renderizarAlunos();
+                renderizarAlunosInativos();
+            }
+        }
+
         function deletarAluno(id) {
             if (usuarioLogado.role === 'leitor') return;
-            if (confirm('Deseja realmente apagar este aluno?')) {
+            if (confirm('Deseja realmente apagar este aluno definitivamente?')) {
                 alunos = alunos.filter(a => a.id !== id);
                 localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
+                atualizarSelectTurmas();
                 renderizarAlunos();
+                renderizarAlunosInativos();
             }
         }
 
@@ -535,7 +579,7 @@
 
         function atualizarSelectTurmas() {
             const select = document.getElementById('filterTurma');
-            const turmasUnicas = [...new Set(alunos.map(a => a.turma))].sort();
+            const turmasUnicas = [...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))].sort();
 
             select.innerHTML = '<option value="">Todas as Turmas</option>';
             turmasUnicas.forEach(t => {
@@ -552,6 +596,7 @@
             grid.innerHTML = '';
 
             const alunosFiltrados = alunos.filter(a => {
+                if (a.inativo) return false;
                 const bateTurma = !filtroTurma || a.turma === filtroTurma;
                 const bateTurno = !filtroTurno || a.turno === filtroTurno;
                 const bateBusca = !busca || a.nome.toLowerCase().includes(busca);
@@ -559,7 +604,7 @@
             });
 
             if (alunosFiltrados.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12 text-base font-semibold">Nenhum aluno encontrado nesta busca/turma.</div>';
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12 text-base font-semibold">Nenhum aluno ativo encontrado.</div>';
                 return;
             }
 
@@ -570,24 +615,24 @@
                 card.className = `${corStyle} p-5 rounded-2xl border-2 shadow-sm flex flex-col items-center text-center relative transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group`;
                 
                 card.innerHTML = `
-                    <!-- BOTÕES DE EDIÇÃO E APAGAR FIXOS NO CARD -->
                     ${usuarioLogado.role !== 'leitor' ? `
                         <div class="absolute top-3 right-3 flex space-x-1.5 no-print z-20">
-                            <button onclick="editarAluno(${a.id})" class="bg-white/90 hover:bg-amber-100 text-amber-700 border border-amber-300 p-1.5 rounded-lg shadow-sm transition" title="Editar Informações do Aluno">
+                            <button onclick="arquivarAluno(${a.id}, true)" class="bg-white/90 hover:bg-slate-200 text-slate-700 border border-slate-300 p-1.5 rounded-lg shadow-sm transition" title="Marcar como Desligado/Saíram">
+                                <i data-lucide="archive" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="editarAluno(${a.id})" class="bg-white/90 hover:bg-amber-100 text-amber-700 border border-amber-300 p-1.5 rounded-lg shadow-sm transition" title="Editar Informações">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="deletarAluno(${a.id})" class="bg-white/90 hover:bg-rose-100 text-rose-600 border border-rose-300 p-1.5 rounded-lg shadow-sm transition" title="Excluir Aluno">
+                            <button onclick="deletarAluno(${a.id})" class="bg-white/90 hover:bg-rose-100 text-rose-600 border border-rose-300 p-1.5 rounded-lg shadow-sm transition" title="Excluir Definitivamente">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                     ` : ''}
 
-                    <!-- FOTO AMPLIADA -->
                     <div class="w-52 h-52 bg-slate-100 rounded-2xl overflow-hidden mb-4 border-2 border-slate-300 shadow-sm flex items-center justify-center relative peer cursor-pointer">
                         ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-24 h-24 text-slate-300"></i>`}
                     </div>
                     
-                    <!-- NOME DESTACADO -->
                     <h4 class="font-extrabold text-lg text-slate-900 leading-snug mb-1.5 px-1">${a.nome}</h4>
                     
                     <div class="flex flex-wrap justify-center gap-1.5 my-1">
@@ -598,7 +643,6 @@
                     ${a.integrada === 'Sim' ? `<span class="text-xs bg-emerald-600 text-white font-bold px-3 py-0.5 rounded-full mt-1.5 shadow-xs">Escola Integrada</span>` : ''}
                     ${a.ne ? `<span class="text-xs bg-amber-400 text-emerald-950 font-extrabold px-3 py-0.5 rounded-full mt-1.5 shadow-xs" title="${a.ne}">NE: ${a.ne}</span>` : ''}
 
-                    <!-- CARD FLUTUANTE INFORMATIVO AO PASSAR O MOUSE (FICHA RÁPIDA ATUALIZADA) -->
                     <div class="absolute bottom-2 left-2 right-2 hidden group-hover:block bg-slate-950/95 text-white text-xs p-3.5 rounded-xl shadow-2xl z-30 pointer-events-none border border-amber-400/50 backdrop-blur-md text-left transition-all">
                         <div class="border-b border-slate-700 pb-1.5 mb-2 flex items-center space-x-1.5">
                             <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
@@ -611,6 +655,57 @@
                         <p class="py-0.5"><strong class="text-slate-400">Endereço:</strong> ${a.endereco ? a.endereco : 'Não informado'}</p>
                         <p class="py-0.5"><strong class="text-slate-400">Escola Integrada:</strong> ${a.integrada === 'Sim' ? 'Sim' : 'Não'}</p>
                         <p class="py-0.5"><strong class="text-slate-400">Necessidades Especiais:</strong> ${a.ne ? a.ne : 'Nenhuma cadastrada'}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function renderizarAlunosInativos() {
+            const grid = document.getElementById('gridAlunosInativos');
+            const busca = document.getElementById('searchAlunoInativo').value.toLowerCase();
+
+            grid.innerHTML = '';
+
+            const inativos = alunos.filter(a => {
+                if (!a.inativo) return false;
+                return !busca || a.nome.toLowerCase().includes(busca);
+            });
+
+            if (inativos.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12 text-base font-semibold">Nenhum aluno no histórico de saídas.</div>';
+                return;
+            }
+
+            inativos.forEach(a => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-100 border-2 border-slate-300 p-5 rounded-2xl shadow-xs flex flex-col items-center text-center relative group";
+
+                card.innerHTML = `
+                    ${usuarioLogado.role !== 'leitor' ? `
+                        <div class="absolute top-3 right-3 flex space-x-1.5 no-print z-20">
+                            <button onclick="arquivarAluno(${a.id}, false)" class="bg-emerald-600 hover:bg-emerald-700 text-white p-1.5 rounded-lg shadow-sm transition" title="Restaurar para Ativos">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deletarAluno(${a.id})" class="bg-white/90 hover:bg-rose-100 text-rose-600 border border-rose-300 p-1.5 rounded-lg shadow-sm transition" title="Excluir Definitivamente">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+
+                    <div class="w-48 h-48 bg-slate-200 rounded-2xl overflow-hidden mb-3 border border-slate-300 flex items-center justify-center grayscale">
+                        ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-20 h-20 text-slate-400"></i>`}
+                    </div>
+
+                    <span class="text-[10px] bg-slate-300 text-slate-700 font-black px-2 py-0.5 rounded uppercase mb-1">Desligado / Saiu</span>
+                    <h4 class="font-bold text-slate-800 leading-snug">${a.nome}</h4>
+                    <p class="text-xs text-slate-500 mt-1">Última Turma: ${a.turma} (${a.turno})</p>
+
+                    <div class="absolute bottom-2 left-2 right-2 hidden group-hover:block bg-slate-900 text-white text-xs p-3 rounded-xl shadow-2xl z-30 pointer-events-none text-left">
+                        <p class="py-0.5"><strong class="text-amber-400">Responsável:</strong> ${a.responsavel || 'N/I'}</p>
+                        <p class="py-0.5"><strong class="text-amber-400">Telefone:</strong> ${a.telefone || 'N/I'}</p>
+                        <p class="py-0.5"><strong class="text-amber-400">Endereço:</strong> ${a.endereco || 'N/I'}</p>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -653,6 +748,7 @@
                 if (resPut.ok) {
                     atualizarSelectTurmas();
                     renderizarAlunos();
+                    renderizarAlunosInativos();
                     renderizarListaUsuarios();
                     alert('Sincronização concluída com sucesso!');
                 } else {
