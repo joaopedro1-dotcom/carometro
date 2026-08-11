@@ -3,31 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carômetro Escolar</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Carômetro Escolar - E. M. Jardim Vitória</title>
     
-    <!-- Tailwind CSS CDN -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <!-- Firebase SDKs (v10 HTML Script CDN) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
     <style>
+        .print-only { display: none; }
         @media print {
             .no-print { display: none !important; }
             .print-only { display: block !important; }
-            body { background: white; color: black; }
-            .card-aluno { break-inside: avoid; page-break-inside: avoid; }
+            body { background: white !important; color: black !important; }
+            .page-break { page-break-after: always; }
         }
-        .print-only { display: none; }
     </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800">
+<body class="bg-emerald-50/40 min-h-screen text-slate-800 font-sans">
 
-    <!-- Configurações do Firebase Integradas -->
-    <script>
+    <!-- CABEÇALHO VERDE E DOURADO -->
+    <header class="bg-emerald-900 border-b-4 border-amber-400 text-white shadow-lg no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3.5 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-400 p-2 rounded-xl text-emerald-950 font-bold shadow-sm">
+                    <i data-lucide="users" class="w-7 h-7"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-wide text-amber-300 uppercase leading-none">Carômetro Escolar</h1>
+                    <span class="text-xs text-emerald-100 font-medium">Escola Municipal Jardim Vitória</span>
+                </div>
+            </div>
+            
+            <div id="headerControls" class="flex items-center space-x-3 hidden">
+                <button onclick="carregarDadosNuvem()" id="btnSync" class="flex items-center space-x-1.5 bg-emerald-800 hover:bg-emerald-700 text-amber-300 font-semibold border border-amber-400/40 px-3.5 py-1.5 rounded-lg text-sm transition shadow-sm">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Sincronizar</span>
+                </button>
+
+                <div class="text-right border-l border-emerald-700/80 pl-3">
+                    <p id="userDisplayName" class="text-sm font-bold text-amber-300 leading-none"></p>
+                    <span id="userDisplayRole" class="text-xs text-emerald-200 capitalize"></span>
+                </div>
+
+                <button onclick="logout()" class="text-emerald-200 hover:text-amber-300 p-1.5 rounded-lg transition" title="Sair do Sistema">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- TELA DE LOGIN -->
+        <section id="loginSection" class="max-w-md mx-auto bg-white border border-emerald-100 p-8 rounded-2xl shadow-xl mt-12 no-print">
+            <div class="text-center mb-6">
+                <div class="bg-emerald-800 text-amber-400 w-16 h-16 rounded-2xl border-2 border-amber-400 flex items-center justify-center mx-auto mb-3 shadow-md">
+                    <i data-lucide="lock" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-black text-emerald-900">Acesso ao Sistema</h2>
+                <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">E. M. Jardim Vitória</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1">Usuário</label>
+                    <input type="text" id="loginUsername" required class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1">Senha</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-600 focus:border-emerald-600 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-3 rounded-lg transition shadow-md border border-amber-400/30">
+                    ENTRAR NO SISTEMA
+                </button>
+            </form>
+            <div id="loginError" class="mt-4 text-rose-600 text-sm text-center font-medium hidden"></div>
+        </section>
+
+        <!-- DASHBOARD DA APLICAÇÃO -->
+        <div id="appDashboard" class="hidden">
+            
+            <!-- NAVEGAÇÃO ENTRE ABAS -->
+            <div class="flex border-b border-emerald-200 mb-6 no-print space-x-2">
+                <button onclick="trocarAba('turmas')" id="tabBtnTurmas" class="px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg">
+                    <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Turmas & Carômetro</span>
+                </button>
+                <button onclick="trocarAba('inativos')" id="tabBtnInativos" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2">
+                    <i data-lucide="archive" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Alunos Desligados / Saíram</span>
+                </button>
+                <button onclick="abrirModalCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
+                    <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
+                    <span>+ Novo Aluno</span>
+                </button>
+                <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden">
+                    <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Gerenciar Usuários</span>
+                </button>
+            </div>
+
+            <!-- SEÇÃO 1: TURMAS / CARÔMETRO (ATIVOS) -->
+            <section id="secTurmas" class="space-y-6">
+                <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-wrap gap-4 items-center justify-between no-print">
+                    <div class="flex gap-4 flex-1 min-w-[280px]">
+                        <select id="filterTurma" onchange="renderizarAlunos()" class="px-3 py-2 border rounded-lg outline-none bg-slate-50 text-sm font-medium">
+                            <option value="">Todas as Turmas</option>
+                        </select>
+                        <select id="filterTurno" onchange="renderizarAlunos()" class="px-3 py-2 border rounded-lg outline-none bg-slate-50 text-sm font-medium">
+                            <option value="">Todos os Turnos</option>
+                            <option value="Manhã">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Integral">Integral</option>
+                        </select>
+                        <input type="text" id="searchAluno" oninput="renderizarAlunos()" placeholder="Buscar aluno por nome..." class="flex-1 px-3 py-2 border rounded-lg outline-none text-sm">
+                    </div>
+                    <button onclick="window.print()" class="bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 border border-amber-400/40">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Imprimir Carômetro</span>
+                    </button>
+                </div>
+
+                <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Cards ativos via JS -->
+                </div>
+            </section>
+
+            <!-- SEÇÃO 2: ALUNOS INATIVOS / TRANSFERIDOS -->
+            <section id="secInativos" class="hidden space-y-6">
+                <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-center justify-between no-print">
+                    <div class="flex items-center space-x-3">
+                        <i data-lucide="archive" class="w-6 h-6 text-amber-700"></i>
+                        <div>
+                            <h3 class="font-bold text-amber-950">Histórico de Alunos Desligados / Transferidos</h3>
+                            <p class="text-xs text-amber-800">Estes alunos não aparecem nas turmas ativas, mas todos os seus dados continuam salvos aqui.</p>
+                        </div>
+                    </div>
+                    <input type="text" id="searchAlunoInativo" oninput="renderizarAlunosInativos()" placeholder="Buscar nos arquivados..." class="px-3 py-2 border rounded-lg outline-none text-sm w-64 bg-white">
+                </div>
+
+                <div id="gridAlunosInativos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 opacity-90">
+                    <!-- Cards inativos via JS -->
+                </div>
+            </section>
+
+            <!-- SEÇÃO 3: GERENCIAR USUÁRIOS -->
+            <section id="secUsuarios" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl border border-emerald-100 shadow-sm no-print">
+                <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
+                    <i data-lucide="shield" class="text-emerald-700"></i>
+                    <span>Cadastrar Usuário do Sistema</span>
+                </h3>
+
+                <form id="formUsuario" onsubmit="salvarUsuario(event)" class="space-y-4 mb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome de Usuário</label>
+                            <input type="text" id="novoUsername" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Senha</label>
+                            <input type="password" id="novaSenha" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nível de Permissão</label>
+                        <select id="novoPerfil" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                            <option value="editor">Editor (Pode incluir e editar alunos)</option>
+                            <option value="leitor">Leitor (Apenas visualização e impressão)</option>
+                            <option value="admin">Administrador (Acesso total)</option>
+                        </select>
+                    </div>
+
+                    <!-- CAIXA DE PERMISSÃO DO PRONTUÁRIO -->
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-center space-x-3">
+                        <input type="checkbox" id="novoAcessoProntuario" class="w-4 h-4 text-emerald-700 rounded border-slate-300 focus:ring-emerald-600">
+                        <div>
+                            <label for="novoAcessoProntuario" class="text-xs font-bold text-amber-950 cursor-pointer">Permitir Acesso ao Prontuário e Ocorrências</label>
+                            <p class="text-[11px] text-amber-800">Marque apenas para Direção, Coordenação ou Supervisão que precisam ler e registrar ocorrências.</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
+                        Criar Novo Usuário
+                    </button>
+                </form>
+
+                <hr class="my-6">
+
+                <h4 class="font-bold text-emerald-950 mb-3">Usuários Com Acesso Cadastrado</h4>
+                <div id="listaUsuarios" class="space-y-2"></div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO -->
+    <div id="modalAluno" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                <h3 id="modalTitulo" class="text-xl font-black text-emerald-950 flex items-center space-x-2">
+                    <i data-lucide="user-cog" class="text-emerald-700"></i>
+                    <span id="txtTituloModal">Cadastrar / Editar Aluno</span>
+                </h3>
+                <button onclick="fecharModalAluno()" class="text-slate-400 hover:text-rose-600 p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="formAluno" onsubmit="salvarAluno(event)" class="space-y-4">
+                <input type="hidden" id="alunoId">
+
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome Completo do Aluno *</label>
+                    <input type="text" id="alunoNome" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Turma *</label>
+                        <input type="text" id="alunoTurma" placeholder="Ex: 6º Ano A" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Turno *</label>
+                        <select id="alunoTurno" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                            <option value="Manhã">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Integral">Integral</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome do Responsável</label>
+                        <input type="text" id="alunoResponsavel" placeholder="Ex: Maria das Graças" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Telefone / WhatsApp</label>
+                        <input type="text" id="alunoTelefone" placeholder="(31) 99999-9999" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Endereço Residencial</label>
+                    <input type="text" id="alunoEndereco" placeholder="Rua, Número, Bairro" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Escola Integrada?</label>
+                        <select id="alunoIntegrada" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                            <option value="Não">Não</option>
+                            <option value="Sim">Sim</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Foto do Aluno</label>
+                        <input type="file" id="alunoFoto" accept="image/*" class="w-full text-xs">
+                        <p id="avisoFotoMantida" class="text-[11px] text-emerald-600 font-semibold mt-1 hidden">Foto cadastrada mantida. Selecione um arquivo apenas se quiser substituir.</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-3 mt-2">
+                    <label class="block text-xs font-bold text-emerald-950 uppercase mb-2">Necessidades Especiais (NE) & Destaque Visual</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Descrição / CID (Opcional)</label>
+                            <input type="text" id="alunoNE" placeholder="Ex: Autismo, Deficiência Visual..." class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Cor de Destaque do Card</label>
+                            <select id="alunoCorCard" class="w-full px-3 py-2 border rounded-lg outline-none text-sm font-medium">
+                                <option value="bg-white border-slate-200">Branco (Padrão)</option>
+                                <option value="bg-amber-100 border-amber-300">Amarelo (Atenção / NE)</option>
+                                <option value="bg-emerald-100 border-emerald-300">Verde (Destaque / Integrada)</option>
+                                <option value="bg-blue-100 border-blue-300">Azul (Acompanhamento)</option>
+                                <option value="bg-purple-100 border-purple-300">Roxo (Outros)</option>
+                                <option value="bg-rose-100 border-rose-300">Vermelho (Alerta)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-3">
+                    <button type="button" onclick="fecharModalAluno()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2.5 rounded-lg transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnSalvarAluno" class="w-1/2 bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-2.5 rounded-lg transition shadow-md border border-amber-400/30">
+                        Salvar Informações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP DO PRONTUÁRIO / OCORRÊNCIAS -->
+    <div id="modalProntuario" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto flex flex-col">
+            
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-amber-100 text-amber-900 p-2 rounded-xl border border-amber-300">
+                        <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 id="prontuarioNomeAluno" class="text-xl font-black text-emerald-950">Prontuário do Aluno</h3>
+                        <p id="prontuarioInfoAluno" class="text-xs text-slate-500 font-medium"></p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="imprimirProntuario()" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1 transition shadow-xs">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Imprimir Prontuário</span>
+                    </button>
+                    <button onclick="fecharModalProntuario()" class="text-slate-400 hover:text-rose-600 p-1">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- REGISTRAR NOVA OCORRÊNCIA -->
+            <form id="formOcorrencia" onsubmit="salvarOcorrencia(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 space-y-3">
+                <input type="hidden" id="prontuarioAlunoId">
+                <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center space-x-1">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Nova Ocorrência / Registro</span>
+                </h4>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Data</label>
+                        <input type="date" id="ocorrenciaData" required class="w-full px-3 py-1.5 border rounded-lg text-xs bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Categoria</label>
+                        <select id="ocorrenciaTipo" required class="w-full px-3 py-1.5 border rounded-lg text-xs bg-white">
+                            <option value="Pedagógica">Pedagógica</option>
+                            <option value="Disciplinar">Disciplinar</option>
+                            <option value="Médica / Saúde">Médica / Saúde</option>
+                            <option value="Reunião com Pais">Reunião com Pais</option>
+                            <option value="Acompanhamento">Acompanhamento</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Relato Detalhado</label>
+                    <textarea id="ocorrenciaTexto" rows="3" required placeholder="Digite os fatos ocorridos, observações ou combinados..." class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-xs transition shadow-xs flex items-center space-x-1">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Salvar Ocorrência</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- HISTÓRICO DE OCORRÊNCIAS -->
+            <div class="flex-1">
+                <h4 class="text-xs font-bold text-slate-700 uppercase mb-3 flex items-center justify-between">
+                    <span>Histórico de Registros Salvos</span>
+                    <span id="qtdOcorrencias" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
+                </h4>
+                <div id="listaOcorrencias" class="space-y-3">
+                    <!-- Registros inseridos via JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TELA DE IMPRESSÃO EXCLUSIVA DO PRONTUÁRIO -->
+    <div id="printProntuarioArea" class="print-only p-8 bg-white max-w-4xl mx-auto">
+        <!-- Gerado via JS para impressão -->
+    </div>
+
+    <!-- FIREBASE SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // SUA CONFIGURAÇÃO DO FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyCvWQzQ-_cpk_H_b8SGxX9So0ka05uWRxQ",
             authDomain: "carometro-escola.firebaseapp.com",
@@ -37,151 +400,162 @@
             appId: "1:906506245125:web:79331da221fd8ed207386c"
         };
 
-        // Inicializa o Firebase
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-    </script>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    <!-- NAVEGAÇÃO / CABEÇALHO -->
-    <header class="bg-blue-800 text-white shadow-md p-4 no-print">
-        <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <i data-lucide="graduation-cap" class="w-8 h-8"></i>
-                <h1 class="text-2xl font-bold">Carômetro Escolar</h1>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <span id="statusConexao" class="flex items-center gap-2 text-xs bg-emerald-600 px-3 py-1 rounded-full text-white font-medium">
-                    <span class="w-2 h-2 bg-white rounded-full animate-pulse"></span> Firebase Conectado
-                </span>
-                
-                <button onclick="window.print()" class="bg-blue-700 hover:bg-blue-600 px-3 py-2 rounded-lg flex items-center gap-2 text-sm transition">
-                    <i data-lucide="printer" class="w-4 h-4"></i> Imprimir Carômetro
-                </button>
-                <button onclick="abrirModalAluno()" class="bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-semibold transition">
-                    <i data-lucide="user-plus" class="w-4 h-4"></i> Novo Aluno
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main class="max-w-7xl mx-auto p-4 sm:p-6">
-        
-        <!-- BARRA DE PESQUISA E FILTROS -->
-        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap gap-4 items-center justify-between no-print">
-            <div class="flex-1 min-w-[240px] relative">
-                <i data-lucide="search" class="w-5 h-5 absolute left-3 top-3 text-slate-400"></i>
-                <input type="text" id="inputBusca" oninput="filtrarAlunos()" placeholder="Buscar aluno por nome ou matrícula..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            </div>
-
-            <div class="flex flex-wrap gap-3">
-                <select id="filtroTurma" onchange="filtrarAlunos()" class="border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option value="">Todas as Turmas</option>
-                </select>
-
-                <select id="filtroStatus" onchange="filtrarAlunos()" class="border border-slate-300 rounded-lg px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option value="ativo">Alunos Ativos</option>
-                    <option value="desligado">Alunos Desligados</option>
-                    <option value="todos">Todos os Alunos</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- GRID DE ALUNOS -->
-        <div id="gridAlunos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <!-- Os cards dos alunos serão renderizados aqui via JavaScript -->
-        </div>
-
-        <div id="mensagemVazio" class="hidden text-center py-12 text-slate-500">
-            <i data-lucide="users-round" class="w-12 h-12 mx-auto mb-3 opacity-40"></i>
-            <p class="text-lg font-medium">Nenhum aluno encontrado com esses filtros.</p>
-        </div>
-    </main>
-
-    <!-- MODAL CADASTRO / EDIÇÃO DE ALUNO -->
-    <div id="modalAluno" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden no-print">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="modalTitulo" class="text-xl font-bold text-slate-800">Novo Aluno</h3>
-                <button onclick="fecharModalAluno()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-
-            <form id="formAluno" onsubmit="salvarAluno(event)" class="space-y-4">
-                <input type="hidden" id="alunoId">
-                
-                <div class="flex justify-center mb-4">
-                    <div class="relative w-32 h-32 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-300 flex items-center justify-center group">
-                        <img id="previewFoto" src="" class="w-full h-full object-cover hidden">
-                        <i id="placeholderFoto" data-lucide="camera" class="w-10 h-10 text-slate-400"></i>
-                        <input type="file" id="inputFoto" accept="image/*" onchange="processarFoto(event)" class="absolute inset-0 opacity-0 cursor-pointer">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Nome Completo *</label>
-                    <input type="text" id="nomeAluno" required class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Turma *</label>
-                        <input type="text" id="turmaAluno" required placeholder="Ex: 6º Ano A" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Matrícula</label>
-                        <input type="text" id="matriculaAluno" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Data de Nascimento</label>
-                        <input type="date" id="dataNascimento" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                        <select id="statusAluno" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="ativo">Ativo</option>
-                            <option value="desligado">Desligado</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Prontuário / Observações</label>
-                    <textarea id="prontuarioAluno" rows="3" class="w-full border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Anotações gerais do aluno..."></textarea>
-                </div>
-
-                <div class="flex justify-end gap-3 pt-4 border-t">
-                    <button type="button" onclick="fecharModalAluno()" class="px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 text-white rounded-lg font-medium">Salvar Aluno</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- SCRIPT DE LÓGICA DO SISTEMA -->
-    <script>
+        let usuarioLogado = null;
         let alunos = [];
-        let fotoBase64 = "";
+        let usuarios = [];
 
-        // ESCUTAR O BANCO FIRESTORE EM TEMPO REAL
-        db.collection("alunos").onSnapshot((snapshot) => {
-            alunos = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            atualizarFiltroTurmas();
-            filtrarAlunos();
-        }, (error) => {
-            console.error("Erro ao sincronizar com Firebase:", error);
-            alert("Erro de conexão ao sincronizar dados.");
+        // TORNA AS FUNÇÕES ACESSÍVEIS GLOBALMENTE NO HTML
+        window.handleLogin = handleLogin;
+        window.logout = logout;
+        window.trocarAba = trocarAba;
+        window.abrirModalCadastro = abrirModalCadastro;
+        window.fecharModalAluno = fecharModalAluno;
+        window.salvarAluno = salvarAluno;
+        window.editarAluno = editarAluno;
+        window.alternarStatusAluno = alternarStatusAluno;
+        window.excluirAluno = excluirAluno;
+        window.abrirProntuario = abrirProntuario;
+        window.fecharModalProntuario = fecharModalProntuario;
+        window.salvarOcorrencia = salvarOcorrencia;
+        window.excluirOcorrencia = excluirOcorrencia;
+        window.imprimirProntuario = imprimirProntuario;
+        window.salvarUsuario = salvarUsuario;
+        window.excluirUsuario = excluirUsuario;
+        window.renderizarAlunos = renderizarAlunos;
+        window.renderizarAlunosInativos = renderizarAlunosInativos;
+        window.carregarDadosNuvem = carregarDadosNuvem;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            lucide.createIcons();
+            await carregarDadosNuvem();
+            verificarSessao();
         });
 
-        // COMPRESSÃO AUTOMÁTICA DE IMAGENS (Fotos super leves)
-        function comprimirFoto(file, maxWidth = 300, quality = 0.5) {
+        async function carregarDadosNuvem() {
+            try {
+                // Carregar Alunos do Firestore
+                const queryAlunos = await getDocs(collection(db, "alunos"));
+                alunos = [];
+                queryAlunos.forEach((doc) => {
+                    alunos.push(doc.data());
+                });
+
+                // Carregar Usuários do Firestore
+                const queryUsuarios = await getDocs(collection(db, "usuarios"));
+                usuarios = [];
+                queryUsuarios.forEach((doc) => {
+                    usuarios.push(doc.data());
+                });
+
+                // Se não houver nenhum usuário, cria o admin padrão
+                if (usuarios.length === 0) {
+                    const defaultAdmin = { username: 'admin', pass: 'admin', role: 'admin', prontuario: true };
+                    await setDoc(doc(db, "usuarios", "admin"), defaultAdmin);
+                    usuarios.push(defaultAdmin);
+                }
+
+                if (usuarioLogado) {
+                    atualizarSelectTurmas();
+                    renderizarAlunos();
+                    renderizarAlunosInativos();
+                    renderizarListaUsuarios();
+                }
+            } catch (err) {
+                console.error("Erro ao carregar dados do Firestore:", err);
+            }
+        }
+
+        function verificarSessao() {
+            const sessao = sessionStorage.getItem('carometro_sessao');
+            if (sessao) {
+                usuarioLogado = JSON.parse(sessao);
+                iniciarApp();
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const userIn = document.getElementById('loginUsername').value.trim();
+            const passIn = document.getElementById('loginPassword').value.trim();
+
+            const userFound = usuarios.find(u => u.username === userIn && u.pass === passIn);
+
+            if (userFound) {
+                usuarioLogado = userFound;
+                sessionStorage.setItem('carometro_sessao', JSON.stringify(userFound));
+                document.getElementById('loginError').classList.add('hidden');
+                iniciarApp();
+            } else {
+                const errDiv = document.getElementById('loginError');
+                errDiv.innerText = "Usuário ou senha incorretos!";
+                errDiv.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('carometro_sessao');
+            usuarioLogado = null;
+            location.reload();
+        }
+
+        function iniciarApp() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('appDashboard').classList.remove('hidden');
+            document.getElementById('headerControls').classList.remove('hidden');
+
+            document.getElementById('userDisplayName').innerText = usuarioLogado.username;
+            document.getElementById('userDisplayRole').innerText = usuarioLogado.role;
+
+            if (usuarioLogado.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.editor-or-admin').forEach(el => el.classList.remove('hidden'));
+            } else if (usuarioLogado.role === 'editor') {
+                document.querySelectorAll('.editor-or-admin').forEach(el => el.classList.remove('hidden'));
+            }
+
+            atualizarSelectTurmas();
+            renderizarAlunos();
+            renderizarAlunosInativos();
+            renderizarListaUsuarios();
+        }
+
+        function trocarAba(aba) {
+            document.getElementById('secTurmas').classList.add('hidden');
+            document.getElementById('secInativos').classList.add('hidden');
+            document.getElementById('secUsuarios').classList.add('hidden');
+
+            document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
+            document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
+            if(document.getElementById('tabBtnUsuarios')) document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 admin-only";
+
+            if (aba === 'turmas') {
+                document.getElementById('secTurmas').classList.remove('hidden');
+                document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
+            } else if (aba === 'inativos') {
+                document.getElementById('secInativos').classList.remove('hidden');
+                document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
+            } else if (aba === 'usuarios') {
+                document.getElementById('secUsuarios').classList.remove('hidden');
+                document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg admin-only";
+            }
+        }
+
+        function abrirModalCadastro() {
+            document.getElementById('formAluno').reset();
+            document.getElementById('alunoId').value = '';
+            document.getElementById('txtTituloModal').innerText = "Cadastrar Novo Aluno";
+            document.getElementById('avisoFotoMantida').classList.add('hidden');
+            document.getElementById('modalAluno').classList.remove('hidden');
+        }
+
+        function fecharModalAluno() {
+            document.getElementById('modalAluno').classList.add('hidden');
+        }
+
+        function comprimirFoto(file, maxWidth = 500, quality = 0.8) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -202,171 +576,436 @@
             });
         }
 
-        async function processarFoto(event) {
-            const file = event.target.files[0];
-            if (file) {
-                fotoBase64 = await comprimirFoto(file);
-                document.getElementById('previewFoto').src = fotoBase64;
-                document.getElementById('previewFoto').classList.remove('hidden');
-                document.getElementById('placeholderFoto').classList.add('hidden');
-            }
-        }
-
-        // CARREGAR E RENDERIZAR OS CARDS NA TELA
-        function renderizarAlunos(lista) {
-            const grid = document.getElementById('gridAlunos');
-            const mensagemVazio = document.getElementById('mensagemVazio');
-            grid.innerHTML = '';
-
-            if (lista.length === 0) {
-                mensagemVazio.classList.remove('hidden');
-                return;
-            }
-            mensagemVazio.classList.add('hidden');
-
-            lista.forEach(aluno => {
-                const card = document.createElement('div');
-                card.className = "card-aluno bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition";
-                
-                card.innerHTML = `
-                    <div class="p-3 text-center">
-                        <div class="w-24 h-24 mx-auto rounded-full overflow-hidden bg-slate-100 border border-slate-200 mb-2">
-                            ${aluno.foto ? `<img src="${aluno.foto}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-slate-400"><i data-lucide="user" class="w-12 h-12"></i></div>`}
-                        </div>
-                        <h4 class="font-bold text-slate-800 text-sm line-clamp-2">${aluno.nome}</h4>
-                        <p class="text-xs text-blue-600 font-semibold mt-1">${aluno.turma}</p>
-                        ${aluno.matricula ? `<p class="text-[10px] text-slate-400">Matrícula: ${aluno.matricula}</p>` : ''}
-                        <span class="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full ${aluno.status === 'desligado' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
-                            ${aluno.status === 'desligado' ? 'Desligado' : 'Ativo'}
-                        </span>
-                    </div>
-                    <div class="bg-slate-50 p-2 border-t border-slate-100 flex justify-around no-print">
-                        <button onclick="editarAluno('${aluno.id}')" class="text-slate-600 hover:text-blue-600 p-1"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                        <button onclick="excluirAluno('${aluno.id}')" class="text-slate-600 hover:text-red-600 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-
-            lucide.createIcons();
-        }
-
-        // SALVAR NO FIREBASE (INSERIR OU EDITAR)
         async function salvarAluno(e) {
             e.preventDefault();
-            
-            const id = document.getElementById('alunoId').value;
-            const dadosAluno = {
-                nome: document.getElementById('nomeAluno').value,
-                turma: document.getElementById('turmaAluno').value,
-                matricula: document.getElementById('matriculaAluno').value,
-                dataNascimento: document.getElementById('dataNascimento').value,
-                status: document.getElementById('statusAluno').value,
-                prontuario: document.getElementById('prontuarioAluno').value,
-                foto: fotoBase64,
-                atualizadoEm: new Date()
+            const btn = document.getElementById('btnSalvarAluno');
+            btn.disabled = true;
+            btn.innerText = "Salvando na Nuvem...";
+
+            const idEdit = document.getElementById('alunoId').value;
+            const id = idEdit ? String(idEdit) : String(Date.now());
+
+            const nome = document.getElementById('alunoNome').value.trim();
+            const turma = document.getElementById('alunoTurma').value.trim();
+            const turno = document.getElementById('alunoTurno').value;
+            const responsavel = document.getElementById('alunoResponsavel').value.trim();
+            const telefone = document.getElementById('alunoTelefone').value.trim();
+            const endereco = document.getElementById('alunoEndereco').value.trim();
+            const integrada = document.getElementById('alunoIntegrada').value;
+            const ne = document.getElementById('alunoNE').value.trim();
+            const corCard = document.getElementById('alunoCorCard').value;
+            const fotoInput = document.getElementById('alunoFoto');
+
+            let fotoData = '';
+            if (fotoInput.files.length > 0) {
+                fotoData = await comprimirFoto(fotoInput.files[0]);
+            } else if (idEdit) {
+                const alunoAtual = alunos.find(a => String(a.id) === String(idEdit));
+                if (alunoAtual) fotoData = alunoAtual.foto || '';
+            }
+
+            const alunoExistente = alunos.find(a => String(a.id) === id);
+            const ocorrencias = alunoExistente ? (alunoExistente.ocorrencias || []) : [];
+            const inativo = alunoExistente ? (alunoExistente.inativo || false) : false;
+
+            const novoAluno = {
+                id,
+                nome,
+                turma,
+                turno,
+                responsavel,
+                telefone,
+                endereco,
+                integrada,
+                ne,
+                corCard,
+                foto: fotoData,
+                inativo,
+                ocorrencias
             };
 
             try {
-                if (id) {
-                    await db.collection("alunos").doc(id).update(dadosAluno);
+                await setDoc(doc(db, "alunos", id), novoAluno);
+                
+                const idx = alunos.findIndex(a => String(a.id) === id);
+                if (idx >= 0) {
+                    alunos[idx] = novoAluno;
                 } else {
-                    await db.collection("alunos").add(dadosAluno);
+                    alunos.push(novoAluno);
                 }
+
+                atualizarSelectTurmas();
+                renderizarAlunos();
+                renderizarAlunosInativos();
                 fecharModalAluno();
             } catch (err) {
-                console.error("Erro ao salvar:", err);
-                alert("Falha ao salvar o aluno na nuvem.");
+                alert("Erro ao salvar aluno no servidor!");
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Salvar Informações";
             }
         }
 
-        // EXCLUIR ALUNO
+        function editarAluno(id) {
+            const aluno = alunos.find(a => String(a.id) === String(id));
+            if (!aluno) return;
+
+            document.getElementById('alunoId').value = aluno.id;
+            document.getElementById('alunoNome').value = aluno.nome;
+            document.getElementById('alunoTurma').value = aluno.turma;
+            document.getElementById('alunoTurno').value = aluno.turno;
+            document.getElementById('alunoResponsavel').value = aluno.responsavel || '';
+            document.getElementById('alunoTelefone').value = aluno.telefone || '';
+            document.getElementById('alunoEndereco').value = aluno.endereco || '';
+            document.getElementById('alunoIntegrada').value = aluno.integrada || 'Não';
+            document.getElementById('alunoNE').value = aluno.ne || '';
+            document.getElementById('alunoCorCard').value = aluno.corCard || 'bg-white border-slate-200';
+
+            if (aluno.foto) {
+                document.getElementById('avisoFotoMantida').classList.remove('hidden');
+            } else {
+                document.getElementById('avisoFotoMantida').classList.add('hidden');
+            }
+
+            document.getElementById('txtTituloModal').innerText = "Editar Aluno";
+            document.getElementById('modalAluno').classList.remove('hidden');
+        }
+
+        async function alternarStatusAluno(id) {
+            const aluno = alunos.find(a => String(a.id) === String(id));
+            if (!aluno) return;
+
+            const acao = aluno.inativo ? "reativar" : "desligar / arquivar";
+            if (confirm(`Deseja realmente ${acao} este aluno?`)) {
+                aluno.inativo = !aluno.inativo;
+                await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
+                renderizarAlunos();
+                renderizarAlunosInativos();
+            }
+        }
+
         async function excluirAluno(id) {
-            if (confirm("Tem certeza que deseja remover este aluno?")) {
+            if (confirm("ATENÇÃO: Deseja realmente EXCLUIR DEFINITIVAMENTE este aluno e todo o seu histórico do banco de dados?")) {
                 try {
-                    await db.collection("alunos").doc(id).delete();
+                    await deleteDoc(doc(db, "alunos", String(id)));
+                    alunos = alunos.filter(a => String(a.id) !== String(id));
+                    renderizarAlunos();
+                    renderizarAlunosInativos();
                 } catch (err) {
                     alert("Erro ao excluir aluno.");
                 }
             }
         }
 
-        // FILTROS DE PESQUISA E TURMAS
-        function filtrarAlunos() {
-            const busca = document.getElementById('inputBusca').value.toLowerCase();
-            const turma = document.getElementById('filtroTurma').value;
-            const status = document.getElementById('filtroStatus').value;
-
-            const filtrados = alunos.filter(a => {
-                const bateNome = a.nome.toLowerCase().includes(busca) || (a.matricula && a.matricula.includes(busca));
-                const bateTurma = turma === "" || a.turma === turma;
-                const bateStatus = status === "todos" || a.status === status;
-
-                return bateNome && bateTurma && bateStatus;
-            });
-
-            renderizarAlunos(filtrados);
-        }
-
-        function atualizarFiltroTurmas() {
-            const select = document.getElementById('filtroTurma');
+        function atualizarSelectTurmas() {
+            const select = document.getElementById('filterTurma');
             const valorAtual = select.value;
-            const turmas = [...new Set(alunos.map(a => a.turma))].sort();
+            const turmasUnicas = [...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))].sort();
 
             select.innerHTML = '<option value="">Todas as Turmas</option>';
-            turmas.forEach(t => {
-                if(t) {
-                    const opt = document.createElement('option');
-                    opt.value = t;
-                    opt.textContent = t;
-                    select.appendChild(opt);
-                }
+            turmasUnicas.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                select.appendChild(opt);
             });
+
             select.value = valorAtual;
         }
 
-        // CONTROLADORES DO MODAL
-        function abrirModalAluno() {
-            document.getElementById('formAluno').reset();
-            document.getElementById('alunoId').value = '';
-            fotoBase64 = '';
-            document.getElementById('previewFoto').classList.add('hidden');
-            document.getElementById('placeholderFoto').classList.remove('hidden');
-            document.getElementById('modalTitulo').innerText = 'Novo Aluno';
-            document.getElementById('modalAluno').classList.remove('hidden');
+        function renderizarAlunos() {
+            const grid = document.getElementById('gridAlunos');
+            grid.innerHTML = '';
+
+            const filterTurma = document.getElementById('filterTurma').value;
+            const filterTurno = document.getElementById('filterTurno').value;
+            const search = document.getElementById('searchAluno').value.toLowerCase();
+
+            const filtrados = alunos.filter(a => {
+                if (a.inativo) return false;
+                if (filterTurma && a.turma !== filterTurma) return false;
+                if (filterTurno && a.turno !== filterTurno) return false;
+                if (search && !a.nome.toLowerCase().includes(search)) return false;
+                return true;
+            });
+
+            filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
+            lucide.createIcons();
         }
 
-        function fecharModalAluno() {
-            document.getElementById('modalAluno').classList.add('hidden');
+        function renderizarAlunosInativos() {
+            const grid = document.getElementById('gridAlunosInativos');
+            grid.innerHTML = '';
+
+            const search = document.getElementById('searchAlunoInativo').value.toLowerCase();
+
+            const inativos = alunos.filter(a => {
+                if (!a.inativo) return false;
+                if (search && !a.nome.toLowerCase().includes(search)) return false;
+                return true;
+            });
+
+            inativos.forEach(a => grid.appendChild(criarCardAluno(a, true)));
+            lucide.createIcons();
         }
 
-        function editarAluno(id) {
-            const aluno = alunos.find(a => a.id === id);
+        function criarCardAluno(aluno, isInativo = false) {
+            const card = document.createElement('div');
+            const corBg = aluno.corCard || 'bg-white border-slate-200';
+            card.className = `${corBg} rounded-2xl p-4 border shadow-sm flex flex-col justify-between relative group hover:shadow-md transition`;
+
+            const podeVerProntuario = usuarioLogado.role === 'admin' || usuarioLogado.prontuario;
+            const podeEditar = usuarioLogado.role === 'admin' || usuarioLogado.role === 'editor';
+
+            const fotoHtml = aluno.foto 
+                ? `<img src="${aluno.foto}" class="w-24 h-24 rounded-xl object-cover mx-auto shadow-sm border border-slate-200 mb-3">`
+                : `<div class="w-24 h-24 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                    <i data-lucide="user" class="w-12 h-12"></i>
+                   </div>`;
+
+            card.innerHTML = `
+                <div>
+                    ${fotoHtml}
+                    <div class="text-center">
+                        <h4 class="font-extrabold text-emerald-950 text-base leading-snug">${aluno.nome}</h4>
+                        <div class="flex items-center justify-center space-x-2 mt-1">
+                            <span class="bg-emerald-800 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-md">${aluno.turma}</span>
+                            <span class="bg-slate-200 text-slate-700 text-[11px] font-semibold px-2 py-0.5 rounded-md">${aluno.turno}</span>
+                        </div>
+                        ${aluno.integrada === 'Sim' ? `<span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full mt-2">Escola Integrada</span>` : ''}
+                        ${aluno.ne ? `<div class="mt-2 text-xs bg-amber-100 text-amber-900 border border-amber-300 p-1.5 rounded-lg font-medium"><strong>NE:</strong> ${aluno.ne}</div>` : ''}
+                    </div>
+
+                    <div class="mt-3 text-xs text-slate-600 space-y-1 border-t border-slate-200/60 pt-2">
+                        ${aluno.responsavel ? `<p><strong>Resp:</strong> ${aluno.responsavel}</p>` : ''}
+                        ${aluno.telefone ? `<p><strong>Tel:</strong> ${aluno.telefone}</p>` : ''}
+                        ${aluno.endereco ? `<p class="truncate" title="${aluno.endereco}"><strong>End:</strong> ${aluno.endereco}</p>` : ''}
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2 border-t border-slate-200/60 flex items-center justify-between gap-1 no-print">
+                    ${podeVerProntuario ? `
+                        <button onclick="abrirProntuario('${aluno.id}')" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center space-x-1 shadow-xs">
+                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+                            <span>Prontuário</span>
+                        </button>
+                    ` : '<div></div>'}
+
+                    <div class="flex items-center space-x-1">
+                        ${podeEditar ? `
+                            <button onclick="editarAluno('${aluno.id}')" class="p-1.5 text-slate-600 hover:text-emerald-800 rounded-lg transition" title="Editar">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </button>
+                        ` : ''}
+                        ${podeEditar ? `
+                            <button onclick="alternarStatusAluno('${aluno.id}')" class="p-1.5 text-slate-600 hover:text-amber-800 rounded-lg transition" title="${isInativo ? 'Reativar' : 'Desligar/Arquivar'}">
+                                <i data-lucide="${isInativo ? 'user-check' : 'user-minus'}" class="w-4 h-4"></i>
+                            </button>
+                        ` : ''}
+                        ${usuarioLogado.role === 'admin' ? `
+                            <button onclick="excluirAluno('${aluno.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition" title="Excluir Definitivamente">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // --- MÓDULO DE PRONTUÁRIO E OCORRÊNCIAS ---
+        function abrirProntuario(id) {
+            const aluno = alunos.find(a => String(a.id) === String(id));
             if (!aluno) return;
 
-            document.getElementById('alunoId').value = aluno.id;
-            document.getElementById('nomeAluno').value = aluno.nome;
-            document.getElementById('turmaAluno').value = aluno.turma;
-            document.getElementById('matriculaAluno').value = aluno.matricula || '';
-            document.getElementById('dataNascimento').value = aluno.dataNascimento || '';
-            document.getElementById('statusAluno').value = aluno.status || 'ativo';
-            document.getElementById('prontuarioAluno').value = aluno.prontuario || '';
+            document.getElementById('prontuarioAlunoId').value = aluno.id;
+            document.getElementById('prontuarioNomeAluno').innerText = aluno.nome;
+            document.getElementById('prontuarioInfoAluno').innerText = `Turma: ${aluno.turma} | Turno: ${aluno.turno}`;
+            document.getElementById('ocorrenciaData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ocorrenciaTexto').value = '';
 
-            fotoBase64 = aluno.foto || '';
-            if (fotoBase64) {
-                document.getElementById('previewFoto').src = fotoBase64;
-                document.getElementById('previewFoto').classList.remove('hidden');
-                document.getElementById('placeholderFoto').classList.add('hidden');
-            } else {
-                document.getElementById('previewFoto').classList.add('hidden');
-                document.getElementById('placeholderFoto').classList.remove('hidden');
-            }
-
-            document.getElementById('modalTitulo').innerText = 'Editar Aluno';
-            document.getElementById('modalAluno').classList.remove('hidden');
+            renderizarOcorrencias(aluno);
+            document.getElementById('modalProntuario').classList.remove('hidden');
         }
 
-        lucide.createIcons();
+        function fecharModalProntuario() {
+            document.getElementById('modalProntuario').classList.add('hidden');
+        }
+
+        function renderizarOcorrencias(aluno) {
+            const lista = document.getElementById('listaOcorrencias');
+            lista.innerHTML = '';
+
+            const ocorrencias = aluno.ocorrencias || [];
+            document.getElementById('qtdOcorrencias').innerText = ocorrencias.length;
+
+            if (ocorrencias.length === 0) {
+                lista.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Nenhuma ocorrência registrada para este aluno.</p>`;
+                return;
+            }
+
+            ocorrencias.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            ocorrencias.forEach((oc, index) => {
+                const item = document.createElement('div');
+                item.className = "bg-white p-3 rounded-xl border border-slate-200 text-xs shadow-xs space-y-1 relative";
+
+                item.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                        <span class="font-bold text-emerald-900">${oc.tipo} - ${oc.data.split('-').reverse().join('/')}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] text-slate-400">Por: ${oc.autor || 'Sistema'}</span>
+                            ${usuarioLogado.role === 'admin' ? `
+                                <button onclick="excluirOcorrencia('${aluno.id}', ${index})" class="text-slate-400 hover:text-rose-600">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <p class="text-slate-700 whitespace-pre-wrap">${oc.texto}</p>
+                `;
+                lista.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        async function salvarOcorrencia(e) {
+            e.preventDefault();
+            const id = document.getElementById('prontuarioAlunoId').value;
+            const aluno = alunos.find(a => String(a.id) === String(id));
+            if (!aluno) return;
+
+            const data = document.getElementById('ocorrenciaData').value;
+            const tipo = document.getElementById('ocorrenciaTipo').value;
+            const texto = document.getElementById('ocorrenciaTexto').value.trim();
+
+            if (!aluno.ocorrencias) aluno.ocorrencias = [];
+
+            aluno.ocorrencias.push({
+                data,
+                tipo,
+                texto,
+                autor: usuarioLogado.username
+            });
+
+            await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
+            document.getElementById('ocorrenciaTexto').value = '';
+            renderizarOcorrencias(aluno);
+        }
+
+        async function excluirOcorrencia(alunoId, index) {
+            if (confirm("Deseja excluir esta ocorrência?")) {
+                const aluno = alunos.find(a => String(a.id) === String(alunoId));
+                if (!aluno) return;
+
+                aluno.ocorrencias.splice(index, 1);
+                await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
+                renderizarOcorrencias(aluno);
+            }
+        }
+
+        function imprimirProntuario() {
+            const id = document.getElementById('prontuarioAlunoId').value;
+            const aluno = alunos.find(a => String(a.id) === String(id));
+            if (!aluno) return;
+
+            const printArea = document.getElementById('printProntuarioArea');
+            const ocorrencias = aluno.ocorrencias || [];
+
+            let ocoHtml = '';
+            if (ocorrencias.length === 0) {
+                ocoHtml = `<p class="italic text-slate-500">Nenhum registro de ocorrência cadastrado.</p>`;
+            } else {
+                ocorrencias.forEach(o => {
+                    ocoHtml += `
+                        <div style="border-bottom: 1px solid #ccc; padding-bottom: 8px; margin-bottom: 12px;">
+                            <p style="font-weight: bold; margin: 0;">${o.tipo} - Data: ${o.data.split('-').reverse().join('/')} (Registrado por: ${o.autor || 'Sistema'})</p>
+                            <p style="margin: 4px 0 0 0; whitespace-pre-wrap;">${o.texto}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            printArea.innerHTML = `
+                <div style="font-family: sans-serif; padding: 20px;">
+                    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <h2 style="margin: 0; uppercase">E. M. Jardim Vitória</h2>
+                        <h3 style="margin: 5px 0 0 0;">Prontuário e Histórico do Aluno</h3>
+                    </div>
+
+                    <div style="margin-bottom: 20px; line-height: 1.6;">
+                        <p><strong>Nome do Aluno:</strong> ${aluno.nome}</p>
+                        <p><strong>Turma:</strong> ${aluno.turma} | <strong>Turno:</strong> ${aluno.turno}</p>
+                        <p><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                        <p><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'}</p>
+                        <p><strong>Necessidades Especiais (NE):</strong> ${aluno.ne || 'Nenhuma'}</p>
+                    </div>
+
+                    <h4 style="border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 12px;">REGISTROS DE OCORRÊNCIAS</h4>
+                    ${ocoHtml}
+                </div>
+            `;
+
+            window.print();
+        }
+
+        // --- MÓDULO DE GERENCIAMENTO DE USUÁRIOS ---
+        async function salvarUsuario(e) {
+            e.preventDefault();
+            const username = document.getElementById('novoUsername').value.trim();
+            const pass = document.getElementById('novaSenha').value.trim();
+            const role = document.getElementById('novoPerfil').value;
+            const prontuario = document.getElementById('novoAcessoProntuario').checked;
+
+            if (usuarios.some(u => u.username === username)) {
+                alert("Já existe um usuário com este nome!");
+                return;
+            }
+
+            const novoU = { username, pass, role, prontuario };
+            await setDoc(doc(db, "usuarios", username), novoU);
+            usuarios.push(novoU);
+
+            document.getElementById('formUsuario').reset();
+            renderizarListaUsuarios();
+        }
+
+        async function excluirUsuario(username) {
+            if (username === 'admin') {
+                alert("O usuário 'admin' principal não pode ser excluído!");
+                return;
+            }
+
+            if (confirm(`Deseja remover o acesso de ${username}?`)) {
+                await deleteDoc(doc(db, "usuarios", username));
+                usuarios = usuarios.filter(u => u.username !== username);
+                renderizarListaUsuarios();
+            }
+        }
+
+        function renderizarListaUsuarios() {
+            const container = document.getElementById('listaUsuarios');
+            if (!container) return;
+            container.innerHTML = '';
+
+            usuarios.forEach(u => {
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border text-xs";
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-slate-800">${u.username}</span>
+                        <span class="ml-2 text-slate-500">(${u.role})</span>
+                        ${u.prontuario ? `<span class="ml-2 bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded text-[10px] font-bold">Prontuário Liberado</span>` : ''}
+                    </div>
+                    ${u.username !== 'admin' ? `
+                        <button onclick="excluirUsuario('${u.username}')" class="text-rose-600 hover:text-rose-800 font-semibold">Excluir</button>
+                    ` : '<span class="text-slate-400 italic">Padrão</span>'}
+                `;
+                container.appendChild(item);
+            });
+        }
     </script>
 </body>
 </html>
