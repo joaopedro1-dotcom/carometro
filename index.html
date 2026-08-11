@@ -125,7 +125,7 @@
                     </div>
                     <button onclick="window.print()" class="bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 border border-amber-400/40">
                         <i data-lucide="printer" class="w-4 h-4"></i>
-                        <span>Imprimir</span>
+                        <span>Imprimir Carômetro</span>
                     </button>
                 </div>
 
@@ -141,7 +141,7 @@
                         <i data-lucide="archive" class="w-6 h-6 text-amber-700"></i>
                         <div>
                             <h3 class="font-bold text-amber-950">Histórico de Alunos Desligados / Transferidos</h3>
-                            <p class="text-xs text-amber-800">Estes alunos não aparecem nas turmas ativas, mas todos os seus dados e contatos continuam salvos aqui.</p>
+                            <p class="text-xs text-amber-800">Estes alunos não aparecem nas turmas ativas, mas todos os seus dados continuam salvos aqui.</p>
                         </div>
                     </div>
                     <input type="text" id="searchAlunoInativo" oninput="renderizarAlunosInativos()" placeholder="Buscar nos arquivados..." class="px-3 py-2 border rounded-lg outline-none text-sm w-64 bg-white">
@@ -178,6 +178,16 @@
                             <option value="admin">Administrador (Acesso total)</option>
                         </select>
                     </div>
+
+                    <!-- CAIXA DE PERMISSÃO DO PRONTUÁRIO -->
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-center space-x-3">
+                        <input type="checkbox" id="novoAcessoProntuario" class="w-4 h-4 text-emerald-700 rounded border-slate-300 focus:ring-emerald-600">
+                        <div>
+                            <label for="novoAcessoProntuario" class="text-xs font-bold text-amber-950 cursor-pointer">Permitir Acesso ao Prontuário e Ocorrências</label>
+                            <p class="text-[11px] text-amber-800">Marque apenas para Direção, Coordenação ou Supervisão que precisam ler e registrar ocorrências.</p>
+                        </div>
+                    </div>
+
                     <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
                         Criar Novo Usuário
                     </button>
@@ -292,16 +302,99 @@
         </div>
     </div>
 
+    <!-- MODAL POPUP DO PRONTUÁRIO / OCORRÊNCIAS -->
+    <div id="modalProntuario" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto flex flex-col">
+            
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-amber-100 text-amber-900 p-2 rounded-xl border border-amber-300">
+                        <i data-lucide="clipboard-list" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 id="prontuarioNomeAluno" class="text-xl font-black text-emerald-950">Prontuário do Aluno</h3>
+                        <p id="prontuarioInfoAluno" class="text-xs text-slate-500 font-medium"></p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="imprimirProntuario()" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center space-x-1 transition shadow-xs">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Imprimir Prontuário</span>
+                    </button>
+                    <button onclick="fecharModalProntuario()" class="text-slate-400 hover:text-rose-600 p-1">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- REGISTRAR NOVA OCORRÊNCIA -->
+            <form id="formOcorrencia" onsubmit="salvarOcorrencia(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 space-y-3">
+                <input type="hidden" id="prontuarioAlunoId">
+                <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center space-x-1">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-700"></i>
+                    <span>Nova Ocorrência / Registro</span>
+                </h4>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Data</label>
+                        <input type="date" id="ocorrenciaData" required class="w-full px-3 py-1.5 border rounded-lg text-xs bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Categoria</label>
+                        <select id="ocorrenciaTipo" required class="w-full px-3 py-1.5 border rounded-lg text-xs bg-white">
+                            <option value="Pedagógica">Pedagógica</option>
+                            <option value="Disciplinar">Disciplinar</option>
+                            <option value="Médica / Saúde">Médica / Saúde</option>
+                            <option value="Reunião com Pais">Reunião com Pais</option>
+                            <option value="Acompanhamento">Acompanhamento</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Relato Detalhado</label>
+                    <textarea id="ocorrenciaTexto" rows="3" required placeholder="Digite os fatos ocorridos, observações ou combinados..." class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-emerald-950 font-extrabold px-4 py-2 rounded-lg text-xs transition shadow-xs flex items-center space-x-1">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                        <span>Salvar Ocorrência</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- HISTÓRICO DE OCORRÊNCIAS -->
+            <div class="flex-1">
+                <h4 class="text-xs font-bold text-slate-700 uppercase mb-3 flex items-center justify-between">
+                    <span>Histórico de Registros Salvos</span>
+                    <span id="qtdOcorrencias" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
+                </h4>
+                <div id="listaOcorrencias" class="space-y-3">
+                    <!-- Registros inseridos via JS -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- TELA DE IMPRESSÃO EXCLUSIVA DO PRONTUÁRIO -->
+    <div id="printProntuarioArea" class="print-only p-8 bg-white max-w-4xl mx-auto">
+        <!-- Gerado via JS para impressão -->
+    </div>
+
     <script>
         const JSONBIN_CONFIG = {
-    BIN_ID: '6a7b2448f5f4af5e29074729',
-    API_KEY: '$2a$10$V.UM2NhNYl.skgCWCrJ9/Oz8zo82Ki5qFaP66QKYZvzgxhRAyxwLW'
-};
+            BIN_ID: '6a7b2448f5f4af5e29074729',
+            API_KEY: '$2a$10$V.UM2NhNYl.skgCWCrJ9/Oz8zo82Ki5qFaP66QKYZvzgxhRAyxwLW'
+        };
 
         let usuarioLogado = null;
         let alunos = JSON.parse(localStorage.getItem('carometro_alunos')) || [];
         let usuarios = JSON.parse(localStorage.getItem('carometro_usuarios')) || [
-            { username: 'admin', pass: 'admin', role: 'admin' }
+            { username: 'admin', pass: 'admin', role: 'admin', prontuario: true }
         ];
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -459,7 +552,8 @@
                     ne,
                     corCard,
                     foto: fotoData,
-                    inativo: false
+                    inativo: false,
+                    ocorrencias: []
                 };
                 alunos.push(novoAluno);
             }
@@ -522,23 +616,192 @@
             }
         }
 
+        /* SISTEMA DE PRONTUÁRIO & OCORRÊNCIAS */
+        function abrirProntuario(id) {
+            const aluno = alunos.find(a => a.id === id);
+            if (!aluno) return;
+
+            document.getElementById('prontuarioAlunoId').value = aluno.id;
+            document.getElementById('prontuarioNomeAluno').innerText = aluno.nome;
+            document.getElementById('prontuarioInfoAluno').innerText = `Turma: ${aluno.turma} (${aluno.turno || 'Manhã'}) | Resp: ${aluno.responsavel || 'Não Informado'}`;
+            
+            // Define a data de hoje por padrão
+            document.getElementById('ocorrenciaData').value = new Date().toISOString().split('T')[0];
+            document.getElementById('ocorrenciaTexto').value = '';
+
+            renderizarOcorrencias(aluno);
+            document.getElementById('modalProntuario').classList.remove('hidden');
+        }
+
+        function fecharModalProntuario() {
+            document.getElementById('modalProntuario').classList.add('hidden');
+        }
+
+        function salvarOcorrencia(e) {
+            e.preventDefault();
+            const id = document.getElementById('prontuarioAlunoId').value;
+            const dataIn = document.getElementById('ocorrenciaData').value;
+            const tipo = document.getElementById('ocorrenciaTipo').value;
+            const texto = document.getElementById('ocorrenciaTexto').value.trim();
+
+            if (!texto) return;
+
+            const novaOc = {
+                id: Date.now(),
+                data: dataIn,
+                tipo,
+                texto,
+                autor: usuarioLogado.username
+            };
+
+            alunos = alunos.map(a => {
+                if (a.id == id) {
+                    const ocorrencias = a.ocorrencias || [];
+                    return { ...a, ocorrencias: [novaOc, ...ocorrencias] };
+                }
+                return a;
+            });
+
+            localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
+            
+            const alunoAtualizado = alunos.find(a => a.id == id);
+            renderizarOcorrencias(alunoAtualizado);
+            document.getElementById('ocorrenciaTexto').value = '';
+        }
+
+        function deletarOcorrencia(alunoId, ocId) {
+            if (confirm('Excluir este registro de ocorrência?')) {
+                alunos = alunos.map(a => {
+                    if (a.id == alunoId) {
+                        const ocorrencias = (a.ocorrencias || []).filter(o => o.id !== ocId);
+                        return { ...a, ocorrencias };
+                    }
+                    return a;
+                });
+
+                localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
+                const alunoAtualizado = alunos.find(a => a.id == alunoId);
+                renderizarOcorrencias(alunoAtualizado);
+            }
+        }
+
+        function renderizarOcorrencias(aluno) {
+            const container = document.getElementById('listaOcorrencias');
+            const list = aluno.ocorrencias || [];
+            
+            document.getElementById('qtdOcorrencias').innerText = list.length;
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-6">Nenhuma ocorrência registrada para este aluno.</p>';
+                return;
+            }
+
+            list.forEach(o => {
+                const dataFmt = o.data ? o.data.split('-').reverse().join('/') : 'N/I';
+                const div = document.createElement('div');
+                div.className = "bg-white border border-slate-200 p-3.5 rounded-xl shadow-xs relative text-xs";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center mb-1.5 border-b border-slate-100 pb-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-slate-900">${dataFmt}</span>
+                            <span class="bg-amber-100 text-amber-900 font-extrabold px-2 py-0.5 rounded text-[10px] uppercase">${o.tipo}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-[10px] text-slate-400">Por: ${o.autor || 'Sistema'}</span>
+                            <button onclick="deletarOcorrencia(${aluno.id}, ${o.id})" class="text-rose-500 hover:text-rose-700 p-0.5" title="Apagar Registro">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-slate-700 leading-relaxed whitespace-pre-wrap">${o.texto}</p>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function imprimirProntuario() {
+            const id = document.getElementById('prontuarioAlunoId').value;
+            const aluno = alunos.find(a => a.id == id);
+            if (!aluno) return;
+
+            const list = aluno.ocorrencias || [];
+            const printArea = document.getElementById('printProntuarioArea');
+
+            let htmlOcorrencias = '';
+            if (list.length === 0) {
+                htmlOcorrencias = '<p style="text-align:center; color:#666; font-style:italic;">Nenhum registro cadastrado até a presente data.</p>';
+            } else {
+                list.forEach(o => {
+                    const dataFmt = o.data ? o.data.split('-').reverse().join('/') : 'N/I';
+                    htmlOcorrencias += `
+                        <div style="border:1px solid #ccc; padding:10px; border-radius:6px; margin-bottom:12px;">
+                            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:4px; margin-bottom:6px; font-weight:bold; font-size:12px;">
+                                <span>Data: ${dataFmt} | Tipo: ${o.tipo}</span>
+                                <span>Registrado por: ${o.autor || 'Coordenação'}</span>
+                            </div>
+                            <p style="font-size:12px; margin:0; line-height:1.4; white-space:pre-wrap;">${o.texto}</p>
+                        </div>
+                    `;
+                });
+            }
+
+            printArea.innerHTML = `
+                <div style="text-align:center; border-bottom:2px solid #005a36; padding-bottom:10px; margin-bottom:20px;">
+                    <h2 style="margin:0; color:#005a36; font-size:20px; font-weight:bold;">ESCOLA MUNICIPAL JARDIM VITÓRIA</h2>
+                    <h3 style="margin:5px 0 0 0; font-size:16px; color:#333;">Prontuário & Relatório de Ocorrências do Aluno</h3>
+                </div>
+
+                <div style="display:flex; gap:20px; margin-bottom:20px; border:1px solid #ddd; padding:15px; border-radius:8px;">
+                    <div style="width:120px; height:140px; border:1px solid #ccc; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                        ${aluno.foto ? `<img src="${aluno.foto}" style="width:100%; height:100%; object-fit:cover;">` : '<span style="color:#aaa;">Sem Foto</span>'}
+                    </div>
+                    <div style="flex:1; font-size:13px; line-height:1.6;">
+                        <p style="margin:0;"><strong>Nome do Aluno:</strong> ${aluno.nome}</p>
+                        <p style="margin:0;"><strong>Turma:</strong> ${aluno.turma} | <strong>Turno:</strong> ${aluno.turno || 'Manhã'}</p>
+                        <p style="margin:0;"><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                        <p style="margin:0;"><strong>Telefone / Contato:</strong> ${aluno.telefone || 'Não informado'}</p>
+                        <p style="margin:0;"><strong>Endereço:</strong> ${aluno.endereco || 'Não informado'}</p>
+                        <p style="margin:0;"><strong>Necessidades Especiais (NE):</strong> ${aluno.ne || 'Nenhuma'}</p>
+                    </div>
+                </div>
+
+                <h4 style="font-size:14px; border-bottom:1px solid #333; padding-bottom:4px; margin-bottom:15px; color:#005a36;">HISTÓRICO REGISTRADO</h4>
+                ${htmlOcorrencias}
+
+                <div style="margin-top:60px; display:flex; justify-content:space-around; text-align:center; font-size:12px;">
+                    <div style="border-top:1px solid #333; width:220px; padding-top:5px;">
+                        Assinatura do Responsável
+                    </div>
+                    <div style="border-top:1px solid #333; width:220px; padding-top:5px;">
+                        Direção / Coordenação Pedagógica
+                    </div>
+                </div>
+            `;
+
+            window.print();
+        }
+
+        /* USUÁRIOS */
         function salvarUsuario(e) {
             e.preventDefault();
             const username = document.getElementById('novoUsername').value.trim();
             const pass = document.getElementById('novaSenha').value.trim();
             const role = document.getElementById('novoPerfil').value;
+            const prontuario = document.getElementById('novoAcessoProntuario').checked;
 
             if (usuarios.some(u => u.username === username)) {
                 alert('Nome de usuário já existe!');
                 return;
             }
 
-            usuarios.push({ username, pass, role });
+            usuarios.push({ username, pass, role, prontuario });
             localStorage.setItem('carometro_usuarios', JSON.stringify(usuarios));
 
             document.getElementById('formUsuario').reset();
             renderizarListaUsuarios();
-            alert('Novo usuário cadastrado!');
+            alert('Novo usuário cadastrado com sucesso!');
         }
 
         function excluirUsuario(username) {
@@ -565,6 +828,7 @@
                     <div>
                         <span class="font-bold text-emerald-950">${u.username}</span>
                         <span class="text-xs ml-2 px-2 py-0.5 rounded font-semibold ${u.role === 'admin' ? 'bg-amber-100 text-amber-800' : u.role === 'editor' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'} capitalize">${u.role}</span>
+                        ${u.prontuario ? `<span class="text-[10px] ml-1 bg-purple-100 text-purple-900 px-2 py-0.5 rounded font-bold">Acesso Prontuário</span>` : ''}
                     </div>
                     ${u.username !== 'admin' ? `
                         <button onclick="excluirUsuario('${u.username}')" class="text-rose-500 hover:text-rose-700 p-1">
@@ -608,9 +872,13 @@
                 return;
             }
 
+            // Verifica se o usuário atual tem permissão para acessar o Prontuário
+            const podeVerProntuario = usuarioLogado && (usuarioLogado.role === 'admin' || usuarioLogado.prontuario === true);
+
             alunosFiltrados.forEach(a => {
                 const card = document.createElement('div');
                 const corStyle = a.corCard || 'bg-white border-slate-200';
+                const qtdOc = (a.ocorrencias || []).length;
                 
                 card.className = `${corStyle} p-5 rounded-2xl border-2 shadow-sm flex flex-col items-center text-center relative transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group`;
                 
@@ -642,6 +910,14 @@
 
                     ${a.integrada === 'Sim' ? `<span class="text-xs bg-emerald-600 text-white font-bold px-3 py-0.5 rounded-full mt-1.5 shadow-xs">Escola Integrada</span>` : ''}
                     ${a.ne ? `<span class="text-xs bg-amber-400 text-emerald-950 font-extrabold px-3 py-0.5 rounded-full mt-1.5 shadow-xs" title="${a.ne}">NE: ${a.ne}</span>` : ''}
+
+                    <!-- BOTÃO DO PRONTUÁRIO -->
+                    ${podeVerProntuario ? `
+                        <button onclick="abrirProntuario(${a.id})" class="mt-3 w-full bg-slate-800 hover:bg-emerald-900 text-amber-300 font-extrabold text-xs py-2 rounded-xl border border-amber-400/40 shadow-xs flex items-center justify-center space-x-1.5 transition no-print">
+                            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                            <span>Prontuário / Ocorrências (${qtdOc})</span>
+                        </button>
+                    ` : ''}
 
                     <div class="absolute bottom-2 left-2 right-2 hidden group-hover:block bg-slate-950/95 text-white text-xs p-3.5 rounded-xl shadow-2xl z-30 pointer-events-none border border-amber-400/50 backdrop-blur-md text-left transition-all">
                         <div class="border-b border-slate-700 pb-1.5 mb-2 flex items-center space-x-1.5">
@@ -678,6 +954,8 @@
                 return;
             }
 
+            const podeVerProntuario = usuarioLogado && (usuarioLogado.role === 'admin' || usuarioLogado.prontuario === true);
+
             inativos.forEach(a => {
                 const card = document.createElement('div');
                 card.className = "bg-slate-100 border-2 border-slate-300 p-5 rounded-2xl shadow-xs flex flex-col items-center text-center relative group";
@@ -701,6 +979,13 @@
                     <span class="text-[10px] bg-slate-300 text-slate-700 font-black px-2 py-0.5 rounded uppercase mb-1">Desligado / Saiu</span>
                     <h4 class="font-bold text-slate-800 leading-snug">${a.nome}</h4>
                     <p class="text-xs text-slate-500 mt-1">Última Turma: ${a.turma} (${a.turno})</p>
+
+                    ${podeVerProntuario ? `
+                        <button onclick="abrirProntuario(${a.id})" class="mt-3 w-full bg-slate-700 hover:bg-slate-800 text-white font-extrabold text-xs py-1.5 rounded-xl flex items-center justify-center space-x-1 transition no-print">
+                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+                            <span>Ver Prontuário</span>
+                        </button>
+                    ` : ''}
 
                     <div class="absolute bottom-2 left-2 right-2 hidden group-hover:block bg-slate-900 text-white text-xs p-3 rounded-xl shadow-2xl z-30 pointer-events-none text-left">
                         <p class="py-0.5"><strong class="text-amber-400">Responsável:</strong> ${a.responsavel || 'N/I'}</p>
