@@ -198,12 +198,12 @@
         <div class="header-title">
             <span>🏛️ SMED - Sistema Escolar</span>
         </div>
-        <div id="status-sync" style="font-size: 0.8rem; color: #a3ffc2;">Sincronizado</div>
+        <div id="status-sync" style="font-size: 0.8rem; color: #a3ffc2;">Salvo no Navegador</div>
     </header>
 
     <div class="top-bar">
         <button class="btn-action" onclick="abrirModalAluno()">➕ Novo Aluno</button>
-        <button class="btn-action" onclick="sincronizarComNuvem()">🔄 Sincronizar</button>
+        <button class="btn-action" onclick="sincronizarComNuvem()">💾 Salvar Dados</button>
         <button class="btn-action" onclick="abrirModalUsuario()">🛡️ Gerenciar Usuários</button>
     </div>
 
@@ -273,64 +273,29 @@
     </div>
 
     <script>
-        // ==========================================
-        // CONFIGURAÇÃO DO BANCO DE DADOS (JSONBin.io)
-        // ==========================================
-        const JSONBIN_CONFIG = {
-            BIN_ID: '6a7b2448f5f4af5e29074729',
-            API_KEY: '$2a$10$V.UM2NhNYl.skgCWCrJ9/Oz8zo82Ki5qFaP66QKYZvzgxhRAyxwLW'
-        };
-
         let alunos = [];
         let usuarios = [];
 
-        // CARREGAR DADOS AO ABRIR
+        // CARREGAR DADOS DO NAVEGADOR (LOCALSTORAGE)
         window.onload = function() {
-            carregarDaNuvem();
+            carregarLocal();
         };
 
-        // CARREGAR DADOS DO JSONBIN
-        async function carregarDaNuvem() {
-            document.getElementById('status-sync').innerText = 'Carregando...';
+        function carregarLocal() {
+            const dadosAlunos = localStorage.getItem('carometro_alunos');
+            const dadosUsuarios = localStorage.getItem('carometro_usuarios');
 
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
-                    headers: { 'X-Master-Key': JSONBIN_CONFIG.API_KEY }
-                });
-                if (!res.ok) throw new Error('Erro na resposta do servidor');
-                const data = await res.json();
-                alunos = data.record.alunos || [];
-                usuarios = data.record.usuarios || [];
-                renderizarAlunos();
-                document.getElementById('status-sync').innerText = 'Sincronizado ✔️';
-            } catch (err) {
-                console.error(err);
-                alert('Erro de conexão ao sincronizar. Verifique a conexão com a internet ou as credenciais.');
-                document.getElementById('status-sync').innerText = 'Erro na sincronização ⚠️';
-            }
+            if (dadosAlunos) alunos = JSON.parse(dadosAlunos);
+            if (dadosUsuarios) usuarios = JSON.parse(dadosUsuarios);
+
+            renderizarAlunos();
         }
 
-        // SALVAR DADOS NO JSONBIN
-        async function sincronizarComNuvem() {
-            document.getElementById('status-sync').innerText = 'Sincronizando...';
-
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': JSONBIN_CONFIG.API_KEY
-                    },
-                    body: JSON.stringify({ alunos: alunos, usuarios: usuarios })
-                });
-                if (!res.ok) throw new Error('Erro ao salvar');
-                alert('Dados sincronizados com sucesso na nuvem!');
-                document.getElementById('status-sync').innerText = 'Sincronizado ✔️';
-            } catch (err) {
-                console.error(err);
-                alert('Erro de conexão ao sincronizar.');
-                document.getElementById('status-sync').innerText = 'Erro na sincronização ⚠️';
-            }
+        // SALVAR DADOS
+        function sincronizarComNuvem() {
+            localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
+            localStorage.setItem('carometro_usuarios', JSON.stringify(usuarios));
+            alert('Dados salvos no navegador com sucesso!');
         }
 
         // RENDERIZAR CARDS DE ALUNOS
