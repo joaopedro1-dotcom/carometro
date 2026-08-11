@@ -94,9 +94,9 @@
                     <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
                     <span>Turmas & Carômetro</span>
                 </button>
-                <button onclick="trocarAba('cadastros')" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
+                <button onclick="prepararNovoCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
                     <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Cadastrar / Editar Aluno</span>
+                    <span id="labelAbaCadastro">Cadastrar Aluno</span>
                 </button>
                 <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden">
                     <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
@@ -125,20 +125,27 @@
                     </button>
                 </div>
 
-                <!-- CARDS DOS ALUNOS -->
-                <div id="gridAlunos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- CARDS DOS ALUNOS (Com Fotos e Nomes Maiores) -->
+                <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     <!-- Cards inseridos via JS -->
                 </div>
             </section>
 
-            <!-- SEÇÃO 2: CADASTRO DE ALUNOS -->
+            <!-- SEÇÃO 2: CADASTRO E EDIÇÃO DE ALUNOS -->
             <section id="secCadastros" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl border border-emerald-100 shadow-sm no-print">
-                <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
-                    <i data-lucide="user-plus" class="text-emerald-700"></i>
-                    <span>Cadastrar Aluno</span>
-                </h3>
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-emerald-100">
+                    <h3 id="formAlunoTitulo" class="text-lg font-bold flex items-center space-x-2 text-emerald-950">
+                        <i data-lucide="user-plus" class="text-emerald-700"></i>
+                        <span>Cadastrar Aluno</span>
+                    </h3>
+                    <button type="button" id="btnCancelarEdicao" onclick="limparEFecharEdicao()" class="text-xs text-rose-600 hover:underline font-semibold hidden">
+                        Cancelar Edição
+                    </button>
+                </div>
 
                 <form id="formAluno" onsubmit="salvarAluno(event)" class="space-y-4">
+                    <input type="hidden" id="alunoId">
+
                     <div>
                         <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome Completo *</label>
                         <input type="text" id="alunoNome" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
@@ -170,6 +177,7 @@
                         <div>
                             <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Foto do Aluno</label>
                             <input type="file" id="alunoFoto" accept="image/*" class="w-full text-xs">
+                            <span id="avisoFotoMantida" class="text-[11px] text-emerald-600 font-medium hidden">Foto atual mantida (selecione um arquivo apenas para alterar).</span>
                         </div>
                     </div>
 
@@ -195,7 +203,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-2.5 rounded-lg transition shadow-md border border-amber-400/30 mt-4">
+                    <button type="submit" id="btnSalvarAluno" class="w-full bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-2.5 rounded-lg transition shadow-md border border-amber-400/30 mt-4">
                         Salvar Aluno
                     </button>
                 </form>
@@ -332,7 +340,12 @@
             }
         }
 
-        function comprimirFoto(file, maxWidth = 300, quality = 0.7) {
+        function prepararNovoCadastro() {
+            limparEFecharEdicao();
+            trocarAba('cadastros');
+        }
+
+        function comprimirFoto(file, maxWidth = 400, quality = 0.75) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -355,6 +368,7 @@
 
         async function salvarAluno(e) {
             e.preventDefault();
+            const idEdit = document.getElementById('alunoId').value;
             const nome = document.getElementById('alunoNome').value.trim();
             const turma = document.getElementById('alunoTurma').value.trim();
             const turno = document.getElementById('alunoTurno').value;
@@ -366,27 +380,70 @@
             let fotoData = '';
             if (fotoInput.files.length > 0) {
                 fotoData = await comprimirFoto(fotoInput.files[0]);
+            } else if (idEdit) {
+                const alunoAtual = alunos.find(a => a.id == idEdit);
+                if (alunoAtual) fotoData = alunoAtual.foto;
             }
 
-            const novoAluno = {
-                id: Date.now(),
-                nome,
-                turma,
-                turno,
-                integrada,
-                ne,
-                corCard,
-                foto: fotoData
-            };
+            if (idEdit) {
+                alunos = alunos.map(a => {
+                    if (a.id == idEdit) {
+                        return { ...a, nome, turma, turno, integrada, ne, corCard, foto: fotoData };
+                    }
+                    return a;
+                });
+                alert('Informações do aluno atualizadas!');
+            } else {
+                const novoAluno = {
+                    id: Date.now(),
+                    nome,
+                    turma,
+                    turno,
+                    integrada,
+                    ne,
+                    corCard,
+                    foto: fotoData
+                };
+                alunos.push(novoAluno);
+                alert('Aluno cadastrado com sucesso!');
+            }
 
-            alunos.push(novoAluno);
             localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
-
-            document.getElementById('formAluno').reset();
+            limparEFecharEdicao();
             atualizarSelectTurmas();
             renderizarAlunos();
             trocarAba('turmas');
-            alert('Aluno cadastrado com sucesso!');
+        }
+
+        function editarAluno(id) {
+            const aluno = alunos.find(a => a.id === id);
+            if (!aluno) return;
+
+            document.getElementById('alunoId').value = aluno.id;
+            document.getElementById('alunoNome').value = aluno.nome;
+            document.getElementById('alunoTurma').value = aluno.turma;
+            document.getElementById('alunoTurno').value = aluno.turno || 'Manhã';
+            document.getElementById('alunoIntegrada').value = aluno.integrada || 'Não';
+            document.getElementById('alunoNE').value = aluno.ne || '';
+            document.getElementById('alunoCorCard').value = aluno.corCard || 'bg-white border-slate-200';
+
+            document.getElementById('formAlunoTitulo').innerText = "Editar Dados do Aluno";
+            document.getElementById('btnSalvarAluno').innerText = "Atualizar Informações";
+            document.getElementById('btnCancelarEdicao').classList.remove('hidden');
+            if (aluno.foto) {
+                document.getElementById('avisoFotoMantida').classList.remove('hidden');
+            }
+
+            trocarAba('cadastros');
+        }
+
+        function limparEFecharEdicao() {
+            document.getElementById('formAluno').reset();
+            document.getElementById('alunoId').value = '';
+            document.getElementById('formAlunoTitulo').innerText = "Cadastrar Aluno";
+            document.getElementById('btnSalvarAluno').innerText = "Salvar Aluno";
+            document.getElementById('btnCancelarEdicao').classList.add('hidden');
+            document.getElementById('avisoFotoMantida').classList.add('hidden');
         }
 
         function deletarAluno(id) {
@@ -487,26 +544,43 @@
                 const card = document.createElement('div');
                 const corStyle = a.corCard || 'bg-white border-slate-200';
                 
-                card.className = `${corStyle} p-3 rounded-xl border shadow-sm flex flex-col items-center text-center relative group`;
+                card.className = `${corStyle} p-4 rounded-xl border shadow-sm flex flex-col items-center text-center relative group transition hover:shadow-md`;
                 card.innerHTML = `
+                    <!-- BOTÕES DE AÇÃO (EDITAR E APAGAR) NO CANTO DO CARD -->
                     ${usuarioLogado.role !== 'leitor' ? `
-                        <button onclick="deletarAluno(${a.id})" class="absolute top-2 right-2 text-rose-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition no-print">
-                            <i data-lucide="x-circle" class="w-4 h-4"></i>
-                        </button>
+                        <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition no-print z-10">
+                            <button onclick="editarAluno(${a.id})" class="text-amber-600 hover:text-amber-800 p-1 rounded bg-white/80 shadow-xs" title="Editar Aluno">
+                                <i data-lucide="pencil" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deletarAluno(${a.id})" class="text-rose-500 hover:text-rose-700 p-1 rounded bg-white/80 shadow-xs" title="Excluir Aluno">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     ` : ''}
 
-                    <div class="w-24 h-24 bg-slate-100 rounded-lg overflow-hidden mb-2 border border-slate-200 flex items-center justify-center">
-                        ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-10 h-10 text-slate-300"></i>`}
+                    <!-- FOTO AMPLIADA -->
+                    <div class="w-36 h-36 bg-slate-100 rounded-xl overflow-hidden mb-3 border-2 border-slate-200/80 shadow-inner flex items-center justify-center">
+                        ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-16 h-16 text-slate-300"></i>`}
                     </div>
                     
-                    <h4 class="font-bold text-sm text-slate-900 leading-tight mb-1">${a.nome}</h4>
-                    <div class="flex flex-wrap justify-center gap-1 my-1">
-                        <span class="text-[10px] bg-emerald-800 text-amber-300 font-bold px-2 py-0.5 rounded">${a.turma}</span>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${a.turno || 'Manhã'}</span>
+                    <!-- NOME MAIOR E VISÍVEL -->
+                    <h4 class="font-black text-base text-slate-900 leading-snug mb-1 px-1">${a.nome}</h4>
+                    
+                    <div class="flex flex-wrap justify-center gap-1.5 my-1">
+                        <span class="text-xs bg-emerald-900 text-amber-300 font-bold px-2.5 py-0.5 rounded-md shadow-xs">${a.turma}</span>
+                        <span class="text-xs bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${a.turno || 'Manhã'}</span>
                     </div>
 
-                    ${a.integrada === 'Sim' ? `<span class="text-[10px] bg-emerald-600 text-white font-bold px-2 py-0.5 rounded-full mt-1">Escola Integrada</span>` : ''}
-                    ${a.ne ? `<span class="text-[10px] bg-amber-500 text-emerald-950 font-bold px-2 py-0.5 rounded-full mt-1" title="${a.ne}">NE: ${a.ne}</span>` : ''}
+                    ${a.integrada === 'Sim' ? `<span class="text-xs bg-emerald-600 text-white font-bold px-2.5 py-0.5 rounded-full mt-1 shadow-xs">Escola Integrada</span>` : ''}
+                    ${a.ne ? `<span class="text-xs bg-amber-500 text-emerald-950 font-extrabold px-2.5 py-0.5 rounded-full mt-1 shadow-xs" title="${a.ne}">NE: ${a.ne}</span>` : ''}
+
+                    <!-- TOOLTIP / CARD FLUTUANTE AO PASSAR O MOUSE COM DETALHES COMPLETO -->
+                    <div class="absolute inset-x-2 bottom-full mb-2 hidden group-hover:block bg-slate-900/95 text-white text-xs p-3 rounded-lg shadow-2xl z-30 text-left pointer-events-none border border-amber-400/40 backdrop-blur-sm">
+                        <p class="font-bold text-amber-300 text-sm mb-1 border-b border-slate-700 pb-1">${a.nome}</p>
+                        <p><span class="text-slate-400">Turma:</span> ${a.turma} (${a.turno || 'N/I'})</p>
+                        <p><span class="text-slate-400">Escola Integrada:</span> ${a.integrada === 'Sim' ? 'Sim (Cadastrado)' : 'Não'}</p>
+                        <p><span class="text-slate-400">Necessidades Especiais:</span> ${a.ne ? a.ne : 'Nenhuma'}</p>
+                    </div>
                 `;
                 grid.appendChild(card);
             });
