@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carômetro Escolar - Jardim Vitória</title>
 
+    <!-- INSTRUÇÕES PARA NUNCA GUARDAR EM CACHE -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -263,6 +268,15 @@
     </div>
 
     <script>
+        // DESATALHAR E LIMPAR QUALQUER CACHE DE SERVICE WORKER ANTIGO
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+
         const BIN_ID = "65c82270dc74654018a287b4";
         const API_KEY = "$2a$10$R90uT8.yZpxfM/m5V.Kk8.vG38.qM2hM5UaBq5yP2b.s43A9r.22S";
 
@@ -353,7 +367,7 @@
 
         function carregarDadosNuvem() {
             mostrarAvisoNuvem("☁️ Baixando dados...");
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?nocache=` + new Date().getTime(), {
                 headers: { "X-Master-Key": API_KEY }
             })
             .then(res => res.json())
@@ -394,7 +408,6 @@
             .catch(() => { mostrarAvisoNuvem("⚠️ Erro de Conexão! Salvo no aparelho."); });
         }
 
-        // Função que comprime a foto para não estourar o limite de tamanho do servidor
         function converterEComprimirFoto(e) {
             const file = e.target.files[0];
             if (file) {
@@ -425,7 +438,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        fotoTemp = canvas.toDataURL('image/jpeg', 0.7); // Comprime foto para alta leveza
+                        fotoTemp = canvas.toDataURL('image/jpeg', 0.7);
                     };
                     img.src = event.target.result;
                 };
@@ -526,7 +539,6 @@
                     `;
                 }
 
-                // Montar as tags de Turno
                 let turnosRegulares = [];
                 if(aluno.regManha) turnosRegulares.push('Manhã');
                 if(aluno.regTarde) turnosRegulares.push('Tarde');
