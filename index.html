@@ -3,680 +3,518 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Carômetro Escolar - Jardim Vitória</title>
-
-    <!-- INSTRUÇÕES PARA NUNCA GUARDAR EM CACHE -->
+    <!-- Controle Anti-Cache para atualizar sempre nos navegadores -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Carômetro">
-    <meta name="theme-color" content="#0d5c3a">
+    <title>Carômetro Escolar - EMJV</title>
     
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="apple-touch-icon" href="favicon.svg">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
-        :root { --verde: #0d5c3a; --verde-escuro: #073823; --dourado: #d4af37; --fundo: #f4f7f5; }
-        body { background: var(--fundo); color: #333; min-height: 100vh; }
-
-        #tela-login { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, var(--verde-escuro), var(--verde)); }
-        .box-login { background: white; padding: 30px; border-radius: 12px; border-top: 5px solid var(--dourado); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .logo-svg { width: 80px; height: 80px; margin-bottom: 10px; }
-
-        .campo { margin-bottom: 15px; text-align: left; }
-        .campo label { display: block; font-size: 12px; font-weight: bold; color: var(--verde); margin-bottom: 5px; }
-        .campo input, .campo select, .campo textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        
-        .box-turnos { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
-        .box-turnos-titulo { font-size: 12px; font-weight: bold; color: var(--verde); margin-bottom: 6px; }
-        .opcoes-inline { display: flex; gap: 15px; align-items: center; font-size: 13px; margin-top: 4px; }
-        .opcoes-inline label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: normal; color: #333; }
-
-        .campo-inline { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-        .campo-inline input { width: auto; cursor: pointer; }
-
-        .btn { width: 100%; padding: 12px; background: var(--dourado); color: white; font-weight: bold; border: none; border-radius: 6px; cursor: pointer; font-size: 15px; }
-        .btn:hover { background: #b89528; }
-        .btn-secundario { background: var(--verde); }
-        .btn-secundario:hover { background: var(--verde-escuro); }
-
-        #painel { display: none; }
-        header { background: var(--verde); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--dourado); }
-        .header-logo { display: flex; align-items: center; gap: 12px; }
-        .header-logo .logo-svg { width: 45px; height: 45px; margin: 0; }
-
-        .conteudo { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
-        .barra-top { background: white; padding: 15px; border-radius: 8px; display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .busca { flex: 1; min-width: 180px; }
-
-        .grid-alunos { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-        
-        .card-aluno { background: white; border-radius: 10px; padding: 15px; text-align: center; border-top: 4px solid var(--verde); position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s; }
-        .card-aluno:hover { transform: translateY(-4px); border-top-color: var(--dourado); }
-        
-        .card-aluno.aluno-pcd {
-            background-color: #fff9e6;
-            border: 2px solid var(--dourado);
-            border-top: 5px solid var(--dourado);
+        .print-only { display: none; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .page-break { page-break-after: always; }
         }
-
-        .foto-aluno { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--dourado); object-fit: cover; margin-bottom: 10px; }
-        .turma-tag { background: #eaf4ee; color: var(--verde); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 12px; display: inline-block; margin: 3px 2px; }
-        .tag-pcd { background: #ffe8a1; color: #8a6d0b; border: 1px solid #d4af37; }
-        .tag-integrada { background: #e3f2fd; color: #0d47a1; border: 1px solid #90caf9; }
-
-        .box-obs-aluno {
-            background: #f8f9fa;
-            border-left: 3px solid var(--verde);
-            padding: 8px;
-            margin-top: 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            text-align: left;
-            color: #444;
-            max-height: 80px;
-            overflow-y: auto;
-        }
-
-        .acoes-card { display: flex; gap: 5px; margin-top: 10px; justify-content: center; }
-        .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 4px; border: none; cursor: pointer; color: white; font-weight: bold; }
-        .btn-edit { background: #007bff; }
-        .btn-del { background: #dc3545; }
-
-        .detalhes-hover { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); width: 240px; background: var(--verde-escuro); color: white; padding: 12px; border-radius: 8px; z-index: 10; font-size: 12px; text-align: left; border: 1px solid var(--dourado); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .card-aluno:hover .detalhes-hover { display: block; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 14px; }
-        th { background: var(--verde); color: white; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
-        .modal-box { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 450px; border-top: 5px solid var(--dourado); max-height: 90vh; overflow-y: auto; }
-        
-        #statusNuvem { position: fixed; bottom: 15px; right: 15px; background: #333; color: white; padding: 8px 14px; border-radius: 20px; font-size: 12px; display: none; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
-<body>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
 
-    <svg id="svgTemplate" style="display:none;">
-        <g id="logo-icon">
-            <circle cx="50" cy="50" r="48" fill="#0d5c3a" stroke="#d4af37" stroke-width="4"/>
-            <path d="M50 20 L80 40 L80 70 L50 90 L20 70 L20 40 Z" fill="none" stroke="#d4af37" stroke-width="3"/>
-            <text x="50" y="58" font-family="Arial" font-size="22" fill="#ffffff" font-weight="bold" text-anchor="middle">JV</text>
-        </g>
-    </svg>
-
-    <div id="statusNuvem">☁️ Sincronizando...</div>
-
-    <!-- TELA DE LOGIN -->
-    <div id="tela-login">
-        <div class="box-login">
-            <svg class="logo-svg" viewBox="0 0 100 100"><use href="#logo-icon"/></svg>
-            <h2 style="color: var(--verde); margin-bottom: 2px;">Jardim Vitória</h2>
-            <p style="color: #666; font-size: 13px; margin-bottom: 20px;">Carômetro & Consulta</p>
-            
-            <form onsubmit="realizarLogin(event)">
-                <div class="campo">
-                    <label>USUÁRIO</label>
-                    <input type="text" id="userInput" placeholder="Digite seu usuário..." required>
-                </div>
-                <div class="campo">
-                    <label>SENHA</label>
-                    <input type="password" id="passInput" placeholder="Digite sua senha..." required>
-                </div>
-                <button type="submit" class="btn">Entrar no Sistema</button>
-            </form>
-            <p id="erro" style="color:red; font-size:12px; margin-top:10px; display:none;"></p>
-        </div>
-    </div>
-
-    <!-- PAINEL PRINCIPAL -->
-    <div id="painel">
-        <header>
-            <div class="header-logo">
-                <svg class="logo-svg" viewBox="0 0 100 100"><use href="#logo-icon"/></svg>
+    <!-- BARRA SUPERIOR DA APLICAÇÃO -->
+    <header class="bg-indigo-900 text-white shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i data-lucide="users" class="w-8 h-8 text-indigo-400"></i>
                 <div>
-                    <h3 style="font-size:16px;">ESCOLA MUNICIPAL JARDIM VITÓRIA</h3>
-                    <small id="txtPerfil" style="color: var(--dourado);"></small>
+                    <h1 class="text-xl font-bold leading-none">Carômetro Escolar</h1>
+                    <span class="text-xs text-indigo-300">E. M. Jardim Vitória</span>
                 </div>
             </div>
-            <div>
-                <button id="btnGerenciarUsers" onclick="abrirModalUsers()" style="display:none; background:var(--dourado); border:none; color:white; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px;">👥 Usuários</button>
-                <button onclick="sair()" style="background:transparent; border:1px solid var(--dourado); color:var(--dourado); padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold;">Sair</button>
-            </div>
-        </header>
-
-        <div class="conteudo">
-            <div class="barra-top">
-                <input type="text" id="buscaNome" class="busca campo" style="margin:0;" placeholder="🔍 Buscar por aluno..." onkeyup="filtrar()">
-                
-                <input type="text" id="filtroTurma" class="campo" style="margin:0; width:220px;" placeholder="🏫 Filtrar Ano/Sala (ex: 1º Ano A)..." onkeyup="filtrar()">
-
-                <select id="filtroProjeto" class="campo" style="margin:0; width:auto;" onchange="filtrar()">
-                    <option value="">Todos os Alunos</option>
-                    <option value="integrada">☀️ Apenas Educação Integral (Projeto)</option>
-                    <option value="pcd">♿ Apenas Alunos PcD/Inclusão</option>
-                </select>
-
-                <button id="btnCadastrar" class="btn" style="width:auto; display:none;" onclick="abrirModal()">+ Cadastrar Aluno</button>
-                <button class="btn btn-secundario" style="width:auto;" onclick="carregarDadosNuvem()">🔄 Sincronizar</button>
-            </div>
-
-            <div class="grid-alunos" id="gridAlunos"></div>
-        </div>
-    </div>
-
-    <!-- MODAL CADASTRO / EDIÇÃO DE ALUNOS -->
-    <div class="modal" id="modalCad">
-        <div class="modal-box">
-            <h3 id="modalTitulo" style="color: var(--verde); margin-bottom: 15px;">Cadastrar Novo Aluno</h3>
-            <form onsubmit="salvarAluno(event)">
-                <input type="hidden" id="editIndex">
-                
-                <div class="campo">
-                    <label>Nome Completo do Aluno</label>
-                    <input type="text" id="cadNome" placeholder="Ex: João da Silva" required>
-                </div>
-                
-                <div class="campo">
-                    <label>Ano e Turma (Ex: 1º Ano A, Sala 04)</label>
-                    <input type="text" id="cadTurma" placeholder="Digite o ano e sala do aluno..." required>
-                </div>
-
-                <!-- TURNO DO ENSINO REGULAR -->
-                <div class="box-turnos">
-                    <div class="box-turnos-titulo">🏫 Ensino Regular (Turno)</div>
-                    <div class="opcoes-inline">
-                        <label><input type="checkbox" id="regManha"> 🌅 Manhã</label>
-                        <label><input type="checkbox" id="regTarde"> 🌆 Tarde</label>
-                    </div>
-                </div>
-
-                <!-- EDUCAÇÃO INTEGRAL / CONTRA-TURNO -->
-                <div class="box-turnos" style="background:#e3f2fd; border-color:#90caf9;">
-                    <div class="box-turnos-titulo" style="color:#0d47a1;">☀️ Projeto Educação Integral (Contra-turno)</div>
-                    <div class="opcoes-inline">
-                        <label><input type="checkbox" id="intManha"> 🌅 Manhã</label>
-                        <label><input type="checkbox" id="intTarde"> 🌆 Tarde</label>
-                    </div>
-                </div>
-
-                <div class="campo-inline">
-                    <input type="checkbox" id="cadPcd">
-                    <label for="cadPcd" style="color:#8a6d0b; font-weight:bold;">♿ Aluno PcD / Necessidade Especial (Destaque Amarelo)</label>
-                </div>
-
-                <div class="campo">
-                    <label>Foto do Aluno (Redimensionada automaticamente)</label>
-                    <input type="file" id="cadFoto" accept="image/*" onchange="converterEComprimirFoto(event)">
-                </div>
-
-                <div class="campo"><label>Nome do Responsável</label><input type="text" id="cadResp" placeholder="Ex: Maria (Mãe)" required></div>
-                <div class="campo"><label>Telefone de Contato</label><input type="text" id="cadTel" placeholder="Ex: (31) 99999-9999" required></div>
-                <div class="campo"><label>Alergias / Laudo / Observações</label><textarea id="cadObs" rows="2" placeholder="Observações do aluno..."></textarea></div>
-                
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="button" class="btn" style="background:#ccc;" onclick="fecharModal()">Cancelar</button>
-                    <button type="submit" id="btnSalvarModal" class="btn">Salvar Aluno</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL DE GERENCIAMENTO DE USUÁRIOS -->
-    <div class="modal" id="modalUsers">
-        <div class="modal-box">
-            <h3 style="color: var(--verde); margin-bottom: 15px;">Gerenciar Acessos e Usuários</h3>
             
-            <form onsubmit="salvarNovoUsuario(event)" style="background:#f9f9f9; padding:12px; border-radius:6px; margin-bottom:15px;">
-                <h4 style="font-size:13px; color:var(--verde); margin-bottom:8px;">+ Criar Novo Acesso</h4>
-                <div class="campo"><label>Nome de Usuário (login)</label><input type="text" id="novoUser" required placeholder="Ex: maria.silva"></div>
-                <div class="campo"><label>Senha</label><input type="password" id="novaSenha" required placeholder="Digite a senha"></div>
-                <div class="campo">
-                    <label>Permissão</label>
-                    <select id="novoPerfil" required>
-                        <option value="professor">Professor (Apenas Visualizar/Pesquisar)</option>
-                        <option value="admin">Administrador (Total Acesso e Edição)</option>
-                    </select>
+            <div id="headerControls" class="flex items-center space-x-3 hidden">
+                <button onclick="sincronizarComNuvem()" id="btnSync" class="flex items-center space-x-1 bg-indigo-800 hover:bg-indigo-700 px-3 py-1.5 rounded-lg text-sm transition">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    <span>Sincronizar</span>
+                </button>
+
+                <div class="text-right border-l border-indigo-700 pl-3">
+                    <p id="userDisplayName" class="text-sm font-semibold leading-none"></p>
+                    <span id="userDisplayRole" class="text-xs text-indigo-300 capitalize"></span>
                 </div>
-                <button type="submit" class="btn btn-secundario" style="padding:8px;">Criar Usuário</button>
-            </form>
 
-            <h4 style="font-size:13px; color:var(--verde);">Usuários Cadastrados</h4>
-            <div style="max-height: 180px; overflow-y: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Usuário</th>
-                            <th>Perfil</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaUsuarios"></tbody>
-                </table>
-            </div>
-
-            <div style="margin-top:15px; text-align:right;">
-                <button type="button" class="btn" style="background:#ccc; width:auto;" onclick="fecharModalUsers()">Fechar</button>
+                <button onclick="logout()" class="text-indigo-300 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
+                </button>
             </div>
         </div>
-    </div>
+    </header>
 
+    <!-- CONTAINER PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- TELA DE LOGIN -->
+        <section id="loginSection" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-lg mt-12 no-print">
+            <div class="text-center mb-6">
+                <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="lock" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">Acesso ao Sistema</h2>
+                <p class="text-sm text-slate-500">Insira suas credenciais para continuar</p>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-x-0 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Usuário / E-mail</label>
+                    <input type="text" id="loginUsername" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Senha</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md">
+                    Entrar
+                </button>
+            </form>
+            <div id="loginError" class="mt-4 text-red-500 text-sm text-center hidden"></div>
+        </section>
+
+        <!-- PAINEL PRINCIPAL (SISTEMA) -->
+        <div id="appDashboard" class="hidden">
+            
+            <!-- ABAS DE NAVEGAÇÃO -->
+            <div class="flex border-b border-slate-200 mb-6 no-print space-x-2">
+                <button onclick="trocarAba('turmas')" id="tabBtnTurmas" class="px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600 flex items-center space-x-2">
+                    <i data-lucide="grid" class="w-4 h-4"></i>
+                    <span>Turmas & Carômetro</span>
+                </button>
+                <button onclick="trocarAba('cadastros')" id="tabBtnCadastros" class="px-4 py-2 font-medium text-slate-500 hover:text-indigo-600 flex items-center space-x-2">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>Cadastrar Aluno</span>
+                </button>
+                <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2 font-medium text-slate-500 hover:text-indigo-600 flex items-center space-x-2 admin-only hidden">
+                    <i data-lucide="shield" class="w-4 h-4"></i>
+                    <span>Gerenciar Usuários</span>
+                </button>
+            </div>
+
+            <!-- CONTEÚDO 1: CARÔMETRO / TURMAS -->
+            <section id="secTurmas" class="space-y-6">
+                <!-- Filtros e Busca -->
+                <div class="bg-white p-4 rounded-xl shadow-sm flex flex-wrap gap-4 items-center justify-between no-print">
+                    <div class="flex gap-4 flex-1 min-w-[280px]">
+                        <select id="filterTurma" onchange="renderizarAlunos()" class="px-3 py-2 border rounded-lg outline-none bg-slate-50">
+                            <option value="">Todas as Turmas</option>
+                        </select>
+                        <input type="text" id="searchAluno" oninput="renderizarAlunos()" placeholder="Buscar por nome ou matrícula..." class="flex-1 px-3 py-2 border rounded-lg outline-none">
+                    </div>
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Imprimir / PDF</span>
+                    </button>
+                </div>
+
+                <!-- GRID DE ALUNOS -->
+                <div id="gridAlunos" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <!-- Cards de alunos renderizados via JavaScript -->
+                </div>
+            </section>
+
+            <!-- CONTEÚDO 2: CADASTRO DE ALUNOS -->
+            <section id="secCadastros" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm no-print">
+                <h3 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                    <i data-lucide="user-plus" class="text-indigo-600"></i>
+                    <span>Cadastrar Novo Aluno</span>
+                </h3>
+
+                <form id="formAluno" onsubmit="salvarAluno(event)" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Nome Completo</label>
+                            <input type="text" id="alunoNome" required class="w-full px-3 py-2 border rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Matrícula</label>
+                            <input type="text" id="alunoMatricula" class="w-full px-3 py-2 border rounded-lg outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Turma</label>
+                            <input type="text" id="alunoTurma" placeholder="Ex: 6º Ano A" required class="w-full px-3 py-2 border rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Foto do Aluno</label>
+                            <input type="file" id="alunoFoto" accept="image/*" class="w-full text-sm">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition">
+                        Salvar Aluno
+                    </button>
+                </form>
+            </section>
+
+            <!-- CONTEÚDO 3: GERENCIAR USUÁRIOS (ADMIN) -->
+            <section id="secUsuarios" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-sm no-print">
+                <h3 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                    <i data-lucide="shield" class="text-indigo-600"></i>
+                    <span>Cadastrar Novo Usuário do Sistema</span>
+                </h3>
+
+                <form id="formUsuario" onsubmit="salvarUsuario(event)" class="space-y-4 mb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Nome de Usuário</label>
+                            <input type="text" id="novoUsername" required class="w-full px-3 py-2 border rounded-lg outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Senha</label>
+                            <input type="password" id="novaSenha" required class="w-full px-3 py-2 border rounded-lg outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">Perfil de Acesso</label>
+                        <select id="novoPerfil" class="w-full px-3 py-2 border rounded-lg outline-none">
+                            <option value="usuario">Usuário Comum (Visualiza e edita alunos)</option>
+                            <option value="admin">Administrador (Acesso total + Gerencia usuários)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded-lg transition">
+                        Criar Usuário
+                    </button>
+                </form>
+
+                <hr class="my-6">
+
+                <h4 class="font-bold mb-3">Usuários Cadastrados</h4>
+                <div id="listaUsuarios" class="space-y-2">
+                    <!-- Lista de usuários renderizada via JS -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- SCRIPT DA APLICAÇÃO -->
     <script>
-        // DESATALHAR E LIMPAR QUALQUER CACHE DE SERVICE WORKER ANTIGO
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
+        // CONFIGURAÇÕES DO JSONBIN
+        const JSONBIN_CONFIG = {
+            BIN_ID: '66b7bb73ad19ca34f894ef6c', // ID do seu Bin no JSONBin
+            API_KEY: '$2a$10$R/9XvYjFzZ3P6L6J5Z4X3O4U5V6W7X8Y9Z0A1B2C3D4E5F6' // Chave Master API Key
+        };
+
+        // ESTADO GLOBAL
+        let usuarioLogado = null;
+        let alunos = JSON.parse(localStorage.getItem('carometro_alunos')) || [];
+        let usuarios = JSON.parse(localStorage.getItem('carometro_usuarios')) || [
+            { username: 'admin', pass: 'admin123', role: 'admin' } // Usuário Padrão Inicial
+        ];
+
+        // INICIALIZAÇÃO
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            verificarSessao();
+        });
+
+        function verificarSessao() {
+            const sessao = sessionStorage.getItem('carometro_sessao');
+            if (sessao) {
+                usuarioLogado = JSON.parse(sessao);
+                iniciarApp();
+            }
+        }
+
+        // LOGIN / LOGOUT
+        function handleLogin(e) {
+            e.preventDefault();
+            const userIn = document.getElementById('loginUsername').value.trim();
+            const passIn = document.getElementById('loginPassword').value.trim();
+
+            const userFound = usuarios.find(u => u.username === userIn && u.pass === passIn);
+
+            if (userFound) {
+                usuarioLogado = userFound;
+                sessionStorage.setItem('carometro_sessao', JSON.stringify(userFound));
+                document.getElementById('loginError').classList.add('hidden');
+                iniciarApp();
+            } else {
+                const errDiv = document.getElementById('loginError');
+                errDiv.innerText = "Usuário ou senha incorretos!";
+                errDiv.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('carometro_sessao');
+            usuarioLogado = null;
+            location.reload();
+        }
+
+        function iniciarApp() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('appDashboard').classList.remove('hidden');
+            document.getElementById('headerControls').classList.remove('hidden');
+
+            document.getElementById('userDisplayName').innerText = usuarioLogado.username;
+            document.getElementById('userDisplayRole').innerText = usuarioLogado.role;
+
+            if (usuarioLogado.role === 'admin') {
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            }
+
+            atualizarSelectTurmas();
+            renderizarAlunos();
+            renderizarListaUsuarios();
+        }
+
+        // NAVEGAÇÃO DE ABAS
+        function trocarAba(aba) {
+            document.getElementById('secTurmas').classList.add('hidden');
+            document.getElementById('secCadastros').classList.add('hidden');
+            document.getElementById('secUsuarios').classList.add('hidden');
+
+            document.getElementById('tabBtnTurmas').className = "px-4 py-2 font-medium text-slate-500 flex items-center space-x-2";
+            document.getElementById('tabBtnCadastros').className = "px-4 py-2 font-medium text-slate-500 flex items-center space-x-2";
+            document.getElementById('tabBtnUsuarios').className = "px-4 py-2 font-medium text-slate-500 flex items-center space-x-2 admin-only";
+
+            if (aba === 'turmas') {
+                document.getElementById('secTurmas').classList.remove('hidden');
+                document.getElementById('tabBtnTurmas').className = "px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600 flex items-center space-x-2";
+            } else if (aba === 'cadastros') {
+                document.getElementById('secCadastros').classList.remove('hidden');
+                document.getElementById('tabBtnCadastros').className = "px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600 flex items-center space-x-2";
+            } else if (aba === 'usuarios') {
+                document.getElementById('secUsuarios').classList.remove('hidden');
+                document.getElementById('tabBtnUsuarios').className = "px-4 py-2 font-medium text-indigo-600 border-b-2 border-indigo-600 flex items-center space-x-2 admin-only";
+            }
+        }
+
+        // COMPRESSÃO DE IMAGENS
+        function comprimirFoto(file, maxWidth = 300, quality = 0.7) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const scale = maxWidth / img.width;
+                        canvas.width = maxWidth;
+                        canvas.height = img.height * scale;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                };
             });
         }
 
-        const BIN_ID = "65c82270dc74654018a287b4";
-        const API_KEY = "$2a$10$R90uT8.yZpxfM/m5V.Kk8.vG38.qM2hM5UaBq5yP2b.s43A9r.22S";
-
-        const USUARIOS_PADRAO = [
-            { user: "admin", pass: "123", perfil: "admin" },
-            { user: "professor", pass: "123", perfil: "professor" }
-        ];
-
-        let dadosSistema = {
-            alunos: [],
-            usuarios: USUARIOS_PADRAO
-        };
-
-        let fotoTemp = "";
-        let ehAdmin = false;
-
-        function mostrarAvisoNuvem(msg, duracao = 3000) {
-            const el = document.getElementById('statusNuvem');
-            el.innerText = msg;
-            el.style.display = 'block';
-            setTimeout(() => { el.style.display = 'none'; }, duracao);
-        }
-
-        function garantirEstruturaDados(dados) {
-            if (!dados || typeof dados !== 'object') {
-                return { alunos: [], usuarios: USUARIOS_PADRAO };
-            }
-            if (Array.isArray(dados)) {
-                return { alunos: dados, usuarios: USUARIOS_PADRAO };
-            }
-            if (!Array.isArray(dados.alunos)) {
-                dados.alunos = [];
-            }
-            if (!Array.isArray(dados.usuarios) || dados.usuarios.length === 0) {
-                dados.usuarios = USUARIOS_PADRAO;
-            }
-            return dados;
-        }
-
-        (function carregarInicialLocal() {
-            const dadosLocais = localStorage.getItem('carometro_dados');
-            if (dadosLocais) {
-                try {
-                    dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais));
-                } catch(e){}
-            }
-        })();
-
-        function realizarLogin(e) {
+        // CADASTRO DE ALUNOS
+        async function salvarAluno(e) {
             e.preventDefault();
-            const u = document.getElementById('userInput').value.trim().toLowerCase();
-            const p = document.getElementById('passInput').value;
+            const nome = document.getElementById('alunoNome').value.trim();
+            const matricula = document.getElementById('alunoMatricula').value.trim();
+            const turma = document.getElementById('alunoTurma').value.trim();
+            const fotoInput = document.getElementById('alunoFoto');
 
-            const dadosLocais = localStorage.getItem('carometro_dados');
-            if (dadosLocais) {
-                try { dadosSistema = garantirEstruturaDados(JSON.parse(dadosLocais)); } catch(err){}
+            let fotoData = '';
+            if (fotoInput.files.length > 0) {
+                fotoData = await comprimirFoto(fotoInput.files[0]);
             }
 
-            const contaEncontrada = dadosSistema.usuarios.find(item => item.user.toLowerCase() === u && item.pass === p);
-
-            if (contaEncontrada) {
-                const isAdmin = contaEncontrada.perfil === 'admin';
-                const titulo = isAdmin ? 'Administrador / Secretaria' : 'Professor (Consulta)';
-                iniciarSessao(titulo, isAdmin);
-            } else {
-                const err = document.getElementById('erro');
-                err.innerText = "Usuário ou senha incorretos!";
-                err.style.display = "block";
-            }
-        }
-
-        function iniciarSessao(perfil, adminFlag) {
-            ehAdmin = adminFlag;
-            document.getElementById('tela-login').style.display = 'none';
-            document.getElementById('painel').style.display = 'block';
-            document.getElementById('txtPerfil').innerText = perfil;
-            
-            if (ehAdmin) {
-                document.getElementById('btnCadastrar').style.display = 'block';
-                document.getElementById('btnGerenciarUsers').style.display = 'inline-block';
-            }
-
-            renderizar(dadosSistema.alunos);
-            carregarDadosNuvem();
-        }
-
-        function sair() { location.reload(); }
-
-        function carregarDadosNuvem() {
-            mostrarAvisoNuvem("☁️ Baixando dados...");
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?nocache=` + new Date().getTime(), {
-                headers: { "X-Master-Key": API_KEY }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data && data.record) {
-                    dadosSistema = garantirEstruturaDados(data.record);
-                    localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
-                    renderizar(dadosSistema.alunos);
-                    mostrarAvisoNuvem("✅ Sincronizado!");
-                }
-            })
-            .catch(() => { mostrarAvisoNuvem("⚠️ Modo Offline ativado"); });
-        }
-
-        function salvarNaNuvem() {
-            dadosSistema = garantirEstruturaDados(dadosSistema);
-            localStorage.setItem('carometro_dados', JSON.stringify(dadosSistema));
-            renderizar(dadosSistema.alunos);
-
-            mostrarAvisoNuvem("☁️ Salvando na Nuvem...");
-
-            fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Master-Key': API_KEY
-                },
-                body: JSON.stringify(dadosSistema)
-            })
-            .then(res => res.json())
-            .then(res => {
-                if(res && res.record) {
-                    mostrarAvisoNuvem("✅ Salvo com sucesso!");
-                } else {
-                    mostrarAvisoNuvem("⚠️ Erro ao salvar na Nuvem!");
-                }
-            })
-            .catch(() => { mostrarAvisoNuvem("⚠️ Erro de Conexão! Salvo no aparelho."); });
-        }
-
-        function converterEComprimirFoto(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 250;
-                        const MAX_HEIGHT = 250;
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > MAX_WIDTH) {
-                                height *= MAX_WIDTH / width;
-                                width = MAX_WIDTH;
-                            }
-                        } else {
-                            if (height > MAX_HEIGHT) {
-                                width *= MAX_HEIGHT / height;
-                                height = MAX_HEIGHT;
-                            }
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        fotoTemp = canvas.toDataURL('image/jpeg', 0.7);
-                    };
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function salvarAluno(e) {
-            e.preventDefault();
-            const index = document.getElementById('editIndex').value;
-            const nome = document.getElementById('cadNome').value.trim();
-            const turma = document.getElementById('cadTurma').value.trim();
-
-            const regM = document.getElementById('regManha').checked;
-            const regT = document.getElementById('regTarde').checked;
-            const intM = document.getElementById('intManha').checked;
-            const intT = document.getElementById('intTarde').checked;
-
-            const fotoPadrao = `https://ui-avatars.com/api/?name=${encodeURIComponent(nome)}&background=0d5c3a&color=fff`;
-
-            const alunoObj = {
-                id: index !== "" ? dadosSistema.alunos[index].id : Date.now(),
-                nome: nome,
-                turma: turma,
-                regManha: regM,
-                regTarde: regT,
-                intManha: intM,
-                intTarde: intT,
-                integrada: (intM || intT),
-                pcd: document.getElementById('cadPcd').checked,
-                foto: fotoTemp || (index !== "" ? dadosSistema.alunos[index].foto : fotoPadrao),
-                resp: document.getElementById('cadResp').value.trim(),
-                tel: document.getElementById('cadTel').value.trim(),
-                obs: document.getElementById('cadObs').value.trim() || 'Nenhuma'
+            const novoAluno = {
+                id: Date.now(),
+                nome,
+                matricula,
+                turma,
+                foto: fotoData
             };
 
-            if(index !== "") {
-                dadosSistema.alunos[index] = alunoObj;
-            } else {
-                dadosSistema.alunos.push(alunoObj);
-            }
+            alunos.push(novoAluno);
+            localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
 
-            salvarNaNuvem();
-            fecharModal();
-            e.target.reset();
-            fotoTemp = "";
-            document.getElementById('editIndex').value = "";
+            document.getElementById('formAluno').reset();
+            atualizarSelectTurmas();
+            renderizarAlunos();
+            trocarAba('turmas');
+            alert('Aluno cadastrado com sucesso! Clique em "Sincronizar" para enviar para os outros computadores.');
         }
 
-        function editarAluno(i) {
-            const a = dadosSistema.alunos[i];
-            document.getElementById('editIndex').value = i;
-            document.getElementById('cadNome').value = a.nome;
-            document.getElementById('cadTurma').value = a.turma;
-            
-            document.getElementById('regManha').checked = !!a.regManha;
-            document.getElementById('regTarde').checked = !!a.regTarde;
-            document.getElementById('intManha').checked = !!a.intManha;
-            document.getElementById('intTarde').checked = !!a.intTarde;
+        // GERENCIAMENTO DE USUÁRIOS
+        function salvarUsuario(e) {
+            e.preventDefault();
+            const username = document.getElementById('novoUsername').value.trim();
+            const pass = document.getElementById('novaSenha').value.trim();
+            const role = document.getElementById('novoPerfil').value;
 
-            document.getElementById('cadPcd').checked = !!a.pcd;
-            document.getElementById('cadResp').value = a.resp;
-            document.getElementById('cadTel').value = a.tel;
-            document.getElementById('cadObs').value = a.obs;
-            fotoTemp = a.foto;
-
-            document.getElementById('modalTitulo').innerText = "Editar Aluno";
-            abrirModal();
-        }
-
-        function excluirAluno(i) {
-            if(confirm(`Excluir o(a) aluno(a) ${dadosSistema.alunos[i].nome}?`)) {
-                dadosSistema.alunos.splice(i, 1);
-                salvarNaNuvem();
-            }
-        }
-
-        function renderizar(alunos) {
-            const grid = document.getElementById('gridAlunos');
-            grid.innerHTML = '';
-
-            if (!alunos || alunos.length === 0) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666; padding: 20px;">Nenhum aluno encontrado.</p>';
+            if (usuarios.some(u => u.username === username)) {
+                alert('Este nome de usuário já existe!');
                 return;
             }
 
-            alunos.forEach((aluno, index) => {
+            usuarios.push({ username, pass, role });
+            localStorage.setItem('carometro_usuarios', JSON.stringify(usuarios));
+
+            document.getElementById('formUsuario').reset();
+            renderizarListaUsuarios();
+            alert('Usuário criado com sucesso! Clique em "Sincronizar" para enviar a permissão para os outros computadores.');
+        }
+
+        function excluirUsuario(username) {
+            if (username === 'admin') {
+                alert('Não é possível excluir o usuário admin principal.');
+                return;
+            }
+            if (confirm(`Deseja excluir o usuário ${username}?`)) {
+                usuarios = usuarios.filter(u => u.username !== username);
+                localStorage.setItem('carometro_usuarios', JSON.stringify(usuarios));
+                renderizarListaUsuarios();
+            }
+        }
+
+        function renderizarListaUsuarios() {
+            const container = document.getElementById('listaUsuarios');
+            container.innerHTML = '';
+
+            usuarios.forEach(u => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center p-3 bg-slate-50 border rounded-lg";
+                div.innerHTML = `
+                    <div>
+                        <span class="font-bold text-slate-700">${u.username}</span>
+                        <span class="text-xs ml-2 px-2 py-0.5 rounded ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} capitalize">${u.role}</span>
+                    </div>
+                    ${u.username !== 'admin' ? `
+                        <button onclick="excluirUsuario('${u.username}')" class="text-red-500 hover:text-red-700 p-1">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // RENDERIZAÇÃO DO CARÔMETRO
+        function atualizarSelectTurmas() {
+            const select = document.getElementById('filterTurma');
+            const turmasUnicas = [...new Set(alunos.map(a => a.turma))].sort();
+
+            select.innerHTML = '<option value="">Todas as Turmas</option>';
+            turmasUnicas.forEach(t => {
+                select.innerHTML += `<option value="${t}">${t}</option>`;
+            });
+        }
+
+        function renderizarAlunos() {
+            const grid = document.getElementById('gridAlunos');
+            const filtroTurma = document.getElementById('filterTurma').value;
+            const busca = document.getElementById('searchAluno').value.toLowerCase();
+
+            grid.innerHTML = '';
+
+            const alunosFiltrados = alunos.filter(a => {
+                const bateTurma = !filtroTurma || a.turma === filtroTurma;
+                const bateBusca = !busca || a.nome.toLowerCase().includes(busca) || a.matricula.toLowerCase().includes(busca);
+                return bateTurma && bateBusca;
+            });
+
+            if (alunosFiltrados.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8">Nenhum aluno encontrado.</div>';
+                return;
+            }
+
+            alunosFiltrados.forEach(a => {
                 const card = document.createElement('div');
-                card.className = `card-aluno ${aluno.pcd ? 'aluno-pcd' : ''}`;
-                
-                let botoesAdmin = '';
-                if(ehAdmin) {
-                    botoesAdmin = `
-                        <div class="acoes-card">
-                            <button class="btn-sm btn-edit" onclick="editarAluno(${index})">Editar</button>
-                            <button class="btn-sm btn-del" onclick="excluirAluno(${index})">Excluir</button>
-                        </div>
-                    `;
-                }
-
-                let turnosRegulares = [];
-                if(aluno.regManha) turnosRegulares.push('Manhã');
-                if(aluno.regTarde) turnosRegulares.push('Tarde');
-                let txtTurnoReg = turnosRegulares.length > 0 ? ` (${turnosRegulares.join('/')})` : '';
-
-                let turnosProjeto = [];
-                if(aluno.intManha) turnosProjeto.push('Manhã');
-                if(aluno.intTarde) turnosProjeto.push('Tarde');
-                
-                let tagIntegrada = '';
-                if(turnosProjeto.length > 0 || aluno.integrada) {
-                    let txtProj = turnosProjeto.length > 0 ? `☀️ Integral (${turnosProjeto.join('/')})` : '☀️ Projeto Integral';
-                    tagIntegrada = `<span class="turma-tag tag-integrada">${txtProj}</span>`;
-                }
-
-                let tagPcd = aluno.pcd ? '<span class="turma-tag tag-pcd">♿ PcD</span>' : '';
-                let textoObs = aluno.obs && aluno.obs !== 'Nenhuma' ? aluno.obs : 'Sem observações';
-
+                card.className = "bg-white p-3 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center";
                 card.innerHTML = `
-                    <img src="${aluno.foto}" class="foto-aluno" alt="Foto">
-                    <br><strong>${aluno.nome}</strong><br>
-                    <span class="turma-tag">${aluno.turma}${txtTurnoReg}</span>
-                    ${tagIntegrada}
-                    ${tagPcd}
-                    
-                    <div class="box-obs-aluno">
-                        <strong>📝 Obs:</strong> ${textoObs}
+                    <div class="w-24 h-24 bg-slate-100 rounded-lg overflow-hidden mb-2 border flex items-center justify-center">
+                        ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-12 h-12 text-slate-300"></i>`}
                     </div>
-
-                    ${botoesAdmin}
-                    
-                    <div class="detalhes-hover">
-                        <p><strong>Turma Regular:</strong> ${aluno.turma}${txtTurnoReg}</p>
-                        ${tagIntegrada ? `<p><strong>Contra-turno:</strong> ${turnosProjeto.join('/') || 'Sim'}</p>` : ''}
-                        <p><strong>Responsável:</strong> ${aluno.resp}</p>
-                        <p><strong>Telefone:</strong> ${aluno.tel}</p>
-                        <p><strong>Obs/Laudo:</strong> ${textoObs}</p>
-                    </div>
+                    <h4 class="font-bold text-sm text-slate-800 leading-tight mb-1">${a.nome}</h4>
+                    <span class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-2 py-0.5 rounded-full mb-1">${a.turma}</span>
+                    <span class="text-xs text-slate-400">Matrícula: ${a.matricula || 'N/I'}</span>
                 `;
                 grid.appendChild(card);
             });
+            lucide.createIcons();
         }
 
-        function filtrar() {
-            const busca = document.getElementById('buscaNome').value.toLowerCase();
-            const buscaTurma = document.getElementById('filtroTurma').value.toLowerCase();
-            const projeto = document.getElementById('filtroProjeto').value;
+        // SINCRONIZAÇÃO COMPLETA COM NUVEM (JSONBIN)
+        async function sincronizarComNuvem() {
+            const btn = document.getElementById('btnSync');
+            btn.classList.add('opacity-50', 'pointer-events-none');
+            btn.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4 animate-spin"></i><span>Sincronizando...</span>`;
+            lucide.createIcons();
 
-            const filtrados = dadosSistema.alunos.filter(a => {
-                const bateuNome = a.nome.toLowerCase().includes(busca);
-                const tRegular = a.turma ? a.turma.toLowerCase() : '';
-                const bateuTurma = tRegular.includes(buscaTurma);
-                
-                let bateuProjeto = true;
-                if(projeto === 'integrada') bateuProjeto = !!(a.integrada || a.intManha || a.intTarde);
-                if(projeto === 'pcd') bateuProjeto = !!a.pcd;
+            try {
+                // 1. Puxar dados atuais da nuvem
+                const resGet = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
+                    headers: { 'X-Master-Key': JSONBIN_CONFIG.API_KEY }
+                });
 
-                return bateuNome && bateuTurma && bateuProjeto;
-            });
+                let nuvemData = { alunos: [], usuarios: [] };
+                if (resGet.ok) {
+                    const jsonRes = await resGet.json();
+                    nuvemData = jsonRes.record || nuvemData;
+                }
 
-            renderizar(filtrados);
-        }
+                // 2. Mesclar dados locais com os dados da nuvem
+                const alunosMesclados = mesclarListas(alunos, nuvemData.alunos || [], 'id');
+                const usuariosMesclados = mesclarListas(usuarios, nuvemData.usuarios || [], 'username');
 
-        function abrirModalUsers() {
-            dadosSistema = garantirEstruturaDados(dadosSistema);
-            renderizarTabelaUsuarios();
-            document.getElementById('modalUsers').style.display = 'flex';
-        }
+                // 3. Atualizar Estado Local
+                alunos = alunosMesclados;
+                usuarios = usuariosMesclados;
+                localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
+                localStorage.setItem('carometro_usuarios', JSON.stringify(usuarios));
 
-        function fecharModalUsers() {
-            document.getElementById('modalUsers').style.display = 'none';
-        }
+                // 4. Enviar TUDO de volta para a nuvem
+                const resPut = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_CONFIG.BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': JSONBIN_CONFIG.API_KEY
+                    },
+                    body: JSON.stringify({
+                        alunos: alunos,
+                        usuarios: usuarios
+                    })
+                });
 
-        function salvarNovoUsuario(e) {
-            e.preventDefault();
-            const u = document.getElementById('novoUser').value.trim();
-            const p = document.getElementById('novaSenha').value.trim();
-            const perfil = document.getElementById('novoPerfil').value;
+                if (resPut.ok) {
+                    atualizarSelectTurmas();
+                    renderizarAlunos();
+                    renderizarListaUsuarios();
+                    alert('Sincronização realizada com sucesso! Alunos e Usuários foram atualizados em todos os computadores.');
+                } else {
+                    throw new Error('Falha ao enviar dados para a nuvem.');
+                }
 
-            dadosSistema = garantirEstruturaDados(dadosSistema);
-
-            if(dadosSistema.usuarios.some(x => x.user.toLowerCase() === u.toLowerCase())) {
-                alert("Já existe um usuário com esse login!");
-                return;
-            }
-
-            dadosSistema.usuarios.push({ user: u, pass: p, perfil: perfil });
-            
-            salvarNaNuvem();
-            renderizarTabelaUsuarios();
-            
-            document.getElementById('novoUser').value = '';
-            document.getElementById('novaSenha').value = '';
-            
-            alert(`Usuário "${u}" criado com sucesso!`);
-        }
-
-        function excluirUsuario(index) {
-            dadosSistema = garantirEstruturaDados(dadosSistema);
-            if(dadosSistema.usuarios[index].user === 'admin') {
-                alert("Não é possível apagar o admin principal!");
-                return;
-            }
-            if(confirm(`Deseja excluir o usuário ${dadosSistema.usuarios[index].user}?`)) {
-                dadosSistema.usuarios.splice(index, 1);
-                salvarNaNuvem();
-                renderizarTabelaUsuarios();
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao sincronizar. Verifique a conexão com a internet.');
+            } finally {
+                btn.classList.remove('opacity-50', 'pointer-events-none');
+                btn.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Sincronizar</span>`;
+                lucide.createIcons();
             }
         }
 
-        function renderizarTabelaUsuarios() {
-            const tbody = document.getElementById('tabelaUsuarios');
-            tbody.innerHTML = '';
-            dadosSistema = garantirEstruturaDados(dadosSistema);
-            dadosSistema.usuarios.forEach((u, i) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td><strong>${u.user}</strong></td>
-                    <td>${u.perfil === 'admin' ? 'Administrador' : 'Professor'}</td>
-                    <td><button class="btn-sm btn-del" onclick="excluirUsuario(${i})">Excluir</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        function abrirModal() { 
-            document.getElementById('modalCad').style.display = 'flex'; 
-        }
-
-        function fecharModal() { 
-            document.getElementById('modalCad').style.display = 'none'; 
-            document.getElementById('editIndex').value = "";
-            document.getElementById('regManha').checked = false;
-            document.getElementById('regTarde').checked = false;
-            document.getElementById('intManha').checked = false;
-            document.getElementById('intTarde').checked = false;
-            document.getElementById('cadPcd').checked = false;
-            document.getElementById('modalTitulo').innerText = "Cadastrar Novo Aluno";
+        function mesclarListas(local, nuvem, chave) {
+            const mapa = new Map();
+            local.forEach(item => mapa.set(item[chave], item));
+            nuvem.forEach(item => mapa.set(item[chave], item));
+            return Array.from(mapa.values());
         }
     </script>
 </body>
