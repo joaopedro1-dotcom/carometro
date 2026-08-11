@@ -555,7 +555,7 @@
             document.getElementById('modalAluno').classList.add('hidden');
         }
 
-        function comprimirFoto(file, maxWidth = 500, quality = 0.8) {
+        function comprimirFoto(file, maxWidth = 600, quality = 0.85) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -753,40 +753,46 @@
         function criarCardAluno(aluno, isInativo = false) {
             const card = document.createElement('div');
             const corBg = aluno.corCard || 'bg-white border-slate-200';
-            card.className = `${corBg} rounded-2xl p-4 border shadow-sm flex flex-col justify-between relative group hover:shadow-md transition`;
+            
+            // Layout do Card com Foto Grande e Destaque Visual
+            card.className = `${corBg} rounded-2xl p-4 border shadow-sm flex flex-col justify-between relative group hover:shadow-lg transition`;
 
             const podeVerProntuario = usuarioLogado.role === 'admin' || usuarioLogado.prontuario;
             const podeEditar = usuarioLogado.role === 'admin' || usuarioLogado.role === 'editor';
 
+            // Foto Grande (w-36 h-36 = 144px de largura e altura para ver o rosto da criança nitidamente)
             const fotoHtml = aluno.foto 
-                ? `<img src="${aluno.foto}" class="w-24 h-24 rounded-xl object-cover mx-auto shadow-sm border border-slate-200 mb-3">`
-                : `<div class="w-24 h-24 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
-                    <i data-lucide="user" class="w-12 h-12"></i>
+                ? `<img src="${aluno.foto}" class="w-36 h-36 rounded-2xl object-cover mx-auto shadow border-2 border-white mb-3">`
+                : `<div class="w-36 h-36 rounded-2xl bg-slate-100 border-2 border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                    <i data-lucide="user" class="w-16 h-16"></i>
                    </div>`;
 
+            // CONTEÚDO DO CARD + TOOLTIP AO PASSAR O MOUSE
             card.innerHTML = `
                 <div>
                     ${fotoHtml}
                     <div class="text-center">
-                        <h4 class="font-extrabold text-emerald-950 text-base leading-snug">${aluno.nome}</h4>
-                        <div class="flex items-center justify-center space-x-2 mt-1">
-                            <span class="bg-emerald-800 text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-md">${aluno.turma}</span>
-                            <span class="bg-slate-200 text-slate-700 text-[11px] font-semibold px-2 py-0.5 rounded-md">${aluno.turno}</span>
+                        <h4 class="font-extrabold text-emerald-950 text-lg leading-snug">${aluno.nome}</h4>
+                        <div class="flex items-center justify-center space-x-2 mt-1.5">
+                            <span class="bg-emerald-800 text-amber-300 text-xs font-bold px-2.5 py-0.5 rounded-md">${aluno.turma}</span>
+                            <span class="bg-slate-200 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded-md">${aluno.turno}</span>
                         </div>
-                        ${aluno.integrada === 'Sim' ? `<span class="inline-block bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full mt-2">Escola Integrada</span>` : ''}
-                        ${aluno.ne ? `<div class="mt-2 text-xs bg-amber-100 text-amber-900 border border-amber-300 p-1.5 rounded-lg font-medium"><strong>NE:</strong> ${aluno.ne}</div>` : ''}
+                        ${aluno.integrada === 'Sim' ? `<span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-full mt-2">Escola Integrada</span>` : ''}
                     </div>
 
-                    <div class="mt-3 text-xs text-slate-600 space-y-1 border-t border-slate-200/60 pt-2">
-                        ${aluno.responsavel ? `<p><strong>Resp:</strong> ${aluno.responsavel}</p>` : ''}
-                        ${aluno.telefone ? `<p><strong>Tel:</strong> ${aluno.telefone}</p>` : ''}
-                        ${aluno.endereco ? `<p class="truncate" title="${aluno.endereco}"><strong>End:</strong> ${aluno.endereco}</p>` : ''}
+                    <!-- HOVER / TOOLTIP COM INFORMAÇÕES DETALHADAS AO PASSAR O MOUSE -->
+                    <div class="absolute inset-x-2 bottom-14 bg-slate-900/95 text-white p-3 rounded-xl text-xs space-y-1 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 border border-slate-700">
+                        <p class="font-bold text-amber-300 border-b border-slate-700 pb-1 mb-1">Informações do Aluno</p>
+                        <p><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                        <p><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'}</p>
+                        <p><strong>Endereço:</strong> ${aluno.endereco || 'Não informado'}</p>
+                        <p><strong>NE / Destaque:</strong> ${aluno.ne || 'Nenhum'}</p>
                     </div>
                 </div>
 
                 <div class="mt-4 pt-2 border-t border-slate-200/60 flex items-center justify-between gap-1 no-print">
                     ${podeVerProntuario ? `
-                        <button onclick="abrirProntuario('${aluno.id}')" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center space-x-1 shadow-xs">
+                        <button onclick="abrirProntuario('${aluno.id}')" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 shadow-xs">
                             <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
                             <span>Prontuário</span>
                         </button>
