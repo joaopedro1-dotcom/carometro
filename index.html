@@ -171,9 +171,9 @@
         </div>
     </main>
 
-    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO -->
+    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO (COM NOVOS CAMPOS) -->
     <div id="modalAluno" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
-        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-xl p-6 relative">
+        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
                 <h3 id="modalTitulo" class="text-xl font-black text-emerald-950 flex items-center space-x-2">
                     <i data-lucide="user-cog" class="text-emerald-700"></i>
@@ -205,6 +205,24 @@
                             <option value="Integral">Integral</option>
                         </select>
                     </div>
+                </div>
+
+                <!-- CONTATO E RESPONSÁVEL (NOVOS CAMPOS) -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome do Responsável</label>
+                        <input type="text" id="alunoResponsavel" placeholder="Ex: Maria das Graças" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Telefone / WhatsApp</label>
+                        <input type="text" id="alunoTelefone" placeholder="(31) 99999-9999" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                    </div>
+                </div>
+
+                <!-- ENDEREÇO (NOVO CAMPO) -->
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Endereço Residencial</label>
+                    <input type="text" id="alunoEndereco" placeholder="Rua, Número, Bairro" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -380,6 +398,9 @@
             const nome = document.getElementById('alunoNome').value.trim();
             const turma = document.getElementById('alunoTurma').value.trim();
             const turno = document.getElementById('alunoTurno').value;
+            const responsavel = document.getElementById('alunoResponsavel').value.trim();
+            const telefone = document.getElementById('alunoTelefone').value.trim();
+            const endereco = document.getElementById('alunoEndereco').value.trim();
             const integrada = document.getElementById('alunoIntegrada').value;
             const ne = document.getElementById('alunoNE').value.trim();
             const corCard = document.getElementById('alunoCorCard').value;
@@ -396,7 +417,7 @@
             if (idEdit) {
                 alunos = alunos.map(a => {
                     if (a.id == idEdit) {
-                        return { ...a, nome, turma, turno, integrada, ne, corCard, foto: fotoData };
+                        return { ...a, nome, turma, turno, responsavel, telefone, endereco, integrada, ne, corCard, foto: fotoData };
                     }
                     return a;
                 });
@@ -406,6 +427,9 @@
                     nome,
                     turma,
                     turno,
+                    responsavel,
+                    telefone,
+                    endereco,
                     integrada,
                     ne,
                     corCard,
@@ -428,6 +452,9 @@
             document.getElementById('alunoNome').value = aluno.nome;
             document.getElementById('alunoTurma').value = aluno.turma;
             document.getElementById('alunoTurno').value = aluno.turno || 'Manhã';
+            document.getElementById('alunoResponsavel').value = aluno.responsavel || '';
+            document.getElementById('alunoTelefone').value = aluno.telefone || '';
+            document.getElementById('alunoEndereco').value = aluno.endereco || '';
             document.getElementById('alunoIntegrada').value = aluno.integrada || 'Não';
             document.getElementById('alunoNE').value = aluno.ne || '';
             document.getElementById('alunoCorCard').value = aluno.corCard || 'bg-white border-slate-200';
@@ -543,7 +570,7 @@
                 card.className = `${corStyle} p-5 rounded-2xl border-2 shadow-sm flex flex-col items-center text-center relative transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group`;
                 
                 card.innerHTML = `
-                    <!-- BOTÕES DE EDICAO E APAGAR FIXOS NO CARD (EDITORES / ADMIN) -->
+                    <!-- BOTÕES DE EDIÇÃO E APAGAR FIXOS NO CARD -->
                     ${usuarioLogado.role !== 'leitor' ? `
                         <div class="absolute top-3 right-3 flex space-x-1.5 no-print z-20">
                             <button onclick="editarAluno(${a.id})" class="bg-white/90 hover:bg-amber-100 text-amber-700 border border-amber-300 p-1.5 rounded-lg shadow-sm transition" title="Editar Informações do Aluno">
@@ -555,7 +582,7 @@
                         </div>
                     ` : ''}
 
-                    <!-- FOTO MUITO MAIOR (w-52 h-52) -->
+                    <!-- FOTO AMPLIADA -->
                     <div class="w-52 h-52 bg-slate-100 rounded-2xl overflow-hidden mb-4 border-2 border-slate-300 shadow-sm flex items-center justify-center relative peer cursor-pointer">
                         ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-24 h-24 text-slate-300"></i>`}
                     </div>
@@ -571,7 +598,7 @@
                     ${a.integrada === 'Sim' ? `<span class="text-xs bg-emerald-600 text-white font-bold px-3 py-0.5 rounded-full mt-1.5 shadow-xs">Escola Integrada</span>` : ''}
                     ${a.ne ? `<span class="text-xs bg-amber-400 text-emerald-950 font-extrabold px-3 py-0.5 rounded-full mt-1.5 shadow-xs" title="${a.ne}">NE: ${a.ne}</span>` : ''}
 
-                    <!-- CARD FLUTUANTE INFORMATIVO AO PASSAR O MOUSE (HOVER) -->
+                    <!-- CARD FLUTUANTE INFORMATIVO AO PASSAR O MOUSE (FICHA RÁPIDA ATUALIZADA) -->
                     <div class="absolute bottom-2 left-2 right-2 hidden group-hover:block bg-slate-950/95 text-white text-xs p-3.5 rounded-xl shadow-2xl z-30 pointer-events-none border border-amber-400/50 backdrop-blur-md text-left transition-all">
                         <div class="border-b border-slate-700 pb-1.5 mb-2 flex items-center space-x-1.5">
                             <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
@@ -579,6 +606,9 @@
                         </div>
                         <p class="py-0.5"><strong class="text-slate-400">Nome:</strong> ${a.nome}</p>
                         <p class="py-0.5"><strong class="text-slate-400">Turma / Turno:</strong> ${a.turma} (${a.turno || 'N/I'})</p>
+                        <p class="py-0.5"><strong class="text-slate-400">Responsável:</strong> ${a.responsavel ? a.responsavel : 'Não informado'}</p>
+                        <p class="py-0.5"><strong class="text-slate-400">Telefone:</strong> ${a.telefone ? a.telefone : 'Não informado'}</p>
+                        <p class="py-0.5"><strong class="text-slate-400">Endereço:</strong> ${a.endereco ? a.endereco : 'Não informado'}</p>
                         <p class="py-0.5"><strong class="text-slate-400">Escola Integrada:</strong> ${a.integrada === 'Sim' ? 'Sim' : 'Não'}</p>
                         <p class="py-0.5"><strong class="text-slate-400">Necessidades Especiais:</strong> ${a.ne ? a.ne : 'Nenhuma cadastrada'}</p>
                     </div>
