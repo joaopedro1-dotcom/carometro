@@ -94,9 +94,9 @@
                     <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
                     <span>Turmas & Carômetro</span>
                 </button>
-                <button onclick="prepararNovoCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
+                <button onclick="abrirModalCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
                     <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
-                    <span id="labelAbaCadastro">Cadastrar Aluno</span>
+                    <span>+ Novo Aluno</span>
                 </button>
                 <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden">
                     <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
@@ -125,91 +125,13 @@
                     </button>
                 </div>
 
-                <!-- CARDS DOS ALUNOS (Com Fotos e Nomes Maiores) -->
-                <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- CARDS DOS ALUNOS COM FOTO AMPLIADA -->
+                <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     <!-- Cards inseridos via JS -->
                 </div>
             </section>
 
-            <!-- SEÇÃO 2: CADASTRO E EDIÇÃO DE ALUNOS -->
-            <section id="secCadastros" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl border border-emerald-100 shadow-sm no-print">
-                <div class="flex justify-between items-center mb-4 pb-2 border-b border-emerald-100">
-                    <h3 id="formAlunoTitulo" class="text-lg font-bold flex items-center space-x-2 text-emerald-950">
-                        <i data-lucide="user-plus" class="text-emerald-700"></i>
-                        <span>Cadastrar Aluno</span>
-                    </h3>
-                    <button type="button" id="btnCancelarEdicao" onclick="limparEFecharEdicao()" class="text-xs text-rose-600 hover:underline font-semibold hidden">
-                        Cancelar Edição
-                    </button>
-                </div>
-
-                <form id="formAluno" onsubmit="salvarAluno(event)" class="space-y-4">
-                    <input type="hidden" id="alunoId">
-
-                    <div>
-                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome Completo *</label>
-                        <input type="text" id="alunoNome" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Turma *</label>
-                            <input type="text" id="alunoTurma" placeholder="Ex: 6º Ano A" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Turno *</label>
-                            <select id="alunoTurno" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                                <option value="Manhã">Manhã</option>
-                                <option value="Tarde">Tarde</option>
-                                <option value="Integral">Integral</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Escola Integrada (Contra Turno)?</label>
-                            <select id="alunoIntegrada" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                                <option value="Não">Não</option>
-                                <option value="Sim">Sim</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Foto do Aluno</label>
-                            <input type="file" id="alunoFoto" accept="image/*" class="w-full text-xs">
-                            <span id="avisoFotoMantida" class="text-[11px] text-emerald-600 font-medium hidden">Foto atual mantida (selecione um arquivo apenas para alterar).</span>
-                        </div>
-                    </div>
-
-                    <!-- SEÇÃO NE E DESTAQUES DE COR -->
-                    <div class="border-t border-emerald-100 pt-4 mt-4">
-                        <label class="block text-xs font-bold text-emerald-950 uppercase mb-2">Necessidades Especiais (NE) & Destaque do Card</label>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs text-slate-500 mb-1">Descrição / CID (Opcional)</label>
-                                <input type="text" id="alunoNE" placeholder="Ex: Autismo, Deficiência Visual..." class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-slate-500 mb-1">Cor do Card</label>
-                                <select id="alunoCorCard" class="w-full px-3 py-2 border rounded-lg outline-none text-sm font-medium">
-                                    <option value="bg-white border-slate-200">Branco (Padrão)</option>
-                                    <option value="bg-amber-100 border-amber-300">Amarelo (Atenção / NE)</option>
-                                    <option value="bg-emerald-100 border-emerald-300">Verde (Destaque / Integrada)</option>
-                                    <option value="bg-blue-100 border-blue-300">Azul (Acompanhamento)</option>
-                                    <option value="bg-purple-100 border-purple-300">Roxo (Outros)</option>
-                                    <option value="bg-rose-100 border-rose-300">Vermelho (Alerta)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btnSalvarAluno" class="w-full bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-2.5 rounded-lg transition shadow-md border border-amber-400/30 mt-4">
-                        Salvar Aluno
-                    </button>
-                </form>
-            </section>
-
-            <!-- SEÇÃO 3: GERENCIAR USUÁRIOS -->
+            <!-- SEÇÃO DE GERENCIAR USUÁRIOS -->
             <section id="secUsuarios" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl border border-emerald-100 shadow-sm no-print">
                 <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
                     <i data-lucide="shield" class="text-emerald-700"></i>
@@ -248,6 +170,90 @@
 
         </div>
     </main>
+
+    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO -->
+    <div id="modalAluno" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-xl p-6 relative">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                <h3 id="modalTitulo" class="text-xl font-black text-emerald-950 flex items-center space-x-2">
+                    <i data-lucide="user-cog" class="text-emerald-700"></i>
+                    <span id="txtTituloModal">Cadastrar / Editar Aluno</span>
+                </h3>
+                <button onclick="fecharModalAluno()" class="text-slate-400 hover:text-rose-600 p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="formAluno" onsubmit="salvarAluno(event)" class="space-y-4">
+                <input type="hidden" id="alunoId">
+
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome Completo do Aluno *</label>
+                    <input type="text" id="alunoNome" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Turma *</label>
+                        <input type="text" id="alunoTurma" placeholder="Ex: 6º Ano A" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Turno *</label>
+                        <select id="alunoTurno" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                            <option value="Manhã">Manhã</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Integral">Integral</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Escola Integrada?</label>
+                        <select id="alunoIntegrada" class="w-full px-3 py-2 border rounded-lg outline-none text-sm focus:ring-2 focus:ring-emerald-600">
+                            <option value="Não">Não</option>
+                            <option value="Sim">Sim</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Foto do Aluno</label>
+                        <input type="file" id="alunoFoto" accept="image/*" class="w-full text-xs">
+                        <p id="avisoFotoMantida" class="text-[11px] text-emerald-600 font-semibold mt-1 hidden">Foto cadastrada mantida. Selecione um arquivo apenas se quiser substituir.</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 pt-3 mt-2">
+                    <label class="block text-xs font-bold text-emerald-950 uppercase mb-2">Necessidades Especiais (NE) & Destaque Visual</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Descrição / CID (Opcional)</label>
+                            <input type="text" id="alunoNE" placeholder="Ex: Autismo, Deficiência Visual..." class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-500 mb-1">Cor de Destaque do Card</label>
+                            <select id="alunoCorCard" class="w-full px-3 py-2 border rounded-lg outline-none text-sm font-medium">
+                                <option value="bg-white border-slate-200">Branco (Padrão)</option>
+                                <option value="bg-amber-100 border-amber-300">Amarelo (Atenção / NE)</option>
+                                <option value="bg-emerald-100 border-emerald-300">Verde (Destaque / Integrada)</option>
+                                <option value="bg-blue-100 border-blue-300">Azul (Acompanhamento)</option>
+                                <option value="bg-purple-100 border-purple-300">Roxo (Outros)</option>
+                                <option value="bg-rose-100 border-rose-300">Vermelho (Alerta)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-3">
+                    <button type="button" onclick="fecharModalAluno()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2.5 rounded-lg transition">
+                        Cancelar
+                    </button>
+                    <button type="submit" id="btnSalvarAluno" class="w-1/2 bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-2.5 rounded-lg transition shadow-md border border-amber-400/30">
+                        Salvar Informações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         const JSONBIN_CONFIG = {
@@ -321,31 +327,33 @@
 
         function trocarAba(aba) {
             document.getElementById('secTurmas').classList.add('hidden');
-            document.getElementById('secCadastros').classList.add('hidden');
             document.getElementById('secUsuarios').classList.add('hidden');
 
             document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
-            if(document.getElementById('tabBtnCadastros')) document.getElementById('tabBtnCadastros').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 editor-or-admin";
             if(document.getElementById('tabBtnUsuarios')) document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 admin-only";
 
             if (aba === 'turmas') {
                 document.getElementById('secTurmas').classList.remove('hidden');
                 document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
-            } else if (aba === 'cadastros') {
-                document.getElementById('secCadastros').classList.remove('hidden');
-                document.getElementById('tabBtnCadastros').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg editor-or-admin";
             } else if (aba === 'usuarios') {
                 document.getElementById('secUsuarios').classList.remove('hidden');
                 document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg admin-only";
             }
         }
 
-        function prepararNovoCadastro() {
-            limparEFecharEdicao();
-            trocarAba('cadastros');
+        function abrirModalCadastro() {
+            document.getElementById('formAluno').reset();
+            document.getElementById('alunoId').value = '';
+            document.getElementById('txtTituloModal').innerText = "Cadastrar Novo Aluno";
+            document.getElementById('avisoFotoMantida').classList.add('hidden');
+            document.getElementById('modalAluno').classList.remove('hidden');
         }
 
-        function comprimirFoto(file, maxWidth = 400, quality = 0.75) {
+        function fecharModalAluno() {
+            document.getElementById('modalAluno').classList.add('hidden');
+        }
+
+        function comprimirFoto(file, maxWidth = 500, quality = 0.8) {
             return new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -392,7 +400,6 @@
                     }
                     return a;
                 });
-                alert('Informações do aluno atualizadas!');
             } else {
                 const novoAluno = {
                     id: Date.now(),
@@ -405,14 +412,12 @@
                     foto: fotoData
                 };
                 alunos.push(novoAluno);
-                alert('Aluno cadastrado com sucesso!');
             }
 
             localStorage.setItem('carometro_alunos', JSON.stringify(alunos));
-            limparEFecharEdicao();
+            fecharModalAluno();
             atualizarSelectTurmas();
             renderizarAlunos();
-            trocarAba('turmas');
         }
 
         function editarAluno(id) {
@@ -427,23 +432,14 @@
             document.getElementById('alunoNE').value = aluno.ne || '';
             document.getElementById('alunoCorCard').value = aluno.corCard || 'bg-white border-slate-200';
 
-            document.getElementById('formAlunoTitulo').innerText = "Editar Dados do Aluno";
-            document.getElementById('btnSalvarAluno').innerText = "Atualizar Informações";
-            document.getElementById('btnCancelarEdicao').classList.remove('hidden');
+            document.getElementById('txtTituloModal').innerText = "Editar Aluno";
             if (aluno.foto) {
                 document.getElementById('avisoFotoMantida').classList.remove('hidden');
+            } else {
+                document.getElementById('avisoFotoMantida').classList.add('hidden');
             }
 
-            trocarAba('cadastros');
-        }
-
-        function limparEFecharEdicao() {
-            document.getElementById('formAluno').reset();
-            document.getElementById('alunoId').value = '';
-            document.getElementById('formAlunoTitulo').innerText = "Cadastrar Aluno";
-            document.getElementById('btnSalvarAluno').innerText = "Salvar Aluno";
-            document.getElementById('btnCancelarEdicao').classList.add('hidden');
-            document.getElementById('avisoFotoMantida').classList.add('hidden');
+            document.getElementById('modalAluno').classList.remove('hidden');
         }
 
         function deletarAluno(id) {
@@ -536,7 +532,7 @@
             });
 
             if (alunosFiltrados.length === 0) {
-                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8">Nenhum aluno cadastrado/encontrado.</div>';
+                grid.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12 text-base font-semibold">Nenhum aluno encontrado nesta busca/turma.</div>';
                 return;
             }
 
@@ -544,42 +540,47 @@
                 const card = document.createElement('div');
                 const corStyle = a.corCard || 'bg-white border-slate-200';
                 
-                card.className = `${corStyle} p-4 rounded-xl border shadow-sm flex flex-col items-center text-center relative group transition hover:shadow-md`;
+                card.className = `${corStyle} p-5 rounded-2xl border-2 shadow-sm flex flex-col items-center text-center relative transition-all duration-200 hover:shadow-xl hover:-translate-y-1 group`;
+                
                 card.innerHTML = `
-                    <!-- BOTÕES DE AÇÃO (EDITAR E APAGAR) NO CANTO DO CARD -->
+                    <!-- BOTÕES DE EDICAO E APAGAR FIXOS NO CARD (EDITORES / ADMIN) -->
                     ${usuarioLogado.role !== 'leitor' ? `
-                        <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition no-print z-10">
-                            <button onclick="editarAluno(${a.id})" class="text-amber-600 hover:text-amber-800 p-1 rounded bg-white/80 shadow-xs" title="Editar Aluno">
+                        <div class="absolute top-3 right-3 flex space-x-1.5 no-print z-20">
+                            <button onclick="editarAluno(${a.id})" class="bg-white/90 hover:bg-amber-100 text-amber-700 border border-amber-300 p-1.5 rounded-lg shadow-sm transition" title="Editar Informações do Aluno">
                                 <i data-lucide="pencil" class="w-4 h-4"></i>
                             </button>
-                            <button onclick="deletarAluno(${a.id})" class="text-rose-500 hover:text-rose-700 p-1 rounded bg-white/80 shadow-xs" title="Excluir Aluno">
+                            <button onclick="deletarAluno(${a.id})" class="bg-white/90 hover:bg-rose-100 text-rose-600 border border-rose-300 p-1.5 rounded-lg shadow-sm transition" title="Excluir Aluno">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                     ` : ''}
 
-                    <!-- FOTO AMPLIADA -->
-                    <div class="w-36 h-36 bg-slate-100 rounded-xl overflow-hidden mb-3 border-2 border-slate-200/80 shadow-inner flex items-center justify-center">
-                        ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-16 h-16 text-slate-300"></i>`}
+                    <!-- FOTO MUITO MAIOR (w-52 h-52) -->
+                    <div class="w-52 h-52 bg-slate-100 rounded-2xl overflow-hidden mb-4 border-2 border-slate-300 shadow-sm flex items-center justify-center relative peer cursor-pointer">
+                        ${a.foto ? `<img src="${a.foto}" class="w-full h-full object-cover">` : `<i data-lucide="user" class="w-24 h-24 text-slate-300"></i>`}
                     </div>
                     
-                    <!-- NOME MAIOR E VISÍVEL -->
-                    <h4 class="font-black text-base text-slate-900 leading-snug mb-1 px-1">${a.nome}</h4>
+                    <!-- NOME DESTACADO -->
+                    <h4 class="font-extrabold text-lg text-slate-900 leading-snug mb-1.5 px-1">${a.nome}</h4>
                     
                     <div class="flex flex-wrap justify-center gap-1.5 my-1">
-                        <span class="text-xs bg-emerald-900 text-amber-300 font-bold px-2.5 py-0.5 rounded-md shadow-xs">${a.turma}</span>
-                        <span class="text-xs bg-slate-100 text-slate-700 font-medium px-2 py-0.5 rounded-md border border-slate-200">${a.turno || 'Manhã'}</span>
+                        <span class="text-xs bg-emerald-900 text-amber-300 font-extrabold px-3 py-1 rounded-md shadow-xs">${a.turma}</span>
+                        <span class="text-xs bg-slate-100 text-slate-700 font-semibold px-2.5 py-1 rounded-md border border-slate-300">${a.turno || 'Manhã'}</span>
                     </div>
 
-                    ${a.integrada === 'Sim' ? `<span class="text-xs bg-emerald-600 text-white font-bold px-2.5 py-0.5 rounded-full mt-1 shadow-xs">Escola Integrada</span>` : ''}
-                    ${a.ne ? `<span class="text-xs bg-amber-500 text-emerald-950 font-extrabold px-2.5 py-0.5 rounded-full mt-1 shadow-xs" title="${a.ne}">NE: ${a.ne}</span>` : ''}
+                    ${a.integrada === 'Sim' ? `<span class="text-xs bg-emerald-600 text-white font-bold px-3 py-0.5 rounded-full mt-1.5 shadow-xs">Escola Integrada</span>` : ''}
+                    ${a.ne ? `<span class="text-xs bg-amber-400 text-emerald-950 font-extrabold px-3 py-0.5 rounded-full mt-1.5 shadow-xs" title="${a.ne}">NE: ${a.ne}</span>` : ''}
 
-                    <!-- TOOLTIP / CARD FLUTUANTE AO PASSAR O MOUSE COM DETALHES COMPLETO -->
-                    <div class="absolute inset-x-2 bottom-full mb-2 hidden group-hover:block bg-slate-900/95 text-white text-xs p-3 rounded-lg shadow-2xl z-30 text-left pointer-events-none border border-amber-400/40 backdrop-blur-sm">
-                        <p class="font-bold text-amber-300 text-sm mb-1 border-b border-slate-700 pb-1">${a.nome}</p>
-                        <p><span class="text-slate-400">Turma:</span> ${a.turma} (${a.turno || 'N/I'})</p>
-                        <p><span class="text-slate-400">Escola Integrada:</span> ${a.integrada === 'Sim' ? 'Sim (Cadastrado)' : 'Não'}</p>
-                        <p><span class="text-slate-400">Necessidades Especiais:</span> ${a.ne ? a.ne : 'Nenhuma'}</p>
+                    <!-- CARD FLUTUANTE INFORMATIVO AO PASSAR O MOUSE (HOVER) -->
+                    <div class="absolute bottom-2 left-2 right-2 hidden group-hover:block bg-slate-950/95 text-white text-xs p-3.5 rounded-xl shadow-2xl z-30 pointer-events-none border border-amber-400/50 backdrop-blur-md text-left transition-all">
+                        <div class="border-b border-slate-700 pb-1.5 mb-2 flex items-center space-x-1.5">
+                            <i data-lucide="info" class="w-4 h-4 text-amber-400"></i>
+                            <span class="font-extrabold text-amber-300 text-sm">Ficha Rápida</span>
+                        </div>
+                        <p class="py-0.5"><strong class="text-slate-400">Nome:</strong> ${a.nome}</p>
+                        <p class="py-0.5"><strong class="text-slate-400">Turma / Turno:</strong> ${a.turma} (${a.turno || 'N/I'})</p>
+                        <p class="py-0.5"><strong class="text-slate-400">Escola Integrada:</strong> ${a.integrada === 'Sim' ? 'Sim' : 'Não'}</p>
+                        <p class="py-0.5"><strong class="text-slate-400">Necessidades Especiais:</strong> ${a.ne ? a.ne : 'Nenhuma cadastrada'}</p>
                     </div>
                 `;
                 grid.appendChild(card);
