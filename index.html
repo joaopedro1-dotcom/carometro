@@ -107,26 +107,30 @@
         <div id="appDashboard" class="hidden">
             
             <!-- NAVEGAÇÃO ENTRE ABAS -->
-            <div class="flex border-b border-emerald-200 mb-6 no-print space-x-2">
-                <button onclick="trocarAba('turmas')" id="tabBtnTurmas" class="px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg">
+            <div class="flex border-b border-emerald-200 mb-6 no-print space-x-2 overflow-x-auto">
+                <button onclick="trocarAba('turmas')" id="tabBtnTurmas" class="px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap">
                     <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Turmas & Carômetro</span>
+                    <span>Todas as Turmas</span>
                 </button>
-                <button onclick="trocarAba('inativos')" id="tabBtnInativos" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2">
+                <button onclick="trocarAba('integrada')" id="tabBtnIntegrada" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 whitespace-nowrap">
+                    <i data-lucide="sun" class="w-4 h-4 text-amber-600"></i>
+                    <span>Escola Integrada</span>
+                </button>
+                <button onclick="trocarAba('inativos')" id="tabBtnInativos" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 whitespace-nowrap">
                     <i data-lucide="archive" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Alunos Desligados / Saíram</span>
+                    <span>Alunos Desligados</span>
                 </button>
-                <button onclick="abrirModalCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden">
+                <button onclick="abrirModalCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden whitespace-nowrap">
                     <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
                     <span>+ Novo Aluno</span>
                 </button>
-                <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden">
+                <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden whitespace-nowrap">
                     <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
                     <span>Configurações & Usuários</span>
                 </button>
             </div>
 
-            <!-- SEÇÃO 1: TURMAS / CARÔMETRO (ATIVOS) -->
+            <!-- SEÇÃO 1: TURMAS / CARÔMETRO GERAL -->
             <section id="secTurmas" class="space-y-6">
                 <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-wrap gap-4 items-center justify-between no-print">
                     <div class="flex gap-4 flex-1 min-w-[280px]">
@@ -152,6 +156,31 @@
                 </div>
             </section>
 
+            <!-- SEÇÃO 1.5: ESCOLA INTEGRADA EXCLUSIVA -->
+            <section id="secIntegrada" class="hidden space-y-6">
+                <div class="bg-emerald-900 border-l-4 border-amber-400 p-4 rounded-xl text-white shadow-sm flex flex-wrap gap-4 items-center justify-between no-print">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-amber-400 p-2 rounded-lg text-emerald-950">
+                            <i data-lucide="sun" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-amber-300 text-base">Alunos da Escola Integrada</h3>
+                            <p class="text-xs text-emerald-100">Exibindo apenas alunos cadastrados com participação no projeto.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3 flex-1 max-w-xl">
+                        <select id="filterTurmaIntegrada" onchange="renderizarAlunosIntegrada()" class="px-3 py-2 border rounded-lg outline-none bg-white text-slate-800 text-sm font-medium">
+                            <option value="">Todas as Turmas da Integrada</option>
+                        </select>
+                        <input type="text" id="searchAlunoIntegrada" oninput="renderizarAlunosIntegrada()" placeholder="Buscar aluno da Integrada..." class="flex-1 px-3 py-2 border rounded-lg outline-none text-sm text-slate-800 bg-white">
+                    </div>
+                </div>
+
+                <div id="gridAlunosIntegrada" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <!-- Cards da Escola Integrada via JS -->
+                </div>
+            </section>
+
             <!-- SEÇÃO 2: ALUNOS INATIVOS / TRANSFERIDOS -->
             <section id="secInativos" class="hidden space-y-6">
                 <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex items-center justify-between no-print">
@@ -173,7 +202,7 @@
             <!-- SEÇÃO 3: GERENCIAR CONFIGURAÇÕES E USUÁRIOS -->
             <section id="secUsuarios" class="hidden max-w-2xl mx-auto space-y-6 no-print">
                 
-                <!-- BLUCO DE CONFIGURAÇÃO DA DIREÇÃO DA ESCOLA -->
+                <!-- BLOCO DE CONFIGURAÇÃO DA DIREÇÃO DA ESCOLA -->
                 <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
                     <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
                         <i data-lucide="file-signature" class="text-emerald-700"></i>
@@ -470,6 +499,7 @@
         window.salvarUsuario = salvarUsuario;
         window.excluirUsuario = excluirUsuario;
         window.renderizarAlunos = renderizarAlunos;
+        window.renderizarAlunosIntegrada = renderizarAlunosIntegrada;
         window.renderizarAlunosInativos = renderizarAlunosInativos;
         window.carregarDadosNuvem = carregarDadosNuvem;
         window.salvarConfiguracoes = salvarConfiguracoes;
@@ -511,6 +541,7 @@
                 if (usuarioLogado) {
                     atualizarSelectTurmas();
                     renderizarAlunos();
+                    renderizarAlunosIntegrada();
                     renderizarAlunosInativos();
                     renderizarListaUsuarios();
                 }
@@ -584,28 +615,34 @@
 
             atualizarSelectTurmas();
             renderizarAlunos();
+            renderizarAlunosIntegrada();
             renderizarAlunosInativos();
             renderizarListaUsuarios();
         }
 
         function trocarAba(aba) {
             document.getElementById('secTurmas').classList.add('hidden');
+            document.getElementById('secIntegrada').classList.add('hidden');
             document.getElementById('secInativos').classList.add('hidden');
             document.getElementById('secUsuarios').classList.add('hidden');
 
-            document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
-            document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2";
-            if(document.getElementById('tabBtnUsuarios')) document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 admin-only";
+            document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 whitespace-nowrap";
+            document.getElementById('tabBtnIntegrada').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 whitespace-nowrap";
+            document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 whitespace-nowrap";
+            if(document.getElementById('tabBtnUsuarios')) document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 admin-only whitespace-nowrap";
 
             if (aba === 'turmas') {
                 document.getElementById('secTurmas').classList.remove('hidden');
-                document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
+                document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap";
+            } else if (aba === 'integrada') {
+                document.getElementById('secIntegrada').classList.remove('hidden');
+                document.getElementById('tabBtnIntegrada').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap";
             } else if (aba === 'inativos') {
                 document.getElementById('secInativos').classList.remove('hidden');
-                document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg";
+                document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap";
             } else if (aba === 'usuarios') {
                 document.getElementById('secUsuarios').classList.remove('hidden');
-                document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg admin-only";
+                document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg admin-only whitespace-nowrap";
             }
         }
 
@@ -702,6 +739,7 @@
 
                 atualizarSelectTurmas();
                 renderizarAlunos();
+                renderizarAlunosIntegrada();
                 renderizarAlunosInativos();
                 fecharModalAluno();
             } catch (err) {
@@ -747,6 +785,7 @@
                 aluno.inativo = !aluno.inativo;
                 await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
                 renderizarAlunos();
+                renderizarAlunosIntegrada();
                 renderizarAlunosInativos();
             }
         }
@@ -757,6 +796,7 @@
                     await deleteDoc(doc(db, "alunos", String(id)));
                     alunos = alunos.filter(a => String(a.id) !== String(id));
                     renderizarAlunos();
+                    renderizarAlunosIntegrada();
                     renderizarAlunosInativos();
                 } catch (err) {
                     alert("Erro ao excluir aluno.");
@@ -766,18 +806,31 @@
 
         function atualizarSelectTurmas() {
             const select = document.getElementById('filterTurma');
-            const valorAtual = select.value;
-            const turmasUnicas = [...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))].sort();
+            const selectIntegrada = document.getElementById('filterTurmaIntegrada');
+
+            const valGeneral = select.value;
+            const valInteg = selectIntegrada.value;
+
+            const turmasGeral = [...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))].sort();
+            const turmasIntegrada = [...new Set(alunos.filter(a => !a.inativo && a.integrada === 'Sim').map(a => a.turma))].sort();
 
             select.innerHTML = '<option value="">Todas as Turmas</option>';
-            turmasUnicas.forEach(t => {
+            turmasGeral.forEach(t => {
                 const opt = document.createElement('option');
                 opt.value = t;
                 opt.innerText = t;
                 select.appendChild(opt);
             });
+            select.value = valGeneral;
 
-            select.value = valorAtual;
+            selectIntegrada.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
+            turmasIntegrada.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                selectIntegrada.appendChild(opt);
+            });
+            selectIntegrada.value = valInteg;
         }
 
         function renderizarAlunos() {
@@ -795,6 +848,30 @@
                 if (search && !a.nome.toLowerCase().includes(search)) return false;
                 return true;
             });
+
+            filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
+            lucide.createIcons();
+        }
+
+        function renderizarAlunosIntegrada() {
+            const grid = document.getElementById('gridAlunosIntegrada');
+            grid.innerHTML = '';
+
+            const filterTurma = document.getElementById('filterTurmaIntegrada').value;
+            const search = document.getElementById('searchAlunoIntegrada').value.toLowerCase();
+
+            const filtrados = alunos.filter(a => {
+                if (a.inativo) return false;
+                if (a.integrada !== 'Sim') return false;
+                if (filterTurma && a.turma !== filterTurma) return false;
+                if (search && !a.nome.toLowerCase().includes(search)) return false;
+                return true;
+            });
+
+            if(filtrados.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 font-medium">Nenhum aluno cadastrado na Escola Integrada com os filtros aplicados.</div>`;
+                return;
+            }
 
             filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
             lucide.createIcons();
