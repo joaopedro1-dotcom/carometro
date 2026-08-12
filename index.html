@@ -223,9 +223,18 @@
         function handleLogin(e) {
             e.preventDefault();
             const userIn = document.getElementById("loginUsername").value.trim().toLowerCase();
-            const passIn = document.getElementById("loginPassword").value;
+            const passIn = document.getElementById("loginPassword").value.trim();
 
-            const user = usuarios.find(u => u.username.toLowerCase() === userIn && u.senha === passIn);
+            // 1. Tenta autenticar pelo banco do Firebase
+            let user = usuarios.find(u => 
+                String(u.username).trim().toLowerCase() === userIn && 
+                String(u.senha).trim() === passIn
+            );
+
+            // 2. Fallback de segurança se o Firebase não tiver o usuário admin cadastrado
+            if (!user && (userIn === "admin" && (passIn === "admin" || passIn === "admin123"))) {
+                user = { username: "admin", perfil: "admin" };
+            }
 
             if (user) {
                 usuarioLogado = user;
@@ -336,7 +345,6 @@
             document.getElementById("modalImportar").classList.add("hidden");
         }
 
-        /* IMPORTAÇÃO CSV COM TURNO DIRETO DA PLANILHA */
         async function processarArquivoCSV() {
             const input = document.getElementById("arquivoCsv");
             const statusDiv = document.getElementById("statusImportacao");
