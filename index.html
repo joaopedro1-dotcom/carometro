@@ -16,7 +16,7 @@
     <style>
         .print-only { display: none; }
         
-        /* REGRAS DE IMPRESSÃO CORRIGIDAS */
+        /* REGRAS DE IMPRESSÃO */
         @media print {
             body * {
                 visibility: hidden !important;
@@ -122,7 +122,7 @@
                 </button>
                 <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden">
                     <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Gerenciar Usuários</span>
+                    <span>Configurações & Usuários</span>
                 </button>
             </div>
 
@@ -170,51 +170,78 @@
                 </div>
             </section>
 
-            <!-- SEÇÃO 3: GERENCIAR USUÁRIOS -->
-            <section id="secUsuarios" class="hidden max-w-2xl mx-auto bg-white p-6 rounded-xl border border-emerald-100 shadow-sm no-print">
-                <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
-                    <i data-lucide="shield" class="text-emerald-700"></i>
-                    <span>Cadastrar Usuário do Sistema</span>
-                </h3>
+            <!-- SEÇÃO 3: GERENCIAR CONFIGURAÇÕES E USUÁRIOS -->
+            <section id="secUsuarios" class="hidden max-w-2xl mx-auto space-y-6 no-print">
+                
+                <!-- BLUCO DE CONFIGURAÇÃO DA DIREÇÃO DA ESCOLA -->
+                <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
+                    <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
+                        <i data-lucide="file-signature" class="text-emerald-700"></i>
+                        <span>Configurações do Prontuário / Assinatura</span>
+                    </h3>
+                    <form id="formConfiguracao" onsubmit="salvarConfiguracoes(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome do(a) Diretor(a)</label>
+                                <input type="text" id="cfgNomeDiretora" placeholder="Ex: Maria das Graças Silva" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Cargo / Função</label>
+                                <input type="text" id="cfgCargoDiretora" placeholder="Ex: Direção Escolar" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold px-4 py-2 rounded-lg text-xs transition shadow-md border border-amber-400/30">
+                            Salvar Configurações de Assinatura
+                        </button>
+                    </form>
+                </div>
 
-                <form id="formUsuario" onsubmit="salvarUsuario(event)" class="space-y-4 mb-6">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome de Usuário</label>
-                            <input type="text" id="novoUsername" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                <!-- BLOCO DE USUÁRIOS -->
+                <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
+                    <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
+                        <i data-lucide="shield" class="text-emerald-700"></i>
+                        <span>Cadastrar Usuário do Sistema</span>
+                    </h3>
+
+                    <form id="formUsuario" onsubmit="salvarUsuario(event)" class="space-y-4 mb-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome de Usuário</label>
+                                <input type="text" id="novoUsername" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Senha</label>
+                                <input type="password" id="novaSenha" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                            </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Senha</label>
-                            <input type="password" id="novaSenha" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nível de Permissão</label>
+                            <select id="novoPerfil" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                                <option value="editor">Editor (Pode incluir e editar alunos)</option>
+                                <option value="leitor">Leitor (Apenas visualização e impressão)</option>
+                                <option value="admin">Administrador (Acesso total)</option>
+                            </select>
                         </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nível de Permissão</label>
-                        <select id="novoPerfil" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                            <option value="editor">Editor (Pode incluir e editar alunos)</option>
-                            <option value="leitor">Leitor (Apenas visualização e impressão)</option>
-                            <option value="admin">Administrador (Acesso total)</option>
-                        </select>
-                    </div>
 
-                    <!-- CAIXA DE PERMISSÃO DO PRONTUÁRIO -->
-                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-center space-x-3">
-                        <input type="checkbox" id="novoAcessoProntuario" class="w-4 h-4 text-emerald-700 rounded border-slate-300 focus:ring-emerald-600">
-                        <div>
-                            <label for="novoAcessoProntuario" class="text-xs font-bold text-amber-950 cursor-pointer">Permitir Acesso ao Prontuário e Ocorrências</label>
-                            <p class="text-[11px] text-amber-800">Marque apenas para Direção, Coordenação ou Supervisão que precisam ler e registrar ocorrências.</p>
+                        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-center space-x-3">
+                            <input type="checkbox" id="novoAcessoProntuario" class="w-4 h-4 text-emerald-700 rounded border-slate-300 focus:ring-emerald-600">
+                            <div>
+                                <label for="novoAcessoProntuario" class="text-xs font-bold text-amber-950 cursor-pointer">Permitir Acesso ao Prontuário e Ocorrências</label>
+                                <p class="text-[11px] text-amber-800">Marque apenas para Direção, Coordenação ou Supervisão que precisam ler e registrar ocorrências.</p>
+                            </div>
                         </div>
-                    </div>
 
-                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
-                        Criar Novo Usuário
-                    </button>
-                </form>
+                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
+                            Criar Novo Usuário
+                        </button>
+                    </form>
 
-                <hr class="my-6">
+                    <hr class="my-6">
 
-                <h4 class="font-bold text-emerald-950 mb-3">Usuários Com Acesso Cadastrado</h4>
-                <div id="listaUsuarios" class="space-y-2"></div>
+                    <h4 class="font-bold text-emerald-950 mb-3">Usuários Com Acesso Cadastrado</h4>
+                    <div id="listaUsuarios" class="space-y-2"></div>
+                </div>
+
             </section>
 
         </div>
@@ -406,7 +433,7 @@
     <!-- FIREBASE SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCvWQzQ-_cpk_H_b8SGxX9So0ka05uWRxQ",
@@ -423,6 +450,7 @@
         let usuarioLogado = null;
         let alunos = [];
         let usuarios = [];
+        let configuracaoEscola = { nomeDiretora: '', cargoDiretora: 'Direção Escolar' };
 
         window.handleLogin = handleLogin;
         window.logout = logout;
@@ -444,6 +472,7 @@
         window.renderizarAlunos = renderizarAlunos;
         window.renderizarAlunosInativos = renderizarAlunosInativos;
         window.carregarDadosNuvem = carregarDadosNuvem;
+        window.salvarConfiguracoes = salvarConfiguracoes;
 
         document.addEventListener("DOMContentLoaded", async () => {
             lucide.createIcons();
@@ -465,6 +494,14 @@
                     usuarios.push(doc.data());
                 });
 
+                // Carregar Configurações
+                const docCfg = await getDoc(doc(db, "configuracoes", "geral"));
+                if (docCfg.exists()) {
+                    configuracaoEscola = docCfg.data();
+                    document.getElementById('cfgNomeDiretora').value = configuracaoEscola.nomeDiretora || '';
+                    document.getElementById('cfgCargoDiretora').value = configuracaoEscola.cargoDiretora || 'Direção Escolar';
+                }
+
                 if (usuarios.length === 0) {
                     const defaultAdmin = { username: 'admin', pass: 'admin', role: 'admin', prontuario: true };
                     await setDoc(doc(db, "usuarios", "admin"), defaultAdmin);
@@ -479,6 +516,21 @@
                 }
             } catch (err) {
                 console.error("Erro ao carregar dados do Firestore:", err);
+            }
+        }
+
+        async function salvarConfiguracoes(e) {
+            e.preventDefault();
+            const nomeDiretora = document.getElementById('cfgNomeDiretora').value.trim();
+            const cargoDiretora = document.getElementById('cfgCargoDiretora').value.trim() || 'Direção Escolar';
+
+            configuracaoEscola = { nomeDiretora, cargoDiretora };
+
+            try {
+                await setDoc(doc(db, "configuracoes", "geral"), configuracaoEscola);
+                alert("Configurações salvas com sucesso!");
+            } catch(err) {
+                alert("Erro ao salvar configurações.");
             }
         }
 
@@ -953,33 +1005,54 @@
                 ? `<img src="${aluno.foto}" style="width: 110px; height: 110px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0;">`
                 : `<div style="width: 110px; height: 110px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8;">Sem Foto</div>`;
 
+            const nomeDiretora = configuracaoEscola.nomeDiretora || '________________________________________';
+            const cargoDiretora = configuracaoEscola.cargoDiretora || 'Direção Escolar';
+
             printArea.innerHTML = `
-                <div style="font-family: system-ui, -apple-system, sans-serif; color: #0f172a; max-width: 800px; margin: 0 auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #064e3b; padding-bottom: 12px; margin-bottom: 20px;">
-                        <div>
-                            <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #064e3b; text-transform: uppercase;">E. M. Jardim Vitória</h2>
-                            <h3 style="margin: 4px 0 0 0; font-size: 16px; font-weight: 600; color: #d97706;">Prontuário e Histórico Escolar do Aluno</h3>
+                <div style="font-family: system-ui, -apple-system, sans-serif; color: #0f172a; max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #064e3b; padding-bottom: 12px; margin-bottom: 20px;">
+                            <div>
+                                <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #064e3b; text-transform: uppercase;">E. M. Jardim Vitória</h2>
+                                <h3 style="margin: 4px 0 0 0; font-size: 16px; font-weight: 600; color: #d97706;">Prontuário e Histórico Escolar do Aluno</h3>
+                            </div>
+                            <div>
+                                ${fotoHtml}
+                            </div>
                         </div>
-                        <div>
-                            ${fotoHtml}
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 24px; font-size: 13px; line-height: 1.6;">
+                            <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Nome do Aluno:</strong> <span style="font-size: 15px; font-weight: bold;">${aluno.nome}</span></p>
+                            <div style="display: flex; gap: 20px; margin-bottom: 6px;">
+                                <p style="margin: 0;"><strong style="color: #064e3b;">Turma:</strong> ${aluno.turma}</p>
+                                <p style="margin: 0;"><strong style="color: #064e3b;">Turno:</strong> ${aluno.turno}</p>
+                                <p style="margin: 0;"><strong style="color: #064e3b;">Escola Integrada:</strong> ${aluno.integrada || 'Não'}</p>
+                            </div>
+                            <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                            <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Telefone de Contato:</strong> ${aluno.telefone || 'Não informado'}</p>
+                            <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Endereço Residencial:</strong> ${aluno.endereco || 'Não informado'}</p>
+                            <p style="margin: 0;"><strong style="color: #064e3b;">Necessidades Especiais (NE):</strong> ${aluno.ne || 'Nenhuma'}</p>
                         </div>
+
+                        <h4 style="border-bottom: 2px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 16px; color: #0f172a; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Registros de Ocorrências e Observações</h4>
+                        ${ocoHtml}
                     </div>
 
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 24px; font-size: 13px; line-height: 1.6;">
-                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Nome do Aluno:</strong> <span style="font-size: 15px; font-weight: bold;">${aluno.nome}</span></p>
-                        <div style="display: flex; gap: 20px; margin-bottom: 6px;">
-                            <p style="margin: 0;"><strong style="color: #064e3b;">Turma:</strong> ${aluno.turma}</p>
-                            <p style="margin: 0;"><strong style="color: #064e3b;">Turno:</strong> ${aluno.turno}</p>
-                            <p style="margin: 0;"><strong style="color: #064e3b;">Escola Integrada:</strong> ${aluno.integrada || 'Não'}</p>
+                    <!-- ÁREA DE ASSINATURAS NO RODAPÉ -->
+                    <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; gap: 40px; text-align: center;">
+                            <div style="flex: 1;">
+                                <div style="border-bottom: 1px solid #0f172a; margin-bottom: 6px; height: 30px;"></div>
+                                <p style="margin: 0; font-size: 12px; font-weight: bold; color: #0f172a;">${nomeDiretora}</p>
+                                <p style="margin: 0; font-size: 11px; color: #64748b;">${cargoDiretora}</p>
+                            </div>
+                            <div style="flex: 1;">
+                                <div style="border-bottom: 1px solid #0f172a; margin-bottom: 6px; height: 30px;"></div>
+                                <p style="margin: 0; font-size: 12px; font-weight: bold; color: #0f172a;">E. M. Jardim Vitória</p>
+                                <p style="margin: 0; font-size: 11px; color: #64748b;">Carimbo / Coordenação Pedagógica</p>
+                            </div>
                         </div>
-                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
-                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Telefone de Contato:</strong> ${aluno.telefone || 'Não informado'}</p>
-                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Endereço Residencial:</strong> ${aluno.endereco || 'Não informado'}</p>
-                        <p style="margin: 0;"><strong style="color: #064e3b;">Necessidades Especiais (NE):</strong> ${aluno.ne || 'Nenhuma'}</p>
                     </div>
-
-                    <h4 style="border-bottom: 2px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 16px; color: #0f172a; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Registros de Ocorrências e Observações</h4>
-                    ${ocoHtml}
                 </div>
             `;
 
