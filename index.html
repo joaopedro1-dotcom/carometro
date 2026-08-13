@@ -909,14 +909,16 @@ async function processarImportacaoLote() {
             }
         }
 
-     function atualizarSelectTurmas() {
+ function atualizarSelectTurmas() {
     const select = document.getElementById('filterTurma');
     const selectIntegrada = document.getElementById('filterTurmaIntegrada');
+    const selectTurno = document.getElementById('filterTurno');
 
     const valGeneral = select ? select.value : '';
     const valInteg = selectIntegrada ? selectIntegrada.value : '';
+    const turnoSelecionado = selectTurno ? selectTurno.value : '';
 
-    // Ordem exata personalizada conforme sua lista (1 ao 32)
+    // Lista ordenada oficial
     const ordemTurmas = [
         "FRCIA1MA - 1A - 101",
         "FRCIA1MB - 1B - 102",
@@ -952,22 +954,26 @@ async function processarImportacaoLote() {
         "FRCAA3TD - 9D - 912"
     ];
 
-    // Função de ordenação baseada no índice da lista acima
     const ordenarTurmas = (lista) => {
         return lista.sort((a, b) => {
             const idxA = ordemTurmas.indexOf(a.trim());
             const idxB = ordemTurmas.indexOf(b.trim());
-
             const posA = idxA !== -1 ? idxA : 999;
             const posB = idxB !== -1 ? idxB : 999;
-
             return posA - posB;
         });
     };
 
-    // Pega as turmas e aplica a ordenação exata
-    const turmasGeral = ordenarTurmas([...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))]);
-    const turmasIntegrada = ordenarTurmas([...new Set(alunos.filter(a => !a.inativo && a.integrada === 'Sim').map(a => a.turma))]);
+    // Filtra alunos ativos
+    let alunosFiltrados = alunos.filter(a => !a.inativo);
+
+    // Se houver turno selecionado, filtra as turmas por esse turno
+    if (turnoSelecionado) {
+        alunosFiltrados = alunosFiltrados.filter(a => a.turno === turnoSelecionado);
+    }
+
+    const turmasGeral = ordenarTurmas([...new Set(alunosFiltrados.map(a => a.turma))]);
+    const turmasIntegrada = ordenarTurmas([...new Set(alunosFiltrados.filter(a => a.integrada === 'Sim').map(a => a.turma))]);
 
     // Preenche o Select Geral
     if (select) {
@@ -978,7 +984,7 @@ async function processarImportacaoLote() {
             opt.innerText = t;
             select.appendChild(opt);
         });
-        select.value = valGeneral;
+        select.value = turmasGeral.includes(valGeneral) ? valGeneral : '';
     }
 
     // Preenche o Select da Integrada
@@ -990,7 +996,7 @@ async function processarImportacaoLote() {
             opt.innerText = t;
             selectIntegrada.appendChild(opt);
         });
-        selectIntegrada.value = valInteg;
+        selectIntegrada.value = turmasIntegrada.includes(valInteg) ? valInteg : '';
     }
 }
 
