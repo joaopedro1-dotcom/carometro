@@ -120,10 +120,10 @@
                     <i data-lucide="archive" class="w-4 h-4 text-emerald-700"></i>
                     <span>Alunos Desligados</span>
                 </button>
-                <button onclick="abrirModalCadastro()" id="tabBtnCadastros" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden whitespace-nowrap">
-                    <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
-                    <span>+ Novo Aluno</span>
-                </button>
+                <button onclick="abrirModalImportacao()" id="tabBtnImportar" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden whitespace-nowrap">
+    <i data-lucide="file-up" class="w-4 h-4 text-emerald-700"></i>
+    <span>+ Importar em Lote</span>
+</button>
                 <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden whitespace-nowrap">
                     <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
                     <span>Configurações & Usuários</span>
@@ -458,7 +458,40 @@
     <div id="printProntuarioArea" class="print-only">
         <!-- Gerado dinamicamente via JS -->
     </div>
+<!-- MODAL DE IMPORTAÇÃO EM LOTE -->
+    <div id="modalImportacao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
+                <h3 class="text-xl font-black text-emerald-950 flex items-center space-x-2">
+                    <i data-lucide="file-spreadsheets" class="text-emerald-700"></i>
+                    <span>Importar Alunos e Turmas em Lote</span>
+                </h3>
+                <button onclick="fecharModalImportacao()" class="text-slate-400 hover:text-rose-600 p-1">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
 
+            <p class="text-xs text-slate-600 mb-3">
+                Cole abaixo os dados dos alunos no formato <strong>CSV (separado por vírgula)</strong> ou copiados direto do Excel / Google Sheets:
+            </p>
+            
+            <div class="bg-slate-50 p-2.5 rounded-lg border text-[11px] text-slate-600 mb-3 font-mono">
+                Ordem das colunas:<br>
+                Nome, Turma, Turno, Responsável, Telefone, Endereço, Escola Integrada (Sim/Não), Necessidades Especiais (NE)
+            </div>
+
+            <textarea id="txtAreaImportacao" rows="8" placeholder="Cole as linhas da sua planilha aqui..." class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-mono outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
+
+            <div class="flex space-x-3 pt-4">
+                <button type="button" onclick="fecharModalImportacao()" class="w-1/2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold py-2.5 rounded-lg transition text-xs">
+                    Cancelar
+                </button>
+                <button type="button" onclick="processarImportacaoLote()" id="btnProcessarImportacao" class="w-1/2 bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold py-2.5 rounded-lg transition shadow-md border border-amber-400/30 text-xs">
+                    Processar e Salvar no Firestore
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- FIREBASE SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -503,7 +536,79 @@
         window.renderizarAlunosInativos = renderizarAlunosInativos;
         window.carregarDadosNuvem = carregarDadosNuvem;
         window.salvarConfiguracoes = salvarConfiguracoes;
+window.abrirModalImportacao = abrirModalImportacao;
+window.fecharModalImportacao = fecharModalImportacao;
+window.processarImportacaoLote = processarImportacaoLote;
 
+        function abrirModalImportacao() {
+    document.getElementById('txtAreaImportacao').value = '';
+    document.getElementById('modalImportacao').classList.remove('hidden');
+}
+
+function fecharModalImportacao() {
+    document.getElementById('modalImportacao').classList.add('hidden');
+}
+
+async function processarImportacaoLote() {
+    const texto = document.getElementById('txtAreaImportacao').value.trim();
+    if (!texto) {
+        alert("Cole o conteúdo antes de importar!");
+        return;
+    }
+
+    const btn = document.getElementById('btnProcessarImportacao');
+    btn.disabled = true;
+    btn.innerText = "Importando registros...";
+
+    const linhas = texto.split('\n');
+    let inseridos = 0;
+
+    for (let i = 0; i < linhas.length; i++) {
+        const linha = linhas[i].trim();
+        if (!linha) continue;
+
+        // Suporta vírgula ou tabulação (copiado direto do Excel)
+        const cols = linha.includes('\t') ? linha.split('\t') : linha.split(',');
+
+        // Pula o cabeçalho se houver
+        if (cols[0].toLowerCase().includes('nome')) continue;
+
+        const id = String(Date.now() + i);
+        const novoAluno = {
+            id: id,
+            nome: cols[0] ? cols[0].trim() : '',
+            turma: cols[1] ? cols[1].trim() : 'Sem Turma',
+            turno: cols[2] ? cols[2].trim() : 'Manhã',
+            responsavel: cols[3] ? cols[3].trim() : '',
+            telefone: cols[4] ? cols[4].trim() : '',
+            endereco: cols[5] ? cols[5].trim() : '',
+            integrada: cols[6] && cols[6].toLowerCase().includes('sim') ? 'Sim' : 'Não',
+            ne: cols[7] ? cols[7].trim() : '',
+            corCard: 'bg-white border-slate-200',
+            foto: '',
+            inativo: false,
+            ocorrencias: []
+        };
+
+        if (novoAluno.nome) {
+            try {
+                await setDoc(doc(db, "alunos", id), novoAluno);
+                alunos.push(novoAluno);
+                inseridos++;
+            } catch (err) {
+                console.error("Erro ao importar linha:", linha, err);
+            }
+        }
+    }
+
+    alert(`${inseridos} alunos foram importados com sucesso!`);
+    atualizarSelectTurmas();
+    renderizarAlunos();
+    renderizarAlunosIntegrada();
+    fecharModalImportacao();
+    btn.disabled = false;
+    btn.innerText = "Processar e Salvar no Firestore";
+}
         document.addEventListener("DOMContentLoaded", async () => {
             lucide.createIcons();
             await carregarDadosNuvem();
