@@ -909,29 +909,63 @@ async function processarImportacaoLote() {
             }
         }
 
-       function atualizarSelectTurmas() {
+     function atualizarSelectTurmas() {
     const select = document.getElementById('filterTurma');
     const selectIntegrada = document.getElementById('filterTurmaIntegrada');
 
     const valGeneral = select ? select.value : '';
     const valInteg = selectIntegrada ? selectIntegrada.value : '';
 
-    // Função de ordenação inteligente (1º ao 9º ano)
-    const extrairNumeroTurma = (str) => {
-        const match = str.match(/(\d+)\s*[A-Za-z]/);
-        return match ? parseInt(match[1], 10) : 999;
-    };
+    // Ordem exata personalizada conforme sua lista (1 ao 32)
+    const ordemTurmas = [
+        "FRCIA1MA - 1A - 101",
+        "FRCIA1MB - 1B - 102",
+        "FRCIA1MC - 1C - 103",
+        "FRCIA2MA - 2A - 204",
+        "FRCIA2MB - 2B - 205",
+        "FRCIA2MC - 2C - 206",
+        "FRCIA3MA - 3A - 307",
+        "FRCIA3MB - 3B - 308",
+        "FRCIA3MC - 3C - 309",
+        "FRCPA1MA - 4A - 410",
+        "FRCPA1MB - 4B - 411",
+        "FRCPA1MC - 4C - 412",
+        "FRCPA1MD - 4D - 413",
+        "FRCPA2MA - 5A - 514",
+        "FRCPA2MB - 5B - 515",
+        "FRCPA2MC - 5C - 516",
+        "FRCPA3TA - 6A - 601",
+        "FRCPA3TB - 6B - 602",
+        "FRCPA3TC - 6C - 603",
+        "FRCPA3TD - 6D - 604",
+        "FRCAA1TA - 7A - 705",
+        "FRCAA1TB - 7B - 706",
+        "FRCAA1TC - 7C - 707",
+        "FRCAA1TD - 7D - 708",
+        "FRCAA2TA - 8A - 813",
+        "FRCAA2TB - 8B - 814",
+        "FRCAA2TC - 8C - 815",
+        "FRCAA2TD - 8D - 816",
+        "FRCAA3TA - 9A - 909",
+        "FRCAA3TB - 9B - 910",
+        "FRCAA3TC - 9C - 911",
+        "FRCAA3TD - 9D - 912"
+    ];
 
+    // Função de ordenação baseada no índice da lista acima
     const ordenarTurmas = (lista) => {
         return lista.sort((a, b) => {
-            const numA = extrairNumeroTurma(a);
-            const numB = extrairNumeroTurma(b);
-            if (numA !== numB) return numA - numB;
-            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            const idxA = ordemTurmas.indexOf(a.trim());
+            const idxB = ordemTurmas.indexOf(b.trim());
+
+            const posA = idxA !== -1 ? idxA : 999;
+            const posB = idxB !== -1 ? idxB : 999;
+
+            return posA - posB;
         });
     };
 
-    // Pega as turmas e aplica a ordenação
+    // Pega as turmas e aplica a ordenação exata
     const turmasGeral = ordenarTurmas([...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))]);
     const turmasIntegrada = ordenarTurmas([...new Set(alunos.filter(a => !a.inativo && a.integrada === 'Sim').map(a => a.turma))]);
 
