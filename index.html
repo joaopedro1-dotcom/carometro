@@ -909,34 +909,56 @@ async function processarImportacaoLote() {
             }
         }
 
-        function atualizarSelectTurmas() {
-            const select = document.getElementById('filterTurma');
-            const selectIntegrada = document.getElementById('filterTurmaIntegrada');
+       function atualizarSelectTurmas() {
+    const select = document.getElementById('filterTurma');
+    const selectIntegrada = document.getElementById('filterTurmaIntegrada');
 
-            const valGeneral = select.value;
-            const valInteg = selectIntegrada.value;
+    const valGeneral = select ? select.value : '';
+    const valInteg = selectIntegrada ? selectIntegrada.value : '';
 
-            const turmasGeral = [...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))].sort();
-            const turmasIntegrada = [...new Set(alunos.filter(a => !a.inativo && a.integrada === 'Sim').map(a => a.turma))].sort();
+    // Função de ordenação inteligente (1º ao 9º ano)
+    const extrairNumeroTurma = (str) => {
+        const match = str.match(/(\d+)\s*[A-Za-z]/);
+        return match ? parseInt(match[1], 10) : 999;
+    };
 
-            select.innerHTML = '<option value="">Todas as Turmas</option>';
-            turmasGeral.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.innerText = t;
-                select.appendChild(opt);
-            });
-            select.value = valGeneral;
+    const ordenarTurmas = (lista) => {
+        return lista.sort((a, b) => {
+            const numA = extrairNumeroTurma(a);
+            const numB = extrairNumeroTurma(b);
+            if (numA !== numB) return numA - numB;
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        });
+    };
 
-            selectIntegrada.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
-            turmasIntegrada.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.innerText = t;
-                selectIntegrada.appendChild(opt);
-            });
-            selectIntegrada.value = valInteg;
-        }
+    // Pega as turmas e aplica a ordenação
+    const turmasGeral = ordenarTurmas([...new Set(alunos.filter(a => !a.inativo).map(a => a.turma))]);
+    const turmasIntegrada = ordenarTurmas([...new Set(alunos.filter(a => !a.inativo && a.integrada === 'Sim').map(a => a.turma))]);
+
+    // Preenche o Select Geral
+    if (select) {
+        select.innerHTML = '<option value="">Todas as Turmas</option>';
+        turmasGeral.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.innerText = t;
+            select.appendChild(opt);
+        });
+        select.value = valGeneral;
+    }
+
+    // Preenche o Select da Integrada
+    if (selectIntegrada) {
+        selectIntegrada.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
+        turmasIntegrada.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.innerText = t;
+            selectIntegrada.appendChild(opt);
+        });
+        selectIntegrada.value = valInteg;
+    }
+}
 
         function renderizarAlunos() {
             const grid = document.getElementById('gridAlunos');
