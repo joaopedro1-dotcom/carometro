@@ -423,7 +423,10 @@
         window.carregarDadosNuvem = carregarDadosNuvem;
 
         document.addEventListener("DOMContentLoaded", async () => {
-            lucide.createIcons();
+            // Proteção contra erro de Lucide offline
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                try { window.lucide.createIcons(); } catch(e){}
+            }
             await carregarDadosNuvem();
             verificarSessao();
         });
@@ -441,6 +444,11 @@
                 queryUsuarios.forEach((doc) => {
                     usuarios.push(doc.data());
                 });
+
+                // Re-renderiza se já estiver logado
+                if (usuarioLogado) {
+                    renderizarAlunos();
+                }
             } catch (error) {
                 console.error("Erro ao carregar dados do Firebase:", error);
             }
@@ -451,7 +459,6 @@
             const u = document.getElementById("loginUsername").value;
             const p = document.getElementById("loginPassword").value;
 
-            // 1. Acesso direto de emergência / admin padrão
             if ((u === "admin" || u === "ADMIN") && p === "admin") {
                 usuarioLogado = { username: "admin", perfil: "admin", acessoProntuario: true };
                 localStorage.setItem("sessaoUsuario", JSON.stringify(usuarioLogado));
@@ -459,7 +466,6 @@
                 return;
             }
 
-            // 2. Busca nos usuários cadastrados no banco
             const user = usuarios.find(usr => usr.username === u && usr.password === p);
             if (user) {
                 usuarioLogado = user;
@@ -502,10 +508,13 @@
             document.getElementById("userDisplayName").innerText = usuarioLogado.username;
             document.getElementById("userDisplayRole").innerText = usuarioLogado.perfil;
 
-            // Libera menus de admin/editor
             document.querySelectorAll('.editor-or-admin').forEach(el => el.classList.remove('hidden'));
             if (usuarioLogado.perfil === 'admin') {
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            }
+
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                try { window.lucide.createIcons(); } catch(e){}
             }
 
             renderizarAlunos();
@@ -603,13 +612,36 @@
             if (!grid) return;
             grid.innerHTML = "";
 
-            alunos.filter(a => a.status === "ativo").forEach(aluno => {
+            const filtroTurma = document.getElementById("filterTurma") ? document.getElementById("filterTurma").value : "";
+            const filtroTurno = document.getElementById("filterTurno") ? document.getElementById("filterTurno").value : "";
+            const busca = document.getElementById("searchAluno") ? document.getElementById("searchAluno").value.toLowerCase() : "";
+
+            const alunosFiltrados = alunos.filter(aluno => {
+                const ehAtivo = aluno.status === "ativo" || !aluno.status;
+                const combinaTurma = !filtroTurma || aluno.turma === filtroTurma;
+                const combinaTurno = !filtroTurno || aluno.turno === filtroTurno;
+                const combinaBusca = !busca || (aluno.nome && aluno.nome.toLowerCase().includes(busca));
+                return ehAtivo && combinaTurma && combinaTurno && combinaBusca;
+            });
+
+            if (alunosFiltrados.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-sm">Nenhum aluno encontrado.</div>`;
+                return;
+            }
+
+            alunosFiltrados.forEach(aluno => {
                 const card = document.createElement("div");
                 card.className = `p-4 rounded-xl border ${aluno.corCard || 'bg-white border-slate-200'} shadow-xs flex flex-col justify-between`;
+                
+                const fotoHtml = aluno.foto 
+                    ? `<img src="${aluno.foto}" class="w-16 h-16 rounded-full object-cover mb-2 border border-slate-200">`
+                    : `<div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xl mb-2">${aluno.nome ? aluno.nome.charAt(0) : 'A'}</div>`;
+
                 card.innerHTML = `
                     <div>
+                        ${fotoHtml}
                         <h4 class="font-extrabold text-emerald-950 text-sm">${aluno.nome}</h4>
-                        <p class="text-xs text-slate-600 font-semibold">${aluno.turma} (${aluno.turno})</p>
+                        <p class="text-xs text-slate-600 font-semibold">${aluno.turma || ''} (${aluno.turno || ''})</p>
                         ${aluno.responsavel ? `<p class="text-[11px] text-slate-500 mt-1">Resp: ${aluno.responsavel}</p>` : ''}
                         ${aluno.telefone ? `<p class="text-[11px] text-slate-500">Tel: ${aluno.telefone}</p>` : ''}
                         ${aluno.endereco ? `<p class="text-[11px] text-slate-500 truncate">End: ${aluno.endereco}</p>` : ''}
