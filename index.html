@@ -164,8 +164,12 @@
                     </button>
                 </div>
 
-                <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
-            </section>
+<div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="col-span-full flex flex-col items-center justify-center py-12 text-emerald-800">
+        <i data-lucide="loader-2" class="w-10 h-10 animate-spin mb-2"></i>
+        <p class="font-bold text-sm">Carregando alunos e fotos do banco de dados...</p>
+    </div>
+</div>            </section>
 
             <!-- SEÇÃO 1.5: ESCOLA INTEGRADA -->
             <section id="secIntegrada" class="hidden space-y-6">
