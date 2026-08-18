@@ -1054,6 +1054,22 @@
             window.print();
             document.body.classList.remove("imprimindo-prontuario");
         };
+        window.abrirModalNovoAluno = function() {
+    const form = document.getElementById("formAluno");
+    if (form) form.reset();
+    
+    const campoId = document.getElementById("alunoIdEdicao");
+    if (campoId) campoId.value = "";
+    
+    const titulo = document.getElementById("modalTitulo");
+    if (titulo) titulo.innerText = "Cadastrar Novo Aluno";
+    
+    const modal = document.getElementById("modalEditarAluno");
+    if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
+};
     </script>
 </body>
 </html>
