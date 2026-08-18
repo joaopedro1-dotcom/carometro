@@ -592,6 +592,90 @@ window.usuarios = [
         };
 
         function verificarSessao() {
+            // ==========================================
+// FUNÇÕES DE TROCA E REDEFINIÇÃO DE SENHA
+// ==========================================
+
+window.alterarMinhaSenha = function() {
+    if (!window.usuarioLogado) return alert("Nenhum usuário está logado!");
+
+    const novaSenha = prompt("Digite a sua nova senha:");
+    if (!novaSenha || novaSenha.trim() === "") {
+        return alert("Senha não pode ser vazia!");
+    }
+
+    window.usuarioLogado.password = novaSenha.trim();
+    alert("Sua senha foi alterada com sucesso!");
+};
+
+window.redefinirSenhaUsuario = function(idUsuario) {
+    const papel = window.usuarioLogado?.role || window.usuarioLogado?.perfil;
+    if (papel !== "admin" && papel !== "direcao") {
+        return alert("Apenas Administrador ou Direção podem redefinir senhas!");
+    }
+
+    const usuario = window.usuarios.find(u => u.id === idUsuario);
+    if (!usuario) return alert("Usuário não encontrado!");
+
+    const novaSenha = prompt(`Digite a nova senha para ${usuario.nome || usuario.username}:`);
+    if (!novaSenha || novaSenha.trim() === "") {
+        return alert("Operação cancelada ou senha inválida!");
+    }
+
+    usuario.password = novaSenha.trim();
+    alert(`Senha atualizada com sucesso para: ${novaSenha.trim()}`);
+};
+
+// ==========================================
+// CONTROLE DE PERMISSÕES E VISIBILIDADE
+// ==========================================
+window.aplicarPermissoesUsuario = function() {
+    const usuario = window.usuarioLogado;
+    if (!usuario) return;
+
+    const selectTurno = document.getElementById("filterTurno");
+    const btnNovoAluno = document.getElementById("btnNovoAluno");
+    const abaAtas = document.getElementById("abaAtas") || document.getElementById("btnAtas");
+    const abaConfig = document.getElementById("abaConfiguracoes") || document.getElementById("btnConfig");
+
+    // Trava de Turno
+    if (usuario.turno === "manhã" || usuario.turno === "manha") {
+        if (selectTurno) {
+            selectTurno.value = "Manhã";
+            selectTurno.disabled = true;
+            selectTurno.dispatchEvent(new Event("change"));
+        }
+    } else if (usuario.turno === "tarde") {
+        if (selectTurno) {
+            selectTurno.value = "Tarde";
+            selectTurno.disabled = true;
+            selectTurno.dispatchEvent(new Event("change"));
+        }
+    } else {
+        if (selectTurno) selectTurno.disabled = false;
+    }
+
+    // Esconde cadastro de alunos para professores
+    if (btnNovoAluno) {
+        if (usuario.role === "prof_manha" || usuario.role === "prof_tarde") {
+            btnNovoAluno.style.display = "none";
+        } else {
+            btnNovoAluno.style.display = "";
+        }
+    }
+
+    // Permissão de Atas
+    if (abaAtas) {
+        const podeAtas = ["admin", "direcao", "coord_geral"].includes(usuario.role || usuario.perfil);
+        abaAtas.style.display = podeAtas ? "" : "none";
+    }
+
+    // Permissão de Configurações
+    if (abaConfig) {
+        const eAdmin = (usuario.role === "admin" || usuario.perfil === "admin");
+        abaConfig.style.display = eAdmin ? "" : "none";
+    }
+};
             const saved = localStorage.getItem("userDiarioBordo");
             if (saved) {
                 window.usuarioLogado = JSON.parse(saved);
@@ -620,6 +704,7 @@ window.usuarios = [
             }
 
             await carregarDadosNuvem();
+            aplicarPermissoesUsuario();
         }
 
         window.carregarDadosNuvem = async function() {
