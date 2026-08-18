@@ -774,25 +774,71 @@ window.aplicarPermissoesUsuario = function() {
             });
         }
 
-        window.renderizarAlunos = function() {
-            const grid = document.getElementById("gridAlunos");
-            const turma = document.getElementById("filterTurma").value;
-            const turno = document.getElementById("filterTurno").value;
-            const busca = document.getElementById("searchAluno").value.toLowerCase();
+     window.renderizarAlunos = function() {
+    const grid = document.getElementById("gridAlunos");
+    if (!grid) return;
 
-            grid.innerHTML = "";
+    const turma = document.getElementById("filterTurma")?.value || "";
+    const turno = document.getElementById("filterTurno")?.value || "";
+    const busca = document.getElementById("searchAluno")?.value.toLowerCase() || "";
 
-            const filtrados = window.alunos.filter(a => {
-                const eAtivo = a.ativo !== false;
-                const mTurma = !turma || a.turma === turma;
-                const mTurno = !turno || a.turno === turno;
-                const mBusca = !busca || a.nome.toLowerCase().includes(busca);
-                return eAtivo && mTurma && mTurno && mBusca;
-            });
+    // Filtra os alunos
+    const filtrados = (window.alunos || []).filter(a => {
+        const eAtivo = a.ativo !== false && a.status !== "Inativo";
+        const mTurma = !turma || a.turma === turma;
+        const mTurno = !turno || a.turno === turno;
+        const mBusca = !busca || (a.nome && a.nome.toLowerCase().includes(busca));
+        return eAtivo && mTurma && mTurno && mBusca;
+    });
 
-            filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
-            lucide.createIcons();
-        };
+    if (filtrados.length === 0) {
+        grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Nenhum aluno encontrado.</p>`;
+        return;
+    }
+
+    // Identifica o tipo de usuário logado
+    const usuarioLogado = window.usuarioLogado || {};
+    const role = usuarioLogado.role || usuarioLogado.perfil || "";
+    const ehProfessor = (role === "prof_manha" || role === "prof_tarde");
+
+    // Gera o HTML dos cards com os botões
+    grid.innerHTML = filtrados.map(aluno => `
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex flex-col items-center text-center relative hover:shadow-md transition">
+            <!-- Foto -->
+            <div class="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-emerald-600 bg-slate-100 flex items-center justify-center">
+                <img src="${aluno.foto || 'https://via.placeholder.com/150'}" alt="${aluno.nome}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
+            </div>
+
+            <!-- Informações -->
+            <h4 class="font-extrabold text-emerald-950 text-sm mb-1">${aluno.nome}</h4>
+            <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-3">
+                ${aluno.turma || ''} ${aluno.sala ? '- ' + aluno.sala : ''} (${aluno.turno || ''})
+            </span>
+
+            <!-- Botões de Ação -->
+            <div class="flex items-center justify-center gap-2 w-full mt-auto pt-2 border-t border-slate-100">
+                <!-- Botão Prontuário: Sempre visível -->
+                <button onclick="abrirProntuario('${aluno.id}')" title="Prontuário" class="flex-1 bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow-xs">
+                    <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+                    <span>Prontuário</span>
+                </button>
+
+                <!-- Botão Editar: Oculto para Professores -->
+                ${!ehProfessor ? `
+                    <button onclick="abrirModalEditarAluno('${aluno.id}')" title="Editar Aluno" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition">
+                        <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                        <span>Editar</span>
+                    </button>
+                ` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    // Atualiza os ícones do Lucide
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+};
 
         window.renderizarAlunosIntegrada = function() {
             const grid = document.getElementById("gridAlunosIntegrada");
