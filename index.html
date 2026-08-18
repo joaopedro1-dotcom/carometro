@@ -509,10 +509,45 @@
         window.usuarioLogado = null;
         window.fotoTempBase64 = null;
 
-        document.addEventListener("DOMContentLoaded", () => {
-            lucide.createIcons();
-            verificarSessao();
+  document.addEventListener("DOMContentLoaded", () => {
+    lucide.createIcons();
+    verificarSessao();
+
+    // Filtra as opções de turmas conforme o turno escolhido
+    const selectTurno = document.getElementById("filterTurno");
+    const selectTurma = document.getElementById("filterTurma");
+
+    if (selectTurno && selectTurma) {
+        selectTurno.addEventListener("change", function() {
+            const turno = this.value.toLowerCase();
+            const options = selectTurma.querySelectorAll("option");
+
+            options.forEach(option => {
+                if (option.value === "" || !turno) {
+                    option.style.display = "";
+                    return;
+                }
+
+                const val = option.value.toUpperCase();
+                const txt = option.textContent.toLowerCase();
+
+                const ehManha = val.includes("1M") || val.includes("2M") || val.includes("3M") || txt.includes("manhã");
+                const ehTarde = val.includes("1T") || val.includes("2T") || val.includes("3T") || txt.includes("tarde");
+
+                if (turno === "manhã" || turno === "manha") {
+                    option.style.display = ehManha ? "" : "none";
+                } else if (turno === "tarde") {
+                    option.style.display = ehTarde ? "" : "none";
+                } else {
+                    option.style.display = "";
+                }
+            });
+
+            selectTurma.value = "";
+            if (typeof renderizarAlunos === "function") renderizarAlunos();
         });
+    }
+});
 
         window.handleLogin = async function(e) {
             e.preventDefault();
