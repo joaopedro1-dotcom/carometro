@@ -505,8 +505,18 @@
         window.db = db;
         window.alunos = [];
         window.ocorrencias = [];
-        window.usuarios = [];
-        window.usuarioLogado = null;
+window.usuarios = [
+    { id: "1", username: "admin", password: "123", nome: "Administrador do Sistema", role: "admin", turno: "todos" },
+    { id: "2", username: "direcao", password: "123", nome: "Direção Escolar", role: "direcao", turno: "todos" },
+    { id: "3", username: "coord.geral", password: "123", nome: "Coordenador Geral", role: "coord_geral", turno: "todos" },
+    { id: "4", username: "secretaria", password: "123", nome: "Secretaria Escolar", role: "secretaria", turno: "todos" },
+    { id: "5", username: "coord.integrada", password: "123", nome: "Coord. Escola Integrada", role: "coord_integrada", turno: "integral" },
+    { id: "6", username: "busca.ativa", password: "123", nome: "Equipe Busca Ativa", role: "busca_ativa", turno: "todos" },
+    { id: "7", username: "coord.manha", password: "123", nome: "Coordenador da Manhã", role: "coord_manha", turno: "manhã" },
+    { id: "8", username: "coord.tarde", password: "123", nome: "Coordenador da Tarde", role: "coord_tarde", turno: "tarde" },
+    { id: "9", username: "prof.manha", password: "123", nome: "Professores - Manhã", role: "prof_manha", turno: "manhã" },
+    { id: "10", username: "prof.tarde", password: "123", nome: "Professores - Tarde", role: "prof_tarde", turno: "tarde" }
+];        window.usuarioLogado = null;
         window.fotoTempBase64 = null;
 
   document.addEventListener("DOMContentLoaded", () => {
