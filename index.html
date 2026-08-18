@@ -1054,22 +1054,30 @@
             window.print();
             document.body.classList.remove("imprimindo-prontuario");
         };
-        window.abrirModalNovoAluno = function() {
+      window.abrirModalNovoAluno = function() {
     const form = document.getElementById("formAluno");
     if (form) form.reset();
     
-    const campoId = document.getElementById("alunoIdEdicao");
+    const campoId = document.getElementById("alunoId");
     if (campoId) campoId.value = "";
     
-    const titulo = document.getElementById("modalTitulo");
-    if (titulo) titulo.innerText = "Cadastrar Novo Aluno";
+    const txtTitulo = document.getElementById("txtTituloModal");
+    if (txtTitulo) txtTitulo.innerText = "Cadastrar Novo Aluno";
     
-    const modal = document.getElementById("modalEditarAluno");
+    const modal = document.getElementById("modalAluno");
     if (modal) {
         modal.classList.remove("hidden");
         modal.classList.add("flex");
     }
 };
+
+window.fecharModalAluno = function() {
+    const modal = document.getElementById("modalAluno");
+    if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+    }
+};;
     </script>
 </body>
 </html>
