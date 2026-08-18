@@ -666,55 +666,72 @@
         };
 
         function criarCardAluno(aluno, eInativo = false) {
-            const card = document.createElement("div");
-            const cor = aluno.corCard || "bg-white border-slate-200";
-            card.className = `${cor} rounded-2xl border p-4 shadow-sm hover:shadow-md transition relative flex flex-col justify-between`;
+    const card = document.createElement("div");
+    const cor = aluno.corCard || "bg-white border-slate-200";
+    
+    // Configuração do Card com o efeito Hover (Passar o mouse)
+    card.className = `group relative ${cor} rounded-2xl border p-4 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col items-center text-center overflow-hidden cursor-pointer`;
 
-            const foto = aluno.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
+    const foto = aluno.foto || "https://via.placeholder.com/150?text=Sem+Foto";
 
-            card.innerHTML = `
-                <div>
-                    <div class="flex items-center space-x-3 mb-3">
-                        <img src="${foto}" class="w-14 h-14 rounded-xl object-cover border-2 border-emerald-700/20 shadow-xs">
-                        <div class="overflow-hidden">
-                            <h4 class="font-bold text-slate-900 text-sm leading-tight truncate">${aluno.nome}</h4>
-                            <span class="inline-block bg-emerald-100 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">${aluno.turma} (${aluno.turno || 'N/I'})</span>
-                        </div>
-                    </div>
-                    <div class="text-xs space-y-1 text-slate-600 mb-3">
-                        <p><strong>Resp:</strong> ${aluno.responsavel || 'Não informado'}</p>
-                        <p><strong>Tel:</strong> ${aluno.telefone || 'Não informado'}</p>
-                        ${aluno.ne ? `<p class="text-amber-900 font-bold bg-amber-100 px-2 py-0.5 rounded">NE: ${aluno.ne}</p>` : ''}
-                    </div>
+    card.innerHTML = `
+        <!-- FOTO GRANDE EM DESTAQUE -->
+        <div class="relative w-32 h-32 mb-3 rounded-2xl overflow-hidden border-4 border-emerald-800/10 shadow-md group-hover:scale-105 transition-transform duration-300">
+            <img src="${foto}" class="w-full h-full object-cover">
+        </div>
+
+        <!-- NOME E TURMA -->
+        <h4 class="font-black text-slate-900 text-base leading-tight mb-1 group-hover:text-emerald-800 transition-colors">
+            ${aluno.nome}
+        </h4>
+        <span class="bg-emerald-100 text-emerald-950 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200">
+            ${aluno.turma} (${aluno.turno || 'N/I'})
+        </span>
+
+        ${aluno.ne ? `<span class="mt-2 text-xs font-bold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-md border border-amber-300">NE: ${aluno.ne}</span>` : ''}
+
+        <!-- INFORMAÇÕES QUE APARECEM AO PASSAR O MOUSE (HOVER SLIDE-UP) -->
+        <div class="absolute inset-x-0 bottom-0 bg-emerald-950/95 backdrop-blur-md p-4 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex flex-col justify-between text-left h-full">
+            <div>
+                <h5 class="font-extrabold text-amber-300 text-sm mb-2 border-b border-emerald-800 pb-1">${aluno.nome}</h5>
+                <div class="text-xs space-y-1.5 text-emerald-100">
+                    <p><strong>Turma:</strong> ${aluno.turma} - ${aluno.turno || 'N/I'}</p>
+                    <p><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                    <p><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'}</p>
+                    <p><strong>Endereço:</strong> ${aluno.endereco || 'Não informado'}</p>
+                    <p><strong>Integrada:</strong> ${aluno.integrada || 'Não'}</p>
                 </div>
+            </div>
 
-                <div class="border-t pt-2 flex items-center justify-between text-xs">
-                    ${window.usuarioLogado.acessoProntuario ? `
-                        <button onclick="abrirProntuario('${aluno.id}')" class="text-emerald-800 font-bold flex items-center space-x-1 hover:underline">
-                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
-                            <span>Prontuário</span>
+            <!-- BOTÕES DE AÇÃO DENTRO DO HOVER -->
+            <div class="border-t border-emerald-800/80 pt-2.5 mt-2 flex items-center justify-between text-xs">
+                ${window.usuarioLogado.acessoProntuario ? `
+                    <button onclick="event.stopPropagation(); abrirProntuario('${aluno.id}')" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 font-extrabold px-2.5 py-1 rounded-lg flex items-center space-x-1 transition">
+                        <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+                        <span>Prontuário</span>
+                    </button>
+                ` : '<span></span>'}
+                
+                <div class="flex space-x-1">
+                    ${!eInativo && (window.usuarioLogado.perfil === 'admin' || window.usuarioLogado.perfil === 'editor') ? `
+                        <button onclick="event.stopPropagation(); abrirModalEditarAluno('${aluno.id}')" class="p-1.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-lg transition" title="Editar">
+                            <i data-lucide="edit" class="w-3.5 h-3.5"></i>
                         </button>
-                    ` : '<span></span>'}
-                    
-                    <div class="flex space-x-1">
-                        ${!eInativo && (window.usuarioLogado.perfil === 'admin' || window.usuarioLogado.perfil === 'editor') ? `
-                            <button onclick="abrirModalEditarAluno('${aluno.id}')" class="p-1 text-slate-500 hover:text-emerald-700" title="Editar">
-                                <i data-lucide="edit" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="desativarAluno('${aluno.id}')" class="p-1 text-slate-500 hover:text-rose-600" title="Desligar/Arquivar">
-                                <i data-lucide="archive-out" class="w-4 h-4"></i>
-                            </button>
-                        ` : ''}
-                        ${eInativo && window.usuarioLogado.perfil === 'admin' ? `
-                            <button onclick="reativarAluno('${aluno.id}')" class="p-1 text-emerald-700 font-bold hover:underline" title="Reativar Aluno">
-                                Reativar
-                            </button>
-                        ` : ''}
-                    </div>
+                        <button onclick="event.stopPropagation(); desativarAluno('${aluno.id}')" class="p-1.5 bg-rose-900/80 hover:bg-rose-700 text-white rounded-lg transition" title="Desligar">
+                            <i data-lucide="archive-out" class="w-3.5 h-3.5"></i>
+                        </button>
+                    ` : ''}
+                    ${eInativo && window.usuarioLogado.perfil === 'admin' ? `
+                        <button onclick="event.stopPropagation(); reativarAluno('${aluno.id}')" class="text-amber-300 font-bold hover:underline" title="Reativar Aluno">
+                            Reativar
+                        </button>
+                    ` : ''}
                 </div>
-            `;
-            return card;
-        }
+            </div>
+        </div>
+    `;
+    return card;
+}
 
         window.abrirModalNovoAluno = function() {
             document.getElementById("formAluno").reset();
