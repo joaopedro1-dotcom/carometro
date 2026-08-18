@@ -642,47 +642,65 @@ window.aplicarPermissoesUsuario = function() {
     const usuario = window.usuarioLogado;
     if (!usuario) return;
 
+    const role = usuario.role || usuario.perfil;
+
+    // Seleção dos elementos da tela
     const selectTurno = document.getElementById("filterTurno");
     const btnNovoAluno = document.getElementById("btnNovoAluno");
-    const abaAtas = document.getElementById("abaAtas") || document.getElementById("btnAtas");
     const abaConfig = document.getElementById("abaConfiguracoes") || document.getElementById("btnConfig");
+    const abaUsuarios = document.getElementById("abaUsuarios") || document.getElementById("btnUsuarios");
+    const abaProntuario = document.getElementById("abaProntuario") || document.getElementById("btnProntuario");
+    const abaOcorrencias = document.getElementById("abaOcorrencias") || document.getElementById("btnOcorrencias");
+    const abaAtas = document.getElementById("abaAtas") || document.getElementById("btnAtas");
 
-    // Trava de Turno
+    // 1. REGRA DE TURNO (Manhã / Tarde / Todos / Escola Integrada)
     if (usuario.turno === "manhã" || usuario.turno === "manha") {
         if (selectTurno) {
             selectTurno.value = "Manhã";
-            selectTurno.disabled = true;
+            selectTurno.disabled = true; // Trava no turno da manhã
             selectTurno.dispatchEvent(new Event("change"));
         }
     } else if (usuario.turno === "tarde") {
         if (selectTurno) {
             selectTurno.value = "Tarde";
-            selectTurno.disabled = true;
+            selectTurno.disabled = true; // Trava no turno da tarde
+            selectTurno.dispatchEvent(new Event("change"));
+        }
+    } else if (usuario.turno === "integral") {
+        if (selectTurno) {
+            selectTurno.value = "Integral";
+            selectTurno.disabled = true; // Trava na Escola Integrada
             selectTurno.dispatchEvent(new Event("change"));
         }
     } else {
-        if (selectTurno) selectTurno.disabled = false;
+        if (selectTurno) selectTurno.disabled = false; // Acesso a todos os turnos
     }
 
-    // Esconde cadastro de alunos para professores
+    // 2. ACESSO AOS PRONTUÁRIOS E OCORRÊNCIAS
+    // Todos os 10 perfis têm permissão de acesso/criação de Prontuários e Ocorrências
+    if (abaProntuario) abaProntuario.style.display = "";
+    if (abaOcorrencias) abaOcorrencias.style.display = "";
+
+    // 3. CADASTRO E EDIÇÃO DE ALUNOS
+    // Apenas Professores da Manhã e Tarde NÃO podem cadastrar novos alunos
     if (btnNovoAluno) {
-        if (usuario.role === "prof_manha" || usuario.role === "prof_tarde") {
+        if (role === "prof_manha" || role === "prof_tarde") {
             btnNovoAluno.style.display = "none";
         } else {
             btnNovoAluno.style.display = "";
         }
     }
 
-    // Permissão de Atas
-    if (abaAtas) {
-        const podeAtas = ["admin", "direcao", "coord_geral"].includes(usuario.role || usuario.perfil);
-        abaAtas.style.display = podeAtas ? "" : "none";
-    }
+    // 4. MÓDULO DE USUÁRIOS E CONFIGURAÇÕES
+    // Apenas o Administrador acessa Configurações e Gestão de Usuários
+    if (abaConfig) abaConfig.style.display = (role === "admin") ? "" : "none";
+    if (abaUsuarios) abaUsuarios.style.display = (role === "admin") ? "" : "none";
 
-    // Permissão de Configurações
-    if (abaConfig) {
-        const eAdmin = (usuario.role === "admin" || usuario.perfil === "admin");
-        abaConfig.style.display = eAdmin ? "" : "none";
+    // 5. RELATÓRIOS E ATAS
+    // Acesso liberado para Admin, Direção, Coord. Geral e Secretaria
+    if (abaAtas) {
+        const podeAtas = ["admin", "direcao", "coord_geral", "secretaria"].includes(role);
+        abaAtas.style.display = podeAtas ? "" : "none";
     }
 };
             const saved = localStorage.getItem("userDiarioBordo");
