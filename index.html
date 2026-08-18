@@ -120,29 +120,32 @@
         <!-- DASHBOARD DA APLICAÇÃO -->
         <div id="appDashboard" class="hidden">
             
-            <div class="flex border-b border-emerald-200 mb-6 no-print space-x-2 overflow-x-auto">
-                <button onclick="trocarAba('turmas')" id="tabBtnTurmas" class="px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap">
-                    <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Todas as Turmas</span>
-                </button>
-                <button onclick="trocarAba('integrada')" id="tabBtnIntegrada" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 whitespace-nowrap">
-                    <i data-lucide="sun" class="w-4 h-4 text-amber-600"></i>
-                    <span>Escola Integrada</span>
-                </button>
-                <button onclick="trocarAba('inativos')" id="tabBtnInativos" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 whitespace-nowrap">
-                    <i data-lucide="archive" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Alunos Desligados</span>
-                </button>
-                <button onclick="abrirModalImportacao()" id="tabBtnImportar" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden whitespace-nowrap">
-                    <i data-lucide="file-up" class="w-4 h-4 text-emerald-700"></i>
-                    <span>+ Importar em Lote</span>
-                </button>
-                <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden whitespace-nowrap">
-                    <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
-                    <span>Configurações & Usuários</span>
-                </button>
-            </div>
-
+   <div class="flex border-b border-emerald-200 mb-6 no-print space-x-2 overflow-x-auto">
+    <button onclick="trocarAba('turmas')" id="tabBtnTurmas" class="px-4 py-2.5 font-bold text-emerald-800 flex items-center space-x-2">
+        <i data-lucide="grid" class="w-4 h-4 text-emerald-700"></i>
+        <span>Todas as Turmas</span>
+    </button>
+    <button onclick="trocarAba('integrada')" id="tabBtnIntegrada" class="px-4 py-2.5 font-semibold flex items-center space-x-2">
+        <i data-lucide="sun" class="w-4 h-4 text-amber-600"></i>
+        <span>Escola Integrada</span>
+    </button>
+    <button onclick="trocarAba('inativos')" id="tabBtnInativos" class="px-4 py-2.5 font-semibold flex items-center space-x-2">
+        <i data-lucide="archive" class="w-4 h-4 text-emerald-700"></i>
+        <span>Alunos Desligados</span>
+    </button>
+    <button onclick="abrirModalImportacao()" id="tabBtnImportar" class="px-4 py-2.5 font-semibold flex items-center space-x-2">
+        <i data-lucide="file-up" class="w-4 h-4 text-emerald-700"></i>
+        <span>+ Importar em Lote</span>
+    </button>
+    <button onclick="abrirModalNovoAluno()" class="px-4 py-2.5 font-semibold text-emerald-800 hover:bg-emerald-50 rounded-t-xl transition flex items-center space-x-2">
+        <i data-lucide="user-plus" class="w-4 h-4 text-emerald-700"></i>
+        <span>+ Novo Aluno</span>
+    </button>
+    <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold flex items-center space-x-2">
+        <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
+        <span>Configurações & Usuários</span>
+    </button>
+</div>
             <!-- SEÇÃO 1: TURMAS / CARÔMETRO GERAL -->
             <section id="secTurmas" class="space-y-6">
                 <div class="bg-white p-4 rounded-xl border border-emerald-100 shadow-sm flex flex-wrap gap-4 items-center justify-between no-print">
