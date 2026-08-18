@@ -802,9 +802,19 @@ window.aplicarPermissoesUsuario = function() {
     const ehProfessor = (role === "prof_manha" || role === "prof_tarde");
 
     // Gera o HTML dos cards com os botões
-    grid.innerHTML = filtrados.map(aluno => `
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex flex-col items-center text-center relative hover:shadow-md transition">
-            <!-- Foto -->
+   grid.innerHTML = filtrados.map(aluno => `
+        <div class="group bg-white rounded-2xl p-4 shadow-sm border border-emerald-100 flex flex-col items-center text-center relative hover:shadow-md transition">
+            
+            <!-- HOVER COM INFORMAÇÕES ADICIONAIS -->
+            <div class="absolute inset-0 bg-emerald-950/95 text-white p-4 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-center items-center text-xs space-y-1.5 z-10 pointer-events-none group-hover:pointer-events-auto">
+                <p class="font-bold text-amber-400 text-sm mb-1">${aluno.nome}</p>
+                <p><strong>Nascimento:</strong> ${aluno.nascimento || aluno.dataNascimento || 'Não informado'}</p>
+                <p><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                <p><strong>Telefone:</strong> ${aluno.telefone || aluno.contato || 'Não informado'}</p>
+                <p><strong>Matrícula:</strong> ${aluno.matricula || aluno.id || '-'}</p>
+            </div>
+
+            <!-- Foto do Aluno -->
             <div class="w-24 h-24 rounded-full overflow-hidden mb-3 border-2 border-emerald-600 bg-slate-100 flex items-center justify-center">
                 <img src="${aluno.foto || 'https://via.placeholder.com/150'}" alt="${aluno.nome}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
             </div>
@@ -816,14 +826,14 @@ window.aplicarPermissoesUsuario = function() {
             </span>
 
             <!-- Botões de Ação -->
-            <div class="flex items-center justify-center gap-2 w-full mt-auto pt-2 border-t border-slate-100">
-                <!-- Botão Prontuário: Sempre visível -->
+            <div class="flex items-center justify-center gap-2 w-full mt-auto pt-2 border-t border-slate-100 z-20 relative">
+                <!-- Botão Prontuário -->
                 <button onclick="abrirProntuario('${aluno.id}')" title="Prontuário" class="flex-1 bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition shadow-xs">
                     <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
                     <span>Prontuário</span>
                 </button>
 
-                <!-- Botão Editar: Oculto para Professores -->
+                <!-- Botão Editar (Oculto para Professores) -->
                 ${!ehProfessor ? `
                     <button onclick="abrirModalEditarAluno('${aluno.id}')" title="Editar Aluno" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center justify-center gap-1 transition">
                         <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
