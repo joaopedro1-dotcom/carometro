@@ -121,9 +121,9 @@
                     <span>Alunos Desligados</span>
                 </button>
                 <button onclick="abrirModalImportacao()" id="tabBtnImportar" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 editor-or-admin hidden whitespace-nowrap">
-                    <i data-lucide="file-up" class="w-4 h-4 text-emerald-700"></i>
-                    <span>+ Importar em Lote</span>
-                </button>
+    <i data-lucide="file-up" class="w-4 h-4 text-emerald-700"></i>
+    <span>+ Importar em Lote</span>
+</button>
                 <button onclick="trocarAba('usuarios')" id="tabBtnUsuarios" class="px-4 py-2.5 font-semibold text-slate-600 hover:text-emerald-900 flex items-center space-x-2 admin-only hidden whitespace-nowrap">
                     <i data-lucide="shield" class="w-4 h-4 text-emerald-700"></i>
                     <span>Configurações & Usuários</span>
@@ -145,9 +145,9 @@
                         </select>
                         <input type="text" id="searchAluno" oninput="renderizarAlunos()" placeholder="Buscar aluno por nome..." class="flex-1 px-3 py-2 border rounded-lg outline-none text-sm">
                     </div>
-                    <button onclick="abrirModalNovoAluno()" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 border border-amber-400/40 editor-or-admin hidden">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        <span>Novo Aluno</span>
+                    <button onclick="imprimirCarometro()" class="bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 border border-amber-400/40">
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                        <span>Imprimir Diário de Bordo</span>
                     </button>
                 </div>
 
@@ -202,6 +202,7 @@
             <!-- SEÇÃO 3: GERENCIAR CONFIGURAÇÕES E USUÁRIOS -->
             <section id="secUsuarios" class="hidden max-w-2xl mx-auto space-y-6 no-print">
                 
+                <!-- BLOCO DE CONFIGURAÇÃO DA DIREÇÃO DA ESCOLA -->
                 <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
                     <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
                         <i data-lucide="file-signature" class="text-emerald-700"></i>
@@ -224,6 +225,7 @@
                     </form>
                 </div>
 
+                <!-- BLOCO DE USUÁRIOS -->
                 <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
                     <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
                         <i data-lucide="shield" class="text-emerald-700"></i>
@@ -274,7 +276,7 @@
         </div>
     </main>
 
-    <!-- MODAL CADASTRO / EDIÇÃO DE ALUNO -->
+    <!-- MODAL POPUP PARA CADASTRO / EDIÇÃO DE ALUNO -->
     <div id="modalAluno" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-xl p-6 relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
@@ -374,7 +376,7 @@
         </div>
     </div>
 
-    <!-- MODAL PRONTUÁRIO / OCORRÊNCIAS -->
+    <!-- MODAL POPUP DO PRONTUÁRIO / OCORRÊNCIAS -->
     <div id="modalProntuario" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto flex flex-col">
             
@@ -399,6 +401,7 @@
                 </div>
             </div>
 
+            <!-- REGISTRAR NOVA OCORRÊNCIA -->
             <form id="formOcorrencia" onsubmit="salvarOcorrencia(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 space-y-3">
                 <input type="hidden" id="prontuarioAlunoId">
                 <h4 class="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center space-x-1">
@@ -437,18 +440,25 @@
                 </div>
             </form>
 
+            <!-- HISTÓRICO DE OCORRÊNCIAS -->
             <div class="flex-1">
                 <h4 class="text-xs font-bold text-slate-700 uppercase mb-3 flex items-center justify-between">
                     <span>Histórico de Registros Salvos</span>
                     <span id="qtdOcorrencias" class="bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full text-[10px]">0</span>
                 </h4>
-                <div id="listaOcorrencias" class="space-y-3"></div>
+                <div id="listaOcorrencias" class="space-y-3">
+                    <!-- Registros inseridos via JS -->
+                </div>
             </div>
 
         </div>
     </div>
 
-    <!-- MODAL IMPORTAÇÃO EM LOTE -->
+    <!-- TELA DE IMPRESSÃO EXCLUSIVA DO PRONTUÁRIO -->
+    <div id="printProntuarioArea" class="print-only">
+        <!-- Gerado dinamicamente via JS -->
+    </div>
+<!-- MODAL DE IMPORTAÇÃO EM LOTE -->
     <div id="modalImportacao" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 hidden no-print">
         <div class="bg-white rounded-2xl shadow-2xl border border-emerald-100 w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center pb-3 border-b border-slate-200 mb-4">
@@ -462,12 +472,12 @@
             </div>
 
             <p class="text-xs text-slate-600 mb-3">
-                Cole abaixo os dados dos alunos no formato CSV ou copiados do Excel / Google Sheets:
+                Cole abaixo os dados dos alunos no formato <strong>CSV (separado por vírgula)</strong> ou copiados direto do Excel / Google Sheets:
             </p>
             
             <div class="bg-slate-50 p-2.5 rounded-lg border text-[11px] text-slate-600 mb-3 font-mono">
                 Ordem das colunas:<br>
-                Nome, Turma, Turno, Responsável, Telefone, Endereço, Escola Integrada (Sim/Não), NE
+                Nome, Turma, Turno, Responsável, Telefone, Endereço, Escola Integrada (Sim/Não), Necessidades Especiais (NE)
             </div>
 
             <textarea id="txtAreaImportacao" rows="8" placeholder="Cole as linhas da sua planilha aqui..." class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-mono outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
@@ -482,581 +492,855 @@
             </div>
         </div>
     </div>
+    <!-- FIREBASE SDKs -->
+    <!-- FIREBASE SDKs -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <!-- TELA DE IMPRESSÃO -->
-    <div id="printProntuarioArea" class="print-only"></div>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCvWQzQ-_cpk_H_b8SGxX9So0ka05uWRxQ",
+        authDomain: "carometro-escola.firebaseapp.com",
+        projectId: "carometro-escola",
+        storageBucket: "carometro-escola.firebasestorage.app",
+        messagingSenderId: "906506245125",
+        appId: "1:906506245125:web:79331da221fd8ed207386c"
+    };
 
-    <!-- FIREBASE SDK & CONTROLADOR JS -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCvWQzQ-_cpk_H_b8SGxX9So0ka05uWRxQ",
-            authDomain: "carometro-escola.firebaseapp.com",
-            projectId: "carometro-escola",
-            storageBucket: "carometro-escola.firebasestorage.app",
-            messagingSenderId: "906506245125",
-            appId: "1:906506245125:web:79331da221fd8ed207386c"
-        };
+    let usuarioLogado = null;
+    let alunos = [];
+    let usuarios = [];
+    let configuracaoEscola = { nomeDiretora: '', cargoDiretora: 'Direção Escolar' };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    // Registra todas as funções no escopo global para acionamento direto do HTML
+    window.handleLogin = handleLogin;
+    window.logout = logout;
+    window.trocarAba = trocarAba;
+    window.abrirModalCadastro = abrirModalCadastro;
+    window.fecharModalAluno = fecharModalAluno;
+    window.salvarAluno = salvarAluno;
+    window.editarAluno = editarAluno;
+    window.alternarStatusAluno = alternarStatusAluno;
+    window.excluirAluno = excluirAluno;
+    window.abrirProntuario = abrirProntuario;
+    window.fecharModalProntuario = fecharModalProntuario;
+    window.salvarOcorrencia = salvarOcorrencia;
+    window.excluirOcorrencia = excluirOcorrencia;
+    window.imprimirProntuario = imprimirProntuario;
+    window.imprimirCarometro = imprimirCarometro;
+    window.salvarUsuario = salvarUsuario;
+    window.excluirUsuario = excluirUsuario;
+    window.renderizarAlunos = renderizarAlunos;
+    window.renderizarAlunosIntegrada = renderizarAlunosIntegrada;
+    window.renderizarAlunosInativos = renderizarAlunosInativos;
+    window.carregarDadosNuvem = carregarDadosNuvem;
+    window.salvarConfiguracoes = salvarConfiguracoes;
+    window.abrirModalImportacao = abrirModalImportacao;
+    window.fecharModalImportacao = fecharModalImportacao;
+    window.processarImportacaoLote = processarImportacaoLote;
 
-        // ESTADO GLOBAL DA APLICAÇÃO
-        window.db = db;
-        window.alunos = [];
-        window.ocorrencias = [];
-        window.usuarios = [];
-        window.usuarioLogado = null;
-        window.fotoTempBase64 = null;
+    document.addEventListener("DOMContentLoaded", async () => {
+        lucide.createIcons();
+        await carregarDadosNuvem();
+        verificarSessao();
+    });
 
-        // INICIALIZAÇÃO
-        document.addEventListener("DOMContentLoaded", () => {
-            lucide.createIcons();
-            verificarSessao();
-        });
+    async function carregarDadosNuvem() {
+        try {
+            const queryAlunos = await getDocs(collection(db, "alunos"));
+            alunos = [];
+            queryAlunos.forEach((doc) => {
+                alunos.push(doc.data());
+            });
 
-        // AUTENTICAÇÃO E SESSÃO
-        window.handleLogin = async function(e) {
-            e.preventDefault();
-            const u = document.getElementById("loginUsername").value.trim().toLowerCase();
-            const p = document.getElementById("loginPassword").value.trim();
-            const err = document.getElementById("loginError");
+            const queryUsuarios = await getDocs(collection(db, "usuarios"));
+            usuarios = [];
+            queryUsuarios.forEach((doc) => {
+                usuarios.push(doc.data());
+            });
 
-            err.classList.add("hidden");
-
-            try {
-                // Acesso padrão mestre ou consulta no banco
-                if (u === "admin" && p === "admin123") {
-                    window.usuarioLogado = { username: "admin", perfil: "admin", acessoProntuario: true };
-                } else {
-                    const snap = await getDocs(collection(db, "usuarios"));
-                    let achou = false;
-                    snap.forEach(d => {
-                        const data = d.data();
-                        if (data.username.toLowerCase() === u && data.senha === p) {
-                            window.usuarioLogado = data;
-                            achou = true;
-                        }
-                    });
-                    if (!achou) throw new Error("Usuário ou senha inválidos.");
-                }
-
-                localStorage.setItem("userDiarioBordo", JSON.stringify(window.usuarioLogado));
-                iniciarSistema();
-            } catch (ex) {
-                err.innerText = ex.message;
-                err.classList.remove("hidden");
-            }
-        };
-
-        function verificarSessao() {
-            const saved = localStorage.getItem("userDiarioBordo");
-            if (saved) {
-                window.usuarioLogado = JSON.parse(saved);
-                iniciarSistema();
-            }
-        }
-
-        window.logout = function() {
-            localStorage.removeItem("userDiarioBordo");
-            window.location.reload();
-        };
-
-        async function iniciarSistema() {
-            document.getElementById("loginSection").classList.add("hidden");
-            document.getElementById("appDashboard").classList.remove("hidden");
-            document.getElementById("headerControls").classList.remove("hidden");
-
-            document.getElementById("userDisplayName").innerText = window.usuarioLogado.username;
-            document.getElementById("userDisplayRole").innerText = window.usuarioLogado.perfil;
-
-            // Permissões
-            if (window.usuarioLogado.perfil === "admin") {
-                document.querySelectorAll(".admin-only").forEach(el => el.classList.remove("hidden"));
-                document.querySelectorAll(".editor-or-admin").forEach(el => el.classList.remove("hidden"));
-            } else if (window.usuarioLogado.perfil === "editor") {
-                document.querySelectorAll(".editor-or-admin").forEach(el => el.classList.remove("hidden"));
+            const docCfg = await getDoc(doc(db, "configuracoes", "geral"));
+            if (docCfg.exists()) {
+                configuracaoEscola = docCfg.data();
+                const inputNome = document.getElementById('cfgNomeDiretora');
+                const inputCargo = document.getElementById('cfgCargoDiretora');
+                if (inputNome) inputNome.value = configuracaoEscola.nomeDiretora || '';
+                if (inputCargo) inputCargo.value = configuracaoEscola.cargoDiretora || 'Direção Escolar';
             }
 
-            await carregarDadosNuvem();
-        }
+            if (usuarios.length === 0) {
+                const defaultAdmin = { username: 'admin', pass: 'admin', role: 'admin', prontuario: true };
+                await setDoc(doc(db, "usuarios", "admin"), defaultAdmin);
+                usuarios.push(defaultAdmin);
+            }
 
-        // LEITURA DO FIRESTORE
-        window.carregarDadosNuvem = async function() {
-            try {
-                // Alunos
-                const snapA = await getDocs(collection(db, "alunos"));
-                window.alunos = [];
-                snapA.forEach(docSnap => window.alunos.push({ id: docSnap.id, ...docSnap.data() }));
-
-                // Ocorrências
-                const snapO = await getDocs(collection(db, "ocorrencias"));
-                window.ocorrencias = [];
-                snapO.forEach(docSnap => window.ocorrencias.push({ id: docSnap.id, ...docSnap.data() }));
-
+            if (usuarioLogado) {
                 atualizarSelectTurmas();
                 renderizarAlunos();
                 renderizarAlunosIntegrada();
                 renderizarAlunosInativos();
-
-                if (window.usuarioLogado.perfil === "admin") {
-                    carregarUsuarios();
-                    carregarConfiguracoes();
-                }
-
-                lucide.createIcons();
-            } catch (e) {
-                console.error("Erro ao carregar dados:", e);
-                alert("Erro ao conectar com o banco de dados. Tente sincronizar novamente.");
+                renderizarListaUsuarios();
             }
-        };
+        } catch (err) {
+            console.error("Erro ao carregar dados do Firestore:", err);
+        }
+    }
 
-        function atualizarSelectTurmas() {
-            const turmas = [...new Set(window.alunos.map(a => a.turma))].filter(Boolean).sort();
-            
-            const sel1 = document.getElementById("filterTurma");
-            const sel2 = document.getElementById("filterTurmaIntegrada");
-            
-            sel1.innerHTML = '<option value="">Todas as Turmas</option>';
-            sel2.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
+    function abrirModalImportacao() {
+        document.getElementById('txtAreaImportacao').value = '';
+        document.getElementById('modalImportacao').classList.remove('hidden');
+    }
 
-            turmas.forEach(t => {
-                sel1.innerHTML += `<option value="${t}">${t}</option>`;
-                sel2.innerHTML += `<option value="${t}">${t}</option>`;
-            });
+    function fecharModalImportacao() {
+        document.getElementById('modalImportacao').classList.add('hidden');
+    }
+
+    async function processarImportacaoLote() {
+        const texto = document.getElementById('txtAreaImportacao').value.trim();
+        if (!texto) {
+            alert("Cole o conteúdo antes de importar!");
+            return;
         }
 
-        // RENDERIZAÇÃO DOS ALUNOS
-        window.renderizarAlunos = function() {
-            const grid = document.getElementById("gridAlunos");
-            const turma = document.getElementById("filterTurma").value;
-            const turno = document.getElementById("filterTurno").value;
-            const busca = document.getElementById("searchAluno").value.toLowerCase();
+        const btn = document.getElementById('btnProcessarImportacao');
+        btn.disabled = true;
+        btn.innerText = "Importando registros...";
 
-            grid.innerHTML = "";
+        const linhas = texto.split('\n');
+        let inseridos = 0;
 
-            const filtrados = window.alunos.filter(a => {
-                const eAtivo = a.ativo !== false;
-                const mTurma = !turma || a.turma === turma;
-                const mTurno = !turno || a.turno === turno;
-                const mBusca = !busca || a.nome.toLowerCase().includes(busca);
-                return eAtivo && mTurma && mTurno && mBusca;
-            });
+        for (let i = 0; i < linhas.length; i++) {
+            const linha = linhas[i].trim();
+            if (!linha) continue;
 
-            filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
-            lucide.createIcons();
-        };
-
-        window.renderizarAlunosIntegrada = function() {
-            const grid = document.getElementById("gridAlunosIntegrada");
-            const turma = document.getElementById("filterTurmaIntegrada").value;
-            const busca = document.getElementById("searchAlunoIntegrada").value.toLowerCase();
-
-            grid.innerHTML = "";
-
-            const filtrados = window.alunos.filter(a => {
-                const eAtivo = a.ativo !== false;
-                const eIntegrada = a.integrada === "Sim";
-                const mTurma = !turma || a.turma === turma;
-                const mBusca = !busca || a.nome.toLowerCase().includes(busca);
-                return eAtivo && eIntegrada && mTurma && mBusca;
-            });
-
-            filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
-            lucide.createIcons();
-        };
-
-        window.renderizarAlunosInativos = function() {
-            const grid = document.getElementById("gridAlunosInativos");
-            const busca = document.getElementById("searchAlunoInativo").value.toLowerCase();
-
-            grid.innerHTML = "";
-
-            const filtrados = window.alunos.filter(a => {
-                const eInativo = a.ativo === false;
-                const mBusca = !busca || a.nome.toLowerCase().includes(busca);
-                return eInativo && mBusca;
-            });
-
-            filtrados.forEach(a => grid.appendChild(criarCardAluno(a, true)));
-            lucide.createIcons();
-        };
-
-        function criarCardAluno(aluno, eInativo = false) {
-            const card = document.createElement("div");
-            const cor = aluno.corCard || "bg-white border-slate-200";
-            card.className = `${cor} rounded-2xl border p-4 shadow-sm hover:shadow-md transition relative flex flex-col justify-between`;
-
-            const foto = aluno.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150";
-
-            card.innerHTML = `
-                <div>
-                    <div class="flex items-center space-x-3 mb-3">
-                        <img src="${foto}" class="w-14 h-14 rounded-xl object-cover border-2 border-emerald-700/20 shadow-xs">
-                        <div class="overflow-hidden">
-                            <h4 class="font-bold text-slate-900 text-sm leading-tight truncate">${aluno.nome}</h4>
-                            <span class="inline-block bg-emerald-100 text-emerald-900 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">${aluno.turma} (${aluno.turno || 'N/I'})</span>
-                        </div>
-                    </div>
-                    <div class="text-xs space-y-1 text-slate-600 mb-3">
-                        <p><strong>Resp:</strong> ${aluno.responsavel || 'Não informado'}</p>
-                        <p><strong>Tel:</strong> ${aluno.telefone || 'Não informado'}</p>
-                        ${aluno.ne ? `<p class="text-amber-900 font-bold bg-amber-100 px-2 py-0.5 rounded">NE: ${aluno.ne}</p>` : ''}
-                    </div>
-                </div>
-
-                <div class="border-t pt-2 flex items-center justify-between text-xs">
-                    ${window.usuarioLogado.acessoProntuario ? `
-                        <button onclick="abrirProntuario('${aluno.id}')" class="text-emerald-800 font-bold flex items-center space-x-1 hover:underline">
-                            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
-                            <span>Prontuário</span>
-                        </button>
-                    ` : '<span></span>'}
-                    
-                    <div class="flex space-x-1">
-                        ${!eInativo && (window.usuarioLogado.perfil === 'admin' || window.usuarioLogado.perfil === 'editor') ? `
-                            <button onclick="abrirModalEditarAluno('${aluno.id}')" class="p-1 text-slate-500 hover:text-emerald-700" title="Editar">
-                                <i data-lucide="edit" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="desativarAluno('${aluno.id}')" class="p-1 text-slate-500 hover:text-rose-600" title="Desligar/Arquivar">
-                                <i data-lucide="archive-out" class="w-4 h-4"></i>
-                            </button>
-                        ` : ''}
-                        ${eInativo && window.usuarioLogado.perfil === 'admin' ? `
-                            <button onclick="reativarAluno('${aluno.id}')" class="p-1 text-emerald-700 font-bold hover:underline" title="Reativar Aluno">
-                                Reativar
-                            </button>
-                        ` : ''}
-                    </div>
-                </div>
-            `;
-            return card;
-        }
-
-        // CADASTRO / EDIÇÃO DE ALUNOS
-        window.abrirModalNovoAluno = function() {
-            document.getElementById("formAluno").reset();
-            document.getElementById("alunoId").value = "";
-            document.getElementById("txtTituloModal").innerText = "Cadastrar Aluno";
-            document.getElementById("avisoFotoMantida").classList.add("hidden");
-            window.fotoTempBase64 = null;
-            document.getElementById("modalAluno").classList.remove("hidden");
-        };
-
-        window.abrirModalEditarAluno = function(id) {
-            const a = window.alunos.find(item => item.id === id);
-            if (!a) return;
-
-            document.getElementById("alunoId").value = a.id;
-            document.getElementById("alunoNome").value = a.nome || "";
-            document.getElementById("alunoTurma").value = a.turma || "";
-            document.getElementById("alunoTurno").value = a.turno || "Manhã";
-            document.getElementById("alunoResponsavel").value = a.responsavel || "";
-            document.getElementById("alunoTelefone").value = a.telefone || "";
-            document.getElementById("alunoEndereco").value = a.endereco || "";
-            document.getElementById("alunoIntegrada").value = a.integrada || "Não";
-            document.getElementById("alunoNE").value = a.ne || "";
-            document.getElementById("alunoCorCard").value = a.corCard || "bg-white border-slate-200";
-
-            window.fotoTempBase64 = a.foto || null;
-            if (a.foto) document.getElementById("avisoFotoMantida").classList.remove("hidden");
-
-            document.getElementById("txtTituloModal").innerText = "Editar Aluno";
-            document.getElementById("modalAluno").classList.remove("hidden");
-        };
-
-        window.fecharModalAluno = function() {
-            document.getElementById("modalAluno").classList.add("hidden");
-        };
-
-        // EVENTO DE CONVERSÃO DE IMAGEM PARA BASE64
-        document.getElementById("alunoFoto").addEventListener("change", function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    window.fotoTempBase64 = reader.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        window.salvarAluno = async function(e) {
-            e.preventDefault();
-            const btn = document.getElementById("btnSalvarAluno");
-            btn.disabled = true;
-            btn.innerText = "Salvando...";
-
-            try {
-                const id = document.getElementById("alunoId").value || "aluno_" + Date.now();
-                const obj = {
-                    nome: document.getElementById("alunoNome").value.trim(),
-                    turma: document.getElementById("alunoTurma").value.trim(),
-                    turno: document.getElementById("alunoTurno").value,
-                    responsavel: document.getElementById("alunoResponsavel").value.trim(),
-                    telefone: document.getElementById("alunoTelefone").value.trim(),
-                    endereco: document.getElementById("alunoEndereco").value.trim(),
-                    integrada: document.getElementById("alunoIntegrada").value,
-                    ne: document.getElementById("alunoNE").value.trim(),
-                    corCard: document.getElementById("alunoCorCard").value,
-                    foto: window.fotoTempBase64 || "",
-                    ativo: true
-                };
-
-                await setDoc(doc(db, "alunos", id), obj, { merge: true });
-                fecharModalAluno();
-                await carregarDadosNuvem();
-            } catch (ex) {
-                alert("Erro ao salvar aluno: " + ex.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Salvar Informações";
-            }
-        };
-
-        window.desativarAluno = async function(id) {
-            if (confirm("Deseja realmente desligar este aluno das turmas ativas? O histórico continuará salvo.")) {
-                await setDoc(doc(db, "alunos", id), { ativo: false }, { merge: true });
-                carregarDadosNuvem();
-            }
-        };
-
-        window.reativarAluno = async function(id) {
-            await setDoc(doc(db, "alunos", id), { ativo: true }, { merge: true });
-            carregarDadosNuvem();
-        };
-
-        // PRONTUÁRIOS E OCORRÊNCIAS
-        window.abrirProntuario = function(id) {
-            const a = window.alunos.find(item => item.id === id);
-            if (!a) return;
-
-            document.getElementById("prontuarioAlunoId").value = a.id;
-            document.getElementById("prontuarioNomeAluno").innerText = a.nome;
-            document.getElementById("prontuarioInfoAluno").innerText = `Turma: ${a.turma} | Responsável: ${a.responsavel || 'N/I'}`;
-
-            document.getElementById("ocorrenciaData").valueAsDate = new Date();
-            document.getElementById("ocorrenciaTexto").value = "";
-
-            renderizarOcorrenciasAluno(a.id);
-            document.getElementById("modalProntuario").classList.remove("hidden");
-        };
-
-        window.fecharModalProntuario = function() {
-            document.getElementById("modalProntuario").classList.add("hidden");
-        };
-
-        function renderizarOcorrenciasAluno(alunoId) {
-            const lista = document.getElementById("listaOcorrencias");
-            lista.innerHTML = "";
-
-            const filtradas = window.ocorrencias
-                .filter(o => o.alunoId === alunoId)
-                .sort((a, b) => new Date(b.data) - new Date(a.data));
-
-            document.getElementById("qtdOcorrencias").innerText = filtradas.length;
-
-            if (filtradas.length === 0) {
-                lista.innerHTML = `<p class="text-xs text-slate-400 italic">Nenhuma ocorrência registrada para este aluno.</p>`;
-                return;
+            let cols = [];
+            if (linha.includes('\t')) {
+                cols = linha.split('\t');
+            } else if (linha.includes(';')) {
+                cols = linha.split(';');
+            } else {
+                cols = linha.split(',');
             }
 
-            filtradas.forEach(o => {
-                const item = document.createElement("div");
-                item.className = "bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-1 relative";
-                item.innerHTML = `
-                    <div class="flex justify-between items-center text-slate-500 font-semibold">
-                        <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded text-[10px]">${o.tipo}</span>
-                        <span>${o.data}</span>
-                    </div>
-                    <p class="text-slate-800 whitespace-pre-wrap">${o.texto}</p>
-                    <div class="text-[10px] text-slate-400 text-right">Reg. por: ${o.autor || 'Sistema'}</div>
-                `;
-                lista.appendChild(item);
-            });
-        }
+            if (cols[0].toLowerCase().includes('nome')) continue;
 
-        window.salvarOcorrencia = async function(e) {
-            e.preventDefault();
-            const alunoId = document.getElementById("prontuarioAlunoId").value;
-            const docId = "oc_" + Date.now();
-
-            const obj = {
-                alunoId: alunoId,
-                data: document.getElementById("ocorrenciaData").value,
-                tipo: document.getElementById("ocorrenciaTipo").value,
-                texto: document.getElementById("ocorrenciaTexto").value.trim(),
-                autor: window.usuarioLogado.username
+            const id = String(Date.now() + i);
+            const novoAluno = {
+                id: id,
+                nome: cols[0] ? cols[0].trim() : '',
+                turma: cols[1] ? cols[1].trim() : 'Sem Turma',
+                turno: cols[2] ? cols[2].trim() : 'Manhã',
+                responsavel: cols[3] ? cols[3].trim() : '',
+                telefone: cols[4] ? cols[4].trim() : '',
+                endereco: cols[5] ? cols[5].trim() : '',
+                integrada: cols[6] && cols[6].toLowerCase().includes('sim') ? 'Sim' : 'Não',
+                ne: cols[7] ? cols[7].trim() : '',
+                corCard: 'bg-white border-slate-200',
+                foto: '',
+                inativo: false,
+                ocorrencias: []
             };
 
-            await setDoc(doc(db, "ocorrencias", docId), obj);
-            document.getElementById("ocorrenciaTexto").value = "";
-            
-            // Recarrega lista
-            const snapO = await getDocs(collection(db, "ocorrencias"));
-            window.ocorrencias = [];
-            snapO.forEach(docSnap => window.ocorrencias.push({ id: docSnap.id, ...docSnap.data() }));
-            renderizarOcorrenciasAluno(alunoId);
-        };
-
-        // ABAS DE NAVEGAÇÃO
-        window.trocarAba = function(aba) {
-            const secTurmas = document.getElementById("secTurmas");
-            const secIntegrada = document.getElementById("secIntegrada");
-            const secInativos = document.getElementById("secInativos");
-            const secUsuarios = document.getElementById("secUsuarios");
-
-            [secTurmas, secIntegrada, secInativos, secUsuarios].forEach(s => s.classList.add("hidden"));
-
-            if (aba === 'turmas') secTurmas.classList.remove("hidden");
-            if (aba === 'integrada') secIntegrada.classList.remove("hidden");
-            if (aba === 'inativos') secInativos.classList.remove("hidden");
-            if (aba === 'usuarios') secUsuarios.classList.remove("hidden");
-        };
-
-        // IMPORTAÇÃO EM LOTE
-        window.abrirModalImportacao = function() {
-            document.getElementById("modalImportacao").classList.remove("hidden");
-        };
-        window.fecharModalImportacao = function() {
-            document.getElementById("modalImportacao").classList.add("hidden");
-        };
-
-        window.processarImportacaoLote = async function() {
-            const txt = document.getElementById("txtAreaImportacao").value.trim();
-            if (!txt) return;
-
-            const btn = document.getElementById("btnProcessarImportacao");
-            btn.disabled = true;
-            btn.innerText = "Processando...";
-
-            const linhas = txt.split("\n");
-            let cont = 0;
-
-            for (let l of linhas) {
-                const cols = l.split(l.includes("\t") ? "\t" : ",");
-                if (cols.length >= 2) {
-                    const id = "aluno_" + Date.now() + "_" + cont;
-                    const obj = {
-                        nome: cols[0]?.trim() || "Sem Nome",
-                        turma: cols[1]?.trim() || "Geral",
-                        turno: cols[2]?.trim() || "Manhã",
-                        responsavel: cols[3]?.trim() || "",
-                        telefone: cols[4]?.trim() || "",
-                        endereco: cols[5]?.trim() || "",
-                        integrada: cols[6]?.trim() || "Não",
-                        ne: cols[7]?.trim() || "",
-                        ativo: true
-                    };
-                    await setDoc(doc(db, "alunos", id), obj, { merge: true });
-                    cont++;
+            if (novoAluno.nome) {
+                try {
+                    await setDoc(doc(db, "alunos", id), novoAluno);
+                    alunos.push(novoAluno);
+                    inseridos++;
+                } catch (err) {
+                    console.error("Erro ao importar linha:", linha, err);
                 }
             }
+        }
 
-            alert(`${cont} alunos importados com sucesso!`);
-            fecharModalImportacao();
-            document.getElementById("txtAreaImportacao").value = "";
+        alert(`${inseridos} alunos foram importados com sucesso!`);
+        atualizarSelectTurmas();
+        renderizarAlunos();
+        renderizarAlunosIntegrada();
+        fecharModalImportacao();
+        btn.disabled = false;
+        btn.innerText = "Processar e Salvar no Firestore";
+    }
+
+    async function salvarConfiguracoes(e) {
+        e.preventDefault();
+        const nomeDiretora = document.getElementById('cfgNomeDiretora').value.trim();
+        const cargoDiretora = document.getElementById('cfgCargoDiretora').value.trim() || 'Direção Escolar';
+
+        configuracaoEscola = { nomeDiretora, cargoDiretora };
+
+        try {
+            await setDoc(doc(db, "configuracoes", "geral"), configuracaoEscola);
+            alert("Configurações salvas com sucesso!");
+        } catch(err) {
+            alert("Erro ao salvar configurações.");
+        }
+    }
+
+    function verificarSessao() {
+        const sessao = sessionStorage.getItem('carometro_sessao');
+        if (sessao) {
+            usuarioLogado = JSON.parse(sessao);
+            iniciarApp();
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const userIn = document.getElementById('loginUsername').value.trim();
+        const passIn = document.getElementById('loginPassword').value.trim();
+
+        const userFound = usuarios.find(u => u.username === userIn && u.pass === passIn);
+
+        if (userFound) {
+            usuarioLogado = userFound;
+            sessionStorage.setItem('carometro_sessao', JSON.stringify(userFound));
+            document.getElementById('loginError').classList.add('hidden');
+            iniciarApp();
+        } else {
+            const errDiv = document.getElementById('loginError');
+            errDiv.innerText = "Usuário ou senha incorretos!";
+            errDiv.classList.remove('hidden');
+        }
+    }
+
+    function logout() {
+        sessionStorage.removeItem('carometro_sessao');
+        usuarioLogado = null;
+        location.reload();
+    }
+
+    function iniciarApp() {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('appDashboard').classList.remove('hidden');
+        document.getElementById('headerControls').classList.remove('hidden');
+
+        document.getElementById('userDisplayName').innerText = usuarioLogado.username;
+        document.getElementById('userDisplayRole').innerText = usuarioLogado.role;
+
+        if (usuarioLogado.role === 'admin') {
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('.editor-or-admin').forEach(el => el.classList.remove('hidden'));
+        } else if (usuarioLogado.role === 'editor') {
+            document.querySelectorAll('.editor-or-admin').forEach(el => el.classList.remove('hidden'));
+        }
+
+        atualizarSelectTurmas();
+        renderizarAlunos();
+        renderizarAlunosIntegrada();
+        renderizarAlunosInativos();
+        renderizarListaUsuarios();
+    }
+
+    function trocarAba(aba) {
+        document.getElementById('secTurmas').classList.add('hidden');
+        document.getElementById('secIntegrada').classList.add('hidden');
+        document.getElementById('secInativos').classList.add('hidden');
+        document.getElementById('secUsuarios').classList.add('hidden');
+
+        document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 whitespace-nowrap";
+        document.getElementById('tabBtnIntegrada').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 whitespace-nowrap";
+        document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 whitespace-nowrap";
+        if(document.getElementById('tabBtnUsuarios')) document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-semibold text-slate-600 flex items-center space-x-2 admin-only whitespace-nowrap";
+
+        if (aba === 'turmas') {
+            document.getElementById('secTurmas').classList.remove('hidden');
+            document.getElementById('tabBtnTurmas').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap";
+        } else if (aba === 'integrada') {
+            document.getElementById('secIntegrada').classList.remove('hidden');
+            document.getElementById('tabBtnIntegrada').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap";
+        } else if (aba === 'inativos') {
+            document.getElementById('secInativos').classList.remove('hidden');
+            document.getElementById('tabBtnInativos').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg whitespace-nowrap";
+        } else if (aba === 'usuarios') {
+            document.getElementById('secUsuarios').classList.remove('hidden');
+            document.getElementById('tabBtnUsuarios').className = "px-4 py-2.5 font-bold text-emerald-900 border-b-4 border-amber-400 flex items-center space-x-2 bg-emerald-50 rounded-t-lg admin-only whitespace-nowrap";
+        }
+    }
+
+    function abrirModalCadastro() {
+        document.getElementById('formAluno').reset();
+        document.getElementById('alunoId').value = '';
+        document.getElementById('txtTituloModal').innerText = "Cadastrar Novo Aluno";
+        document.getElementById('avisoFotoMantida').classList.add('hidden');
+        document.getElementById('modalAluno').classList.remove('hidden');
+    }
+
+    function fecharModalAluno() {
+        document.getElementById('modalAluno').classList.add('hidden');
+    }
+
+    function comprimirFoto(file, maxWidth = 600, quality = 0.85) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const scale = maxWidth / img.width;
+                    canvas.width = maxWidth;
+                    canvas.height = img.height * scale;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+            };
+        });
+    }
+
+    async function salvarAluno(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnSalvarAluno');
+        btn.disabled = true;
+        btn.innerText = "Salvando na Nuvem...";
+
+        const idEdit = document.getElementById('alunoId').value;
+        const id = idEdit ? String(idEdit) : String(Date.now());
+
+        const nome = document.getElementById('alunoNome').value.trim();
+        const turma = document.getElementById('alunoTurma').value.trim();
+        const turno = document.getElementById('alunoTurno').value;
+        const responsavel = document.getElementById('alunoResponsavel').value.trim();
+        const telefone = document.getElementById('alunoTelefone').value.trim();
+        const endereco = document.getElementById('alunoEndereco').value.trim();
+        const integrada = document.getElementById('alunoIntegrada').value;
+        const ne = document.getElementById('alunoNE').value.trim();
+        const corCard = document.getElementById('alunoCorCard').value;
+        const fotoInput = document.getElementById('alunoFoto');
+
+        let fotoData = '';
+        if (fotoInput.files.length > 0) {
+            fotoData = await comprimirFoto(fotoInput.files[0]);
+        } else if (idEdit) {
+            const alunoAtual = alunos.find(a => String(a.id) === String(idEdit));
+            if (alunoAtual) fotoData = alunoAtual.foto || '';
+        }
+
+        const alunoExistente = alunos.find(a => String(a.id) === id);
+        const ocorrencias = alunoExistente ? (alunoExistente.ocorrencias || []) : [];
+        const inativo = alunoExistente ? (alunoExistente.inativo || false) : false;
+
+        const novoAluno = {
+            id,
+            nome,
+            turma,
+            turno,
+            responsavel,
+            telefone,
+            endereco,
+            integrada,
+            ne,
+            corCard,
+            foto: fotoData,
+            inativo,
+            ocorrencias
+        };
+
+        try {
+            await setDoc(doc(db, "alunos", id), novoAluno);
+            
+            const idx = alunos.findIndex(a => String(a.id) === id);
+            if (idx >= 0) {
+                alunos[idx] = novoAluno;
+            } else {
+                alunos.push(novoAluno);
+            }
+
+            atualizarSelectTurmas();
+            renderizarAlunos();
+            renderizarAlunosIntegrada();
+            renderizarAlunosInativos();
+            fecharModalAluno();
+        } catch (err) {
+            alert("Erro ao salvar aluno no servidor!");
+            console.error(err);
+        } finally {
             btn.disabled = false;
-            btn.innerText = "Processar e Salvar no Firestore";
-            carregarDadosNuvem();
+            btn.innerText = "Salvar Informações";
+        }
+    }
+
+    function editarAluno(id) {
+        const aluno = alunos.find(a => String(a.id) === String(id));
+        if (!aluno) return;
+
+        document.getElementById('alunoId').value = aluno.id;
+        document.getElementById('alunoNome').value = aluno.nome;
+        document.getElementById('alunoTurma').value = aluno.turma;
+        document.getElementById('alunoTurno').value = aluno.turno;
+        document.getElementById('alunoResponsavel').value = aluno.responsavel || '';
+        document.getElementById('alunoTelefone').value = aluno.telefone || '';
+        document.getElementById('alunoEndereco').value = aluno.endereco || '';
+        document.getElementById('alunoIntegrada').value = aluno.integrada || 'Não';
+        document.getElementById('alunoNE').value = aluno.ne || '';
+        document.getElementById('alunoCorCard').value = aluno.corCard || 'bg-white border-slate-200';
+
+        if (aluno.foto) {
+            document.getElementById('avisoFotoMantida').classList.remove('hidden');
+        } else {
+            document.getElementById('avisoFotoMantida').classList.add('hidden');
+        }
+
+        document.getElementById('txtTituloModal').innerText = "Editar Aluno";
+        document.getElementById('modalAluno').classList.remove('hidden');
+    }
+
+    async function alternarStatusAluno(id) {
+        const aluno = alunos.find(a => String(a.id) === String(id));
+        if (!aluno) return;
+
+        const acao = aluno.inativo ? "reativar" : "desligar / arquivar";
+        if (confirm(`Deseja realmente ${acao} este aluno?`)) {
+            aluno.inativo = !aluno.inativo;
+            await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
+            renderizarAlunos();
+            renderizarAlunosIntegrada();
+            renderizarAlunosInativos();
+        }
+    }
+
+    async function excluirAluno(id) {
+        if (confirm("ATENÇÃO: Deseja realmente EXCLUIR DEFINITIVAMENTE este aluno e todo o seu histórico do banco de dados?")) {
+            try {
+                await deleteDoc(doc(db, "alunos", String(id)));
+                alunos = alunos.filter(a => String(a.id) !== String(id));
+                renderizarAlunos();
+                renderizarAlunosIntegrada();
+                renderizarAlunosInativos();
+            } catch (err) {
+                alert("Erro ao excluir aluno.");
+            }
+        }
+    }
+
+    function atualizarSelectTurmas() {
+        const select = document.getElementById('filterTurma');
+        const selectIntegrada = document.getElementById('filterTurmaIntegrada');
+        const selectTurno = document.getElementById('filterTurno');
+
+        const valGeneral = select ? select.value : '';
+        const valInteg = selectIntegrada ? selectIntegrada.value : '';
+        const turnoSelecionado = selectTurno ? selectTurno.value : '';
+
+        const ordemTurmas = [
+            "FRCIA1MA - 1A - 101", "FRCIA1MB - 1B - 102", "FRCIA1MC - 1C - 103",
+            "FRCIA2MA - 2A - 204", "FRCIA2MB - 2B - 205", "FRCIA2MC - 2C - 206",
+            "FRCIA3MA - 3A - 307", "FRCIA3MB - 3B - 308", "FRCIA3MC - 3C - 309",
+            "FRCPA1MA - 4A - 410", "FRCPA1MB - 4B - 411", "FRCPA1MC - 4C - 412", "FRCPA1MD - 4D - 413",
+            "FRCPA2MA - 5A - 514", "FRCPA2MB - 5B - 515", "FRCPA2MC - 5C - 516",
+            "FRCPA3TA - 6A - 601", "FRCPA3TB - 6B - 602", "FRCPA3TC - 6C - 603", "FRCPA3TD - 6D - 604",
+            "FRCAA1TA - 7A - 705", "FRCAA1TB - 7B - 706", "FRCAA1TC - 7C - 707", "FRCAA1TD - 7D - 708",
+            "FRCAA2TA - 8A - 813", "FRCAA2TB - 8B - 814", "FRCAA2TC - 8C - 815", "FRCAA2TD - 8D - 816",
+            "FRCAA3TA - 9A - 909", "FRCAA3TB - 9B - 910", "FRCAA3TC - 9C - 911", "FRCAA3TD - 9D - 912"
+        ];
+
+        const ordenarTurmas = (lista) => {
+            return lista.sort((a, b) => {
+                const idxA = ordemTurmas.indexOf(a.trim());
+                const idxB = ordemTurmas.indexOf(b.trim());
+                const posA = idxA !== -1 ? idxA : 999;
+                const posB = idxB !== -1 ? idxB : 999;
+                return posA - posB;
+            });
         };
 
-        // CONFIGURAÇÕES E USUÁRIOS
-        async function carregarUsuarios() {
-            const lista = document.getElementById("listaUsuarios");
-            lista.innerHTML = "";
-            const snap = await getDocs(collection(db, "usuarios"));
-            snap.forEach(d => {
-                const u = d.data();
-                const div = document.createElement("div");
-                div.className = "flex justify-between items-center p-2 bg-slate-50 border rounded text-xs";
-                div.innerHTML = `
-                    <div>
-                        <strong>${u.username}</strong> (${u.perfil})
-                        ${u.acessoProntuario ? '<span class="text-emerald-700 font-bold ml-2">• Prontuário Liberado</span>' : ''}
+        let alunosFiltrados = alunos.filter(a => !a.inativo);
+
+        if (turnoSelecionado) {
+            alunosFiltrados = alunosFiltrados.filter(a => a.turno === turnoSelecionado);
+        }
+
+        const turmasGeral = ordenarTurmas([...new Set(alunosFiltrados.map(a => a.turma))]);
+        const turmasIntegrada = ordenarTurmas([...new Set(alunosFiltrados.filter(a => a.integrada === 'Sim').map(a => a.turma))]);
+
+        if (select) {
+            select.innerHTML = '<option value="">Todas as Turmas</option>';
+            turmasGeral.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                select.appendChild(opt);
+            });
+            select.value = turmasGeral.includes(valGeneral) ? valGeneral : '';
+        }
+
+        if (selectIntegrada) {
+            selectIntegrada.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
+            turmasIntegrada.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.innerText = t;
+                selectIntegrada.appendChild(opt);
+            });
+            selectIntegrada.value = turmasIntegrada.includes(valInteg) ? valInteg : '';
+        }
+    }
+
+    function renderizarAlunos() {
+        const grid = document.getElementById('gridAlunos');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const filterTurma = document.getElementById('filterTurma').value;
+        const filterTurno = document.getElementById('filterTurno').value;
+        const search = document.getElementById('searchAluno').value.toLowerCase();
+
+        const filtrados = alunos.filter(a => {
+            if (a.inativo) return false;
+            if (filterTurma && a.turma !== filterTurma) return false;
+            if (filterTurno && a.turno !== filterTurno) return false;
+            if (search && !a.nome.toLowerCase().includes(search)) return false;
+            return true;
+        });
+
+        filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
+        lucide.createIcons();
+    }
+
+    function renderizarAlunosIntegrada() {
+        const grid = document.getElementById('gridAlunosIntegrada');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const filterTurma = document.getElementById('filterTurmaIntegrada').value;
+        const search = document.getElementById('searchAlunoIntegrada').value.toLowerCase();
+
+        const filtrados = alunos.filter(a => {
+            if (a.inativo) return false;
+            if (a.integrada !== 'Sim') return false;
+            if (filterTurma && a.turma !== filterTurma) return false;
+            if (search && !a.nome.toLowerCase().includes(search)) return false;
+            return true;
+        });
+
+        if (filtrados.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 font-medium">Nenhum aluno cadastrado na Escola Integrada com os filtros aplicados.</div>`;
+            return;
+        }
+
+        filtrados.forEach(a => grid.appendChild(criarCardAluno(a)));
+        lucide.createIcons();
+    }
+
+    function renderizarAlunosInativos() {
+        const grid = document.getElementById('gridAlunosInativos');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const search = document.getElementById('searchAlunoInativo').value.toLowerCase();
+
+        const inativos = alunos.filter(a => {
+            if (!a.inativo) return false;
+            if (search && !a.nome.toLowerCase().includes(search)) return false;
+            return true;
+        });
+
+        inativos.forEach(a => grid.appendChild(criarCardAluno(a, true)));
+        lucide.createIcons();
+    }
+
+    function criarCardAluno(aluno, isInativo = false) {
+        const card = document.createElement('div');
+        const corBg = aluno.corCard || 'bg-white border-slate-200';
+        
+        card.className = `${corBg} rounded-2xl p-4 border shadow-sm flex flex-col justify-between relative group hover:shadow-lg transition`;
+
+        const podeVerProntuario = usuarioLogado.role === 'admin' || usuarioLogado.prontuario;
+        const podeEditar = usuarioLogado.role === 'admin' || usuarioLogado.role === 'editor';
+
+        const fotoHtml = aluno.foto 
+            ? `<img src="${aluno.foto}" class="w-36 h-36 rounded-2xl object-cover mx-auto shadow border-2 border-white mb-3">`
+            : `<div class="w-36 h-36 rounded-2xl bg-slate-100 border-2 border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <i data-lucide="user" class="w-16 h-16"></i>
+               </div>`;
+
+        card.innerHTML = `
+            <div>
+                ${fotoHtml}
+                <div class="text-center">
+                    <h4 class="font-extrabold text-emerald-950 text-lg leading-snug">${aluno.nome}</h4>
+                    <div class="flex items-center justify-center space-x-2 mt-1.5">
+                        <span class="bg-emerald-800 text-amber-300 text-xs font-bold px-2.5 py-0.5 rounded-md">${aluno.turma}</span>
+                        <span class="bg-slate-200 text-slate-700 text-xs font-semibold px-2 py-0.5 rounded-md">${aluno.turno}</span>
                     </div>
-                    ${u.username !== 'admin' ? `<button onclick="excluirUsuario('${d.id}')" class="text-rose-600 font-bold">Excluir</button>` : ''}
-                `;
-                lista.appendChild(div);
-            });
-        }
-
-        window.salvarUsuario = async function(e) {
-            e.preventDefault();
-            const u = document.getElementById("novoUsername").value.trim();
-            const p = document.getElementById("novaSenha").value.trim();
-            const perf = document.getElementById("novoPerfil").value;
-            const pront = document.getElementById("novoAcessoProntuario").checked;
-
-            await setDoc(doc(db, "usuarios", "usr_" + u), {
-                username: u,
-                senha: p,
-                perfil: perf,
-                acessoProntuario: pront
-            });
-
-            document.getElementById("formUsuario").reset();
-            carregarUsuarios();
-        };
-
-        window.excluirUsuario = async function(id) {
-            if (confirm("Remover este usuário?")) {
-                await deleteDoc(doc(db, "usuarios", id));
-                carregarUsuarios();
-            }
-        };
-
-        async function carregarConfiguracoes() {
-            const snap = await getDoc(doc(db, "configuracoes", "geral"));
-            if (snap.exists()) {
-                const d = snap.data();
-                document.getElementById("cfgNomeDiretora").value = d.nomeDiretora || "";
-                document.getElementById("cfgCargoDiretora").value = d.cargoDiretora || "";
-            }
-        }
-
-        window.salvarConfiguracoes = async function(e) {
-            e.preventDefault();
-            await setDoc(doc(db, "configuracoes", "geral"), {
-                nomeDiretora: document.getElementById("cfgNomeDiretora").value.trim(),
-                cargoDiretora: document.getElementById("cfgCargoDiretora").value.trim()
-            }, { merge: true });
-            alert("Configurações salvas!");
-        };
-
-        // IMPRESSÃO
-        window.imprimirProntuario = function() {
-            const alunoId = document.getElementById("prontuarioAlunoId").value;
-            const aluno = window.alunos.find(a => a.id === alunoId);
-            const ocs = window.ocorrencias.filter(o => o.alunoId === alunoId);
-
-            const area = document.getElementById("printProntuarioArea");
-            area.innerHTML = `
-                <div style="font-family: sans-serif; padding: 20px;">
-                    <h2 style="text-align: center; margin-bottom: 5px;">E. M. JARDIM VITÓRIA</h2>
-                    <h4 style="text-align: center; margin-top: 0;">Prontuário Individual do Aluno</h4>
-                    <hr>
-                    <p><strong>Nome:</strong> ${aluno.nome}</p>
-                    <p><strong>Turma:</strong> ${aluno.turma} (${aluno.turno || ''}) | <strong>Responsável:</strong> ${aluno.responsavel || 'N/I'}</p>
-                    <p><strong>Telefone:</strong> ${aluno.telefone || 'N/I'} | <strong>NE:</strong> ${aluno.ne || 'Nenhuma'}</p>
-                    <hr>
-                    <h3>Histórico de Ocorrências</h3>
-                    ${ocs.map(o => `
-                        <div style="border-bottom: 1px solid #ccc; padding: 8px 0;">
-                            <strong>Data:</strong> ${o.data} | <strong>Tipo:</strong> ${o.tipo}<br>
-                            <p style="margin: 4px 0;">${o.texto}</p>
-                            <small>Registrado por: ${o.autor}</small>
-                        </div>
-                    `).join('')}
+                    ${aluno.integrada === 'Sim' ? `<span class="inline-block bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-0.5 rounded-full mt-2">Escola Integrada</span>` : ''}
                 </div>
-            `;
 
-            document.body.classList.add("imprimindo-prontuario");
-            window.print();
-            document.body.classList.remove("imprimindo-prontuario");
-        };
-    </script>
+                <div class="absolute inset-x-2 bottom-14 bg-slate-900/95 text-white p-3 rounded-xl text-xs space-y-1 shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20 border border-slate-700">
+                    <p class="font-bold text-amber-300 border-b border-slate-700 pb-1 mb-1">Informações do Aluno</p>
+                    <p><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                    <p><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'}</p>
+                    <p><strong>Endereço:</strong> ${aluno.endereco || 'Não informado'}</p>
+                    <p><strong>NE / Destaque:</strong> ${aluno.ne || 'Nenhum'}</p>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-2 border-t border-slate-200/60 flex items-center justify-between gap-1 no-print">
+                ${podeVerProntuario ? `
+                    <button onclick="abrirProntuario('${aluno.id}')" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center space-x-1 shadow-xs">
+                        <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i>
+                        <span>Prontuário</span>
+                    </button>
+                ` : '<div></div>'}
+
+                <div class="flex items-center space-x-1">
+                    ${podeEditar ? `
+                        <button onclick="editarAluno('${aluno.id}')" class="p-1.5 text-slate-600 hover:text-emerald-800 rounded-lg transition" title="Editar">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                    ${podeEditar ? `
+                        <button onclick="alternarStatusAluno('${aluno.id}')" class="p-1.5 text-slate-600 hover:text-amber-800 rounded-lg transition" title="${isInativo ? 'Reativar' : 'Desligar/Arquivar'}">
+                            <i data-lucide="${isInativo ? 'user-check' : 'user-minus'}" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                    ${usuarioLogado.role === 'admin' ? `
+                        <button onclick="excluirAluno('${aluno.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition" title="Excluir Definitivamente">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        return card;
+    }
+
+    function abrirProntuario(id) {
+        const aluno = alunos.find(a => String(a.id) === String(id));
+        if (!aluno) return;
+
+        document.getElementById('prontuarioAlunoId').value = aluno.id;
+        document.getElementById('prontuarioNomeAluno').innerText = aluno.nome;
+        document.getElementById('prontuarioInfoAluno').innerText = `Turma: ${aluno.turma} | Turno: ${aluno.turno}`;
+        document.getElementById('ocorrenciaData').value = new Date().toISOString().split('T')[0];
+        document.getElementById('ocorrenciaTexto').value = '';
+
+        renderizarOcorrencias(aluno);
+        document.getElementById('modalProntuario').classList.remove('hidden');
+    }
+
+    function fecharModalProntuario() {
+        document.getElementById('modalProntuario').classList.add('hidden');
+    }
+
+    function renderizarOcorrencias(aluno) {
+        const lista = document.getElementById('listaOcorrencias');
+        if (!lista) return;
+        lista.innerHTML = '';
+
+        const ocorrencias = aluno.ocorrencias || [];
+        document.getElementById('qtdOcorrencias').innerText = ocorrencias.length;
+
+        if (ocorrencias.length === 0) {
+            lista.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-4">Nenhuma ocorrência registrada para este aluno.</p>`;
+            return;
+        }
+
+        ocorrencias.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        ocorrencias.forEach((oc, index) => {
+            const item = document.createElement('div');
+            item.className = "bg-white p-3 rounded-xl border border-slate-200 text-xs shadow-xs space-y-1 relative";
+
+            item.innerHTML = `
+                <div class="flex justify-between items-center border-b border-slate-100 pb-1">
+                    <span class="font-bold text-emerald-900">${oc.tipo} - ${oc.data.split('-').reverse().join('/')}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-[10px] text-slate-400">Por: ${oc.autor || 'Sistema'}</span>
+                        ${usuarioLogado.role === 'admin' ? `
+                            <button onclick="excluirOcorrencia('${aluno.id}', ${index})" class="text-slate-400 hover:text-rose-600">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+                <p class="text-slate-700 whitespace-pre-wrap">${oc.texto}</p>
+            `;
+            lista.appendChild(item);
+        });
+        lucide.createIcons();
+    }
+
+    async function salvarOcorrencia(e) {
+        e.preventDefault();
+        const id = document.getElementById('prontuarioAlunoId').value;
+        const aluno = alunos.find(a => String(a.id) === String(id));
+        if (!aluno) return;
+
+        const data = document.getElementById('ocorrenciaData').value;
+        const tipo = document.getElementById('ocorrenciaTipo').value;
+        const texto = document.getElementById('ocorrenciaTexto').value.trim();
+
+        if (!aluno.ocorrencias) aluno.ocorrencias = [];
+
+        aluno.ocorrencias.push({
+            data,
+            tipo,
+            texto,
+            autor: usuarioLogado.username
+        });
+
+        await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
+        document.getElementById('ocorrenciaTexto').value = '';
+        renderizarOcorrencias(aluno);
+    }
+
+    async function excluirOcorrencia(alunoId, index) {
+        if (confirm("Deseja excluir esta ocorrência?")) {
+            const aluno = alunos.find(a => String(a.id) === String(alunoId));
+            if (!aluno) return;
+
+            aluno.ocorrencias.splice(index, 1);
+            await setDoc(doc(db, "alunos", String(aluno.id)), aluno);
+            renderizarOcorrencias(aluno);
+        }
+    }
+
+    function imprimirCarometro() {
+        document.body.classList.remove('imprimindo-prontuario');
+        window.print();
+    }
+
+    function imprimirProntuario() {
+        const id = document.getElementById('prontuarioAlunoId').value;
+        const aluno = alunos.find(a => String(a.id) === String(id));
+        if (!aluno) return;
+
+        const printArea = document.getElementById('printProntuarioArea');
+        const ocorrencias = aluno.ocorrencias || [];
+
+        let ocoHtml = '';
+        if (ocorrencias.length === 0) {
+            ocoHtml = `<p style="font-style: italic; color: #64748b; font-size: 13px;">Nenhum registro de ocorrência cadastrado para este aluno.</p>`;
+        } else {
+            ocorrencias.forEach(o => {
+                ocoHtml += `
+                    <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px;">
+                        <p style="font-weight: bold; color: #064e3b; margin: 0 0 4px 0; font-size: 14px;">${o.tipo} - Data: ${o.data.split('-').reverse().join('/')} <span style="font-size: 11px; font-weight: normal; color: #64748b;">(Registrado por: ${o.autor || 'Sistema'})</span></p>
+                        <p style="margin: 0; white-space: pre-wrap; font-size: 13px; color: #334155;">${o.texto}</p>
+                    </div>
+                `;
+            });
+        }
+
+        const fotoHtml = aluno.foto 
+            ? `<img src="${aluno.foto}" style="width: 110px; height: 110px; object-fit: cover; border-radius: 12px; border: 2px solid #e2e8f0;">`
+            : `<div style="width: 110px; height: 110px; border-radius: 12px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8;">Sem Foto</div>`;
+
+        const nomeDiretora = configuracaoEscola.nomeDiretora || '________________________________________';
+        const cargoDiretora = configuracaoEscola.cargoDiretora || 'Direção Escolar';
+
+        printArea.innerHTML = `
+            <div style="font-family: system-ui, -apple-system, sans-serif; color: #0f172a; max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; min-height: 95vh; justify-content: space-between;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #064e3b; padding-bottom: 12px; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin: 0; font-size: 22px; font-weight: 800; color: #064e3b; text-transform: uppercase;">E. M. Jardim Vitória</h2>
+                            <h3 style="margin: 4px 0 0 0; font-size: 16px; font-weight: 600; color: #d97706;">Prontuário e Histórico Escolar do Aluno</h3>
+                        </div>
+                        <div>
+                            ${fotoHtml}
+                        </div>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 24px; font-size: 13px; line-height: 1.6;">
+                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Nome do Aluno:</strong> <span style="font-size: 15px; font-weight: bold;">${aluno.nome}</span></p>
+                        <div style="display: flex; gap: 20px; margin-bottom: 6px;">
+                            <p style="margin: 0;"><strong style="color: #064e3b;">Turma:</strong> ${aluno.turma}</p>
+                            <p style="margin: 0;"><strong style="color: #064e3b;">Turno:</strong> ${aluno.turno}</p>
+                            <p style="margin: 0;"><strong style="color: #064e3b;">Escola Integrada:</strong> ${aluno.integrada || 'Não'}</p>
+                        </div>
+                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Telefone de Contato:</strong> ${aluno.telefone || 'Não informado'}</p>
+                        <p style="margin: 0 0 6px 0;"><strong style="color: #064e3b;">Endereço Residencial:</strong> ${aluno.endereco || 'Não informado'}</p>
+                        <p style="margin: 0;"><strong style="color: #064e3b;">Necessidades Especiais (NE):</strong> ${aluno.ne || 'Nenhuma'}</p>
+                    </div>
+
+                    <h4 style="border-bottom: 2px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 16px; color: #0f172a; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Registros de Ocorrências e Observações</h4>
+                    ${ocoHtml}
+                </div>
+
+                <div style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; gap: 40px; text-align: center;">
+                        <div style="flex: 1;">
+                            <div style="border-bottom: 1px solid #0f172a; margin-bottom: 6px; height: 30px;"></div>
+                            <p style="margin: 0; font-size: 12px; font-weight: bold; color: #0f172a;">${nomeDiretora}</p>
+                            <p style="margin: 0; font-size: 11px; color: #64748b;">${cargoDiretora}</p>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="border-bottom: 1px solid #0f172a; margin-bottom: 6px; height: 30px;"></div>
+                            <p style="margin: 0; font-size: 12px; font-weight: bold; color: #0f172a;">E. M. Jardim Vitória</p>
+                            <p style="margin: 0; font-size: 11px; color: #64748b;">Carimbo / Coordenação Pedagógica</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.classList.add('imprimindo-prontuario');
+        window.print();
+    }
+
+    async function salvarUsuario(e) {
+        e.preventDefault();
+        const username = document.getElementById('novoUsername').value.trim();
+        const pass = document.getElementById('novaSenha').value.trim();
+        const role = document.getElementById('novoPerfil').value;
+        const prontuario = document.getElementById('novoAcessoProntuario').checked;
+
+        if (usuarios.some(u => u.username === username)) {
+            alert("Já existe um usuário com este nome!");
+            return;
+        }
+
+        const novoU = { username, pass, role, prontuario };
+        await setDoc(doc(db, "usuarios", username), novoU);
+        usuarios.push(novoU);
+
+        document.getElementById('formUsuario').reset();
+        renderizarListaUsuarios();
+    }
+
+    async function excluirUsuario(username) {
+        if (username === 'admin') {
+            alert("O usuário 'admin' principal não pode ser excluído!");
+            return;
+        }
+
+        if (confirm(`Deseja remover o acesso de ${username}?`)) {
+            await deleteDoc(doc(db, "usuarios", username));
+            usuarios = usuarios.filter(u => u.username !== username);
+            renderizarListaUsuarios();
+        }
+    }
+
+    function renderizarListaUsuarios() {
+        const container = document.getElementById('listaUsuarios');
+        if (!container) return;
+        container.innerHTML = '';
+
+        usuarios.forEach(u => {
+            const item = document.createElement('div');
+            item.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border text-xs";
+            item.innerHTML = `
+                <div>
+                    <span class="font-bold text-slate-800">${u.username}</span>
+                    <span class="ml-2 text-slate-500">(${u.role})</span>
+                    ${u.prontuario ? `<span class="ml-2 bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded text-[10px] font-bold">Prontuário Liberado</span>` : ''}
+                </div>
+                ${u.username !== 'admin' ? `
+                    <button onclick="excluirUsuario('${u.username}')" class="text-rose-600 hover:text-rose-800 font-semibold">Excluir</button>
+                ` : '<span class="text-slate-400 italic">Padrão</span>'}
+            `;
+            container.appendChild(item);
+        });
+    }
+</script>
 </body>
 </html>
