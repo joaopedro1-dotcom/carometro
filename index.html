@@ -1064,21 +1064,27 @@
     const aluno = window.alunos.find(a => a.id === alunoId);
     if (!aluno) return alert("Aluno não encontrado!");
 
-    // Obtém o nome e cargo configurados nas opções
-    const nomeDiretor = document.getElementById("cfgNomeDiretora")?.value || "Direção Escolar";
-    const cargoDiretor = document.getElementById("cfgCargoDiretora")?.value || "Responsável pelo Registro";
+    // Tenta pegar o nome do usuário logado ou abre uma caixa para o professor digitar
+    let nomeResponsavel = window.usuarioLogado?.nome || prompt("Digite seu nome completo para assinar o prontuário:", "");
+    if (!nomeResponsavel) return; // Cancela a impressão se não digitar nada
 
     // Ocorrências do aluno
     const ocorrenciasAluno = window.ocorrencias.filter(o => o.alunoId === alunoId);
     
     let htmlOcorrencias = "";
     if (ocorrenciasAluno.length === 0) {
-        htmlOcorrencias = "<p style='font-style: italic; color: #666;'>Nenhuma ocorrência registrada.</p>";
+        htmlOcorrencias = `
+            <div style="padding: 20px 0; color: #666; font-style: italic; text-align: center; border: 1px dashed #ccc; border-radius: 6px; margin-top: 10px;">
+                Nenhuma ocorrência registrada para este aluno.
+            </div>`;
     } else {
         htmlOcorrencias = ocorrenciasAluno.map(o => `
-            <div style="border-bottom: 1px solid #ccc; padding: 8px 0; margin-bottom: 8px;">
-                <strong>Data:</strong> ${o.data || 'N/A'} | <strong>Tipo:</strong> ${o.tipo || 'Geral'}<br>
-                <strong>Relato:</strong> ${o.texto || ''}
+            <div style="border-bottom: 1px solid #e2e8f0; padding: 10px 0; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px;">
+                    <span>Data: ${o.data || 'N/A'}</span>
+                    <span style="background: #edf2f7; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; font-size: 11px;">${o.tipo || 'Geral'}</span>
+                </div>
+                <div style="color: #4a5568; white-space: pre-line;">${o.texto || ''}</div>
             </div>
         `).join('');
     }
@@ -1088,35 +1094,41 @@
     const printArea = document.getElementById("printProntuarioArea");
     if (printArea) {
         printArea.innerHTML = `
-            <div style="font-family: Arial, sans-serif; padding: 20px; color: #111;">
-                <!-- CABEÇALHO COM FOTO -->
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 15px;">
-                    <div style="flex: 1;">
-                        <h2 style="margin: 0 0 5px 0; text-transform: uppercase; font-size: 18px;">E. M. JARDIM VITÓRIA</h2>
-                        <h3 style="margin: 0 0 10px 0; font-weight: normal; font-size: 14px; color: #444;">Prontuário Individual do Aluno</h3>
-                        <p style="margin: 2px 0;"><strong>Nome:</strong> ${aluno.nome || ''}</p>
-                        <p style="margin: 2px 0;"><strong>Turma:</strong> ${aluno.turma || ''} (${aluno.turno || ''})</p>
-                        <p style="margin: 2px 0;"><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
-                        <p style="margin: 2px 0;"><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'} | <strong>NE:</strong> ${aluno.ne || 'Nenhuma'}</p>
+            <div style="font-family: Arial, sans-serif; padding: 30px; color: #2d3748; max-width: 800px; margin: 0 auto;">
+                
+                <!-- CABEÇALHO BONITO E ORGANIZADO -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #2b6cb0; padding-bottom: 15px; margin-bottom: 20px;">
+                    <div style="flex: 1; padding-right: 20px;">
+                        <h2 style="margin: 0 0 4px 0; font-size: 20px; color: #1a365d; text-transform: uppercase; letter-spacing: 0.5px;">E. M. JARDIM VITÓRIA</h2>
+                        <h3 style="margin: 0 0 15px 0; font-size: 13px; color: #718096; font-weight: 600; text-transform: uppercase;">Prontuário Individual do Aluno</h3>
+                        
+                        <div style="font-size: 13px; line-height: 1.6;">
+                            <p style="margin: 2px 0;"><strong>Nome:</strong> ${aluno.nome || ''}</p>
+                            <p style="margin: 2px 0;"><strong>Turma:</strong> ${aluno.turma || ''} | <strong>Turno:</strong> ${aluno.turno || 'N/I'}</p>
+                            <p style="margin: 2px 0;"><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                            <p style="margin: 2px 0;"><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'} | <strong>NE:</strong> ${aluno.ne || 'Nenhuma'}</p>
+                        </div>
                     </div>
-                    <div style="width: 100px; height: 120px; border: 1px solid #ccc; overflow: hidden; border-radius: 6px; margin-left: 15px;">
+
+                    <div style="width: 105px; height: 130px; border: 2px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                         <img src="${fotoUrl}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                 </div>
 
                 <!-- CORPO DO PRONTUÁRIO -->
-                <h4 style="margin: 15px 0 10px 0; text-transform: uppercase; font-size: 13px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">Histórico de Ocorrências</h4>
-                <div style="min-height: 250px;">
+                <div style="margin-bottom: 40px;">
+                    <h4 style="margin: 0 0 10px 0; text-transform: uppercase; font-size: 12px; color: #4a5568; letter-spacing: 0.5px; border-bottom: 1px solid #cbd5e0; padding-bottom: 5px;">Histórico de Ocorrências</h4>
                     ${htmlOcorrencias}
                 </div>
 
-                <!-- ASSINATURA NO RODAPÉ -->
-                <div style="margin-top: 60px; text-align: center;">
-                    <div style="width: 300px; margin: 0 auto; border-top: 1px solid #000; padding-top: 6px;">
-                        <p contenteditable="true" style="margin: 0; font-weight: bold; outline: none; cursor: pointer;" title="Clique para editar o nome">${nomeDiretor}</p>
-                        <span contenteditable="true" style="font-size: 12px; color: #555; outline: none; cursor: pointer;" title="Clique para editar o cargo">${cargoDiretor}</span>
+                <!-- RODAPÉ COM ASSINATURA AUTOMÁTICA/EDITÁVEL -->
+                <div style="margin-top: 80px; text-align: center;">
+                    <div style="width: 320px; margin: 0 auto; border-top: 1px solid #4a5568; padding-top: 8px;">
+                        <p style="margin: 0; font-weight: bold; font-size: 14px; color: #1a202c;">${nomeResponsavel}</p>
+                        <span style="font-size: 12px; color: #718096;">Profissional Responsável pelo Registro</span>
                     </div>
                 </div>
+
             </div>
         `;
     }
