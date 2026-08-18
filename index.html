@@ -1060,35 +1060,71 @@
         };
 
         window.imprimirProntuario = function() {
-            const alunoId = document.getElementById("prontuarioAlunoId").value;
-            const aluno = window.alunos.find(a => a.id === alunoId);
-            const ocs = window.ocorrencias.filter(o => o.alunoId === alunoId);
+    const alunoId = document.getElementById("prontuarioAlunoId")?.value;
+    const aluno = window.alunos.find(a => a.id === alunoId);
+    if (!aluno) return alert("Aluno não encontrado!");
 
-            const area = document.getElementById("printProntuarioArea");
-            area.innerHTML = `
-                <div style="font-family: sans-serif; padding: 20px;">
-                    <h2 style="text-align: center; margin-bottom: 5px;">E. M. JARDIM VITÓRIA</h2>
-                    <h4 style="text-align: center; margin-top: 0;">Prontuário Individual do Aluno</h4>
-                    <hr>
-                    <p><strong>Nome:</strong> ${aluno.nome}</p>
-                    <p><strong>Turma:</strong> ${aluno.turma} (${aluno.turno || ''}) | <strong>Responsável:</strong> ${aluno.responsavel || 'N/I'}</p>
-                    <p><strong>Telefone:</strong> ${aluno.telefone || 'N/I'} | <strong>NE:</strong> ${aluno.ne || 'Nenhuma'}</p>
-                    <hr>
-                    <h3>Histórico de Ocorrências</h3>
-                    ${ocs.map(o => `
-                        <div style="border-bottom: 1px solid #ccc; padding: 8px 0;">
-                            <strong>Data:</strong> ${o.data} | <strong>Tipo:</strong> ${o.tipo}<br>
-                            <p style="margin: 4px 0;">${o.texto}</p>
-                            <small>Registrado por: ${o.autor}</small>
-                        </div>
-                    `).join('')}
+    // Obtém o nome e cargo configurados nas opções
+    const nomeDiretor = document.getElementById("cfgNomeDiretora")?.value || "Direção Escolar";
+    const cargoDiretor = document.getElementById("cfgCargoDiretora")?.value || "Responsável pelo Registro";
+
+    // Ocorrências do aluno
+    const ocorrenciasAluno = window.ocorrencias.filter(o => o.alunoId === alunoId);
+    
+    let htmlOcorrencias = "";
+    if (ocorrenciasAluno.length === 0) {
+        htmlOcorrencias = "<p style='font-style: italic; color: #666;'>Nenhuma ocorrência registrada.</p>";
+    } else {
+        htmlOcorrencias = ocorrenciasAluno.map(o => `
+            <div style="border-bottom: 1px solid #ccc; padding: 8px 0; margin-bottom: 8px;">
+                <strong>Data:</strong> ${o.data || 'N/A'} | <strong>Tipo:</strong> ${o.tipo || 'Geral'}<br>
+                <strong>Relato:</strong> ${o.texto || ''}
+            </div>
+        `).join('');
+    }
+
+    const fotoUrl = aluno.foto || "https://via.placeholder.com/100?text=Sem+Foto";
+
+    const printArea = document.getElementById("printProntuarioArea");
+    if (printArea) {
+        printArea.innerHTML = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; color: #111;">
+                <!-- CABEÇALHO COM FOTO -->
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <h2 style="margin: 0 0 5px 0; text-transform: uppercase; font-size: 18px;">E. M. JARDIM VITÓRIA</h2>
+                        <h3 style="margin: 0 0 10px 0; font-weight: normal; font-size: 14px; color: #444;">Prontuário Individual do Aluno</h3>
+                        <p style="margin: 2px 0;"><strong>Nome:</strong> ${aluno.nome || ''}</p>
+                        <p style="margin: 2px 0;"><strong>Turma:</strong> ${aluno.turma || ''} (${aluno.turno || ''})</p>
+                        <p style="margin: 2px 0;"><strong>Responsável:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                        <p style="margin: 2px 0;"><strong>Telefone:</strong> ${aluno.telefone || 'Não informado'} | <strong>NE:</strong> ${aluno.ne || 'Nenhuma'}</p>
+                    </div>
+                    <div style="width: 100px; height: 120px; border: 1px solid #ccc; overflow: hidden; border-radius: 6px; margin-left: 15px;">
+                        <img src="${fotoUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
                 </div>
-            `;
 
-            document.body.classList.add("imprimindo-prontuario");
-            window.print();
-            document.body.classList.remove("imprimindo-prontuario");
-        };
+                <!-- CORPO DO PRONTUÁRIO -->
+                <h4 style="margin: 15px 0 10px 0; text-transform: uppercase; font-size: 13px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">Histórico de Ocorrências</h4>
+                <div style="min-height: 250px;">
+                    ${htmlOcorrencias}
+                </div>
+
+                <!-- ASSINATURA NO RODAPÉ -->
+                <div style="margin-top: 60px; text-align: center;">
+                    <div style="width: 300px; margin: 0 auto; border-top: 1px solid #000; padding-top: 6px;">
+                        <p contenteditable="true" style="margin: 0; font-weight: bold; outline: none; cursor: pointer;" title="Clique para editar o nome">${nomeDiretor}</p>
+                        <span contenteditable="true" style="font-size: 12px; color: #555; outline: none; cursor: pointer;" title="Clique para editar o cargo">${cargoDiretor}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    document.body.classList.add("imprimindo-prontuario");
+    window.print();
+    document.body.classList.remove("imprimindo-prontuario");
+};
       window.abrirModalNovoAluno = function() {
     const form = document.getElementById("formAluno");
     if (form) form.reset();
