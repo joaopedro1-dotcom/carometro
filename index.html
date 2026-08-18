@@ -560,36 +560,45 @@ window.usuarios = [
 });
 
         window.handleLogin = async function(e) {
-            e.preventDefault();
-            const u = document.getElementById("loginUsername").value.trim().toLowerCase();
-            const p = document.getElementById("loginPassword").value.trim();
-            const err = document.getElementById("loginError");
+    e.preventDefault();
+    const u = document.getElementById("loginUsername").value.trim().toLowerCase();
+    const p = document.getElementById("loginPassword").value.trim();
+    const err = document.getElementById("loginError");
 
-            err.classList.add("hidden");
+    err.classList.add("hidden");
 
-            try {
-                if (u === "admin" && p === "admin123") {
-                    window.usuarioLogado = { username: "admin", perfil: "admin", acessoProntuario: true };
-                } else {
-                    const snap = await getDocs(collection(db, "usuarios"));
-                    let achou = false;
-                    snap.forEach(d => {
-                        const data = d.data();
-                        if (data.username.toLowerCase() === u && data.senha === p) {
-                            window.usuarioLogado = data;
-                            achou = true;
-                        }
-                    });
-                    if (!achou) throw new Error("Usuário ou senha inválidos.");
+    try {
+        // 1. Busca primeiro na lista de usuários cadastrados localmente
+        let usuarioEncontrado = window.usuarios.find(user => 
+            user.username.toLowerCase() === u && user.password === p
+        );
+
+        if (usuarioEncontrado) {
+            window.usuarioLogado = usuarioEncontrado;
+        } else {
+            // 2. Se não achar na lista local, busca no Firebase
+            const snap = await getDocs(collection(db, "usuarios"));
+            let achou = false;
+            
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.username.toLowerCase() === u && (data.senha === p || data.password === p)) {
+                    window.usuarioLogado = data;
+                    achou = true;
                 }
+            });
 
-                localStorage.setItem("userDiarioBordo", JSON.stringify(window.usuarioLogado));
-                iniciarSistema();
-            } catch (ex) {
-                err.innerText = ex.message;
-                err.classList.remove("hidden");
-            }
-        };
+            if (!achou) throw new Error("Usuário ou senha inválidos.");
+        }
+
+        localStorage.setItem("userDiarioBordo", JSON.stringify(window.usuarioLogado));
+        iniciarSistema();
+
+    } catch (ex) {
+        err.innerText = ex.message;
+        err.classList.remove("hidden");
+    }
+};
 
         function verificarSessao() {
             // ==========================================
