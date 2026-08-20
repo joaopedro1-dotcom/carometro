@@ -200,78 +200,127 @@
             </section>
 
             <!-- SEÇÃO 3: GERENCIAR CONFIGURAÇÕES E USUÁRIOS -->
-            <section id="secUsuarios" class="hidden max-w-2xl mx-auto space-y-6 no-print">
-                
-                <!-- BLOCO DE CONFIGURAÇÃO DA DIREÇÃO DA ESCOLA -->
-                <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
-                    <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
-                        <i data-lucide="file-signature" class="text-emerald-700"></i>
-                        <span>Configurações do Prontuário / Assinatura</span>
-                    </h3>
-                    <form id="formConfiguracao" onsubmit="salvarConfiguracoes(event)" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome do(a) Diretor(a)</label>
-                                <input type="text" id="cfgNomeDiretora" placeholder="Ex: Maria das Graças Silva" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Cargo / Função</label>
-                                <input type="text" id="cfgCargoDiretora" placeholder="Ex: Direção Escolar" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                            </div>
-                        </div>
-                        <button type="submit" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold px-4 py-2 rounded-lg text-xs transition shadow-md border border-amber-400/30">
-                            Salvar Configurações de Assinatura
-                        </button>
-                    </form>
+            <!-- SEÇÃO 3: GERENCIAR CONFIGURAÇÕES E USUÁRIOS -->
+<section id="secUsuarios" class="hidden max-w-3xl mx-auto space-y-6 no-print">
+
+    <!-- TROCAR SENHA DO ADMINISTRADOR -->
+    <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
+            <i data-lucide="key" class="text-emerald-700"></i>
+            <span>Alterar Minha Senha de Administrador</span>
+        </h3>
+        <form id="formTrocarSenhaAdmin" onsubmit="trocarSenhaAdmin(event)" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nova Senha</label>
+                    <input type="password" id="novaSenhaAdmin" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
                 </div>
-
-                <!-- BLOCO DE USUÁRIOS -->
-                <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
-                    <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
-                        <i data-lucide="shield" class="text-emerald-700"></i>
-                        <span>Cadastrar Usuário do Sistema</span>
-                    </h3>
-
-                    <form id="formUsuario" onsubmit="salvarUsuario(event)" class="space-y-4 mb-6">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome de Usuário</label>
-                                <input type="text" id="novoUsername" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Senha</label>
-                                <input type="password" id="novaSenha" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nível de Permissão</label>
-                            <select id="novoPerfil" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
-                                <option value="editor">Editor (Pode incluir e editar alunos)</option>
-                                <option value="leitor">Leitor (Apenas visualização e impressão)</option>
-                                <option value="admin">Administrador (Acesso total)</option>
-                            </select>
-                        </div>
-
-                        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-center space-x-3">
-                            <input type="checkbox" id="novoAcessoProntuario" class="w-4 h-4 text-emerald-700 rounded border-slate-300 focus:ring-emerald-600">
-                            <div>
-                                <label for="novoAcessoProntuario" class="text-xs font-bold text-amber-950 cursor-pointer">Permitir Acesso ao Prontuário e Ocorrências</label>
-                                <p class="text-[11px] text-amber-800">Marque apenas para Direção, Coordenação ou Supervisão que precisam ler e registrar ocorrências.</p>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
-                            Criar Novo Usuário
-                        </button>
-                    </form>
-
-                    <hr class="my-6">
-
-                    <h4 class="font-bold text-emerald-950 mb-3">Usuários Com Acesso Cadastrado</h4>
-                    <div id="listaUsuarios" class="space-y-2"></div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Confirmar Nova Senha</label>
+                    <input type="password" id="confirmaSenhaAdmin" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
                 </div>
+            </div>
+            <button type="submit" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold px-4 py-2 rounded-lg text-xs transition shadow-md border border-amber-400/30">
+                Atualizar Minha Senha
+            </button>
+        </form>
+    </div>
 
-            </section>
+    <!-- CONFIGURAÇÕES DA DIREÇÃO DA ESCOLA -->
+    <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
+            <i data-lucide="file-signature" class="text-emerald-700"></i>
+            <span>Configurações do Prontuário / Assinatura</span>
+        </h3>
+        <form id="formConfiguracao" onsubmit="salvarConfiguracoes(event)" class="space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome do(a) Diretor(a)</label>
+                    <input type="text" id="cfgNomeDiretora" placeholder="Ex: Maria das Graças Silva" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Cargo / Função</label>
+                    <input type="text" id="cfgCargoDiretora" placeholder="Ex: Direção Escolar" class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                </div>
+            </div>
+            <button type="submit" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold px-4 py-2 rounded-lg text-xs transition shadow-md border border-amber-400/30">
+                Salvar Configurações de Assinatura
+            </button>
+        </form>
+    </div>
+
+    <!-- CADASTRAR USUÁRIO E DEFINIR PERMISSÕES -->
+    <div class="bg-white p-6 rounded-xl border border-emerald-100 shadow-sm">
+        <h3 class="text-lg font-bold mb-4 flex items-center space-x-2 text-emerald-950 pb-2 border-b border-emerald-100">
+            <i data-lucide="user-plus" class="text-emerald-700"></i>
+            <span>Cadastrar Novo Usuário e Permissões</span>
+        </h3>
+
+        <form id="formUsuario" onsubmit="salvarUsuario(event)" class="space-y-4 mb-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Nome de Usuário (Login)</label>
+                    <input type="text" id="novoUsername" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-emerald-900 uppercase mb-1">Senha de Acesso</label>
+                    <input type="password" id="novaSenha" required class="w-full px-3 py-2 border rounded-lg outline-none text-sm">
+                </div>
+            </div>
+
+            <!-- CAIXAS DE SELEÇÃO DE PERMISSÕES -->
+            <div>
+                <label class="block text-xs font-bold text-emerald-900 uppercase mb-2">Marque o que este usuário pode fazer no sistema:</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_turmas" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Ver Turmas & Carômetro</span>
+                    </label>
+
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_editarAlunos" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Cadastrar e Editar Alunos</span>
+                    </label>
+
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_integrada" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Acessar Escola Integrada</span>
+                    </label>
+
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_inativos" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Ver Alunos Desligados</span>
+                    </label>
+
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_prontuario" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Acessar Prontuário e Registrar Ocorrências</span>
+                    </label>
+
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_importar" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Importar Alunos em Lote</span>
+                    </label>
+
+                    <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" id="p_imprimir" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                        <span>Imprimir Diários e Prontuários</span>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
+                Criar Usuário com Permissões Selecionadas
+            </button>
+        </form>
+
+        <hr class="my-6">
+
+        <h4 class="font-bold text-emerald-950 mb-3">Usuários Cadastrados</h4>
+        <div id="listaUsuarios" class="space-y-2"></div>
+    </div>
+
+</section>
 
         </div>
     </main>
