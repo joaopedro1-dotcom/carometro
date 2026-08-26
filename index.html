@@ -142,13 +142,28 @@
 </select>
                         <input type="text" id="searchAluno" oninput="renderizarAlunos()" placeholder="Buscar aluno por nome..." class="flex-1 px-3 py-2 border rounded-lg outline-none text-sm">
                     </div>
-                    <button onclick="imprimirCarometro()" class="bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 border border-amber-400/40">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
-                        <span>Imprimir Diário de Bordo</span>
-                    </button>
-                </div>
+                    <!-- Botões de Ação (+ Novo Aluno e Imprimir) -->
+            <div class="flex items-center space-x-2">
+                <button onclick="abrirModalAluno()" class="bg-emerald-800 hover:bg-emerald-900 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 shadow-sm transition-all">
+                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                    <span>+ Novo Aluno</span>
+                </button>
 
-                <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
+                <button onclick="imprimirCarometro()" class="bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 shadow-sm">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span>Imprimir Diário de Bordo</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicador de Carregamento (Spinner) -->
+        <div id="loadingSpinner" class="flex flex-col items-center justify-center py-20 space-y-4">
+            <div class="w-12 h-12 border-4 border-emerald-800 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-emerald-950 font-bold text-sm">Carregando dados dos alunos...</p>
+        </div>
+
+        <!-- Grid onde os cards dos alunos aparecem -->
+        <div id="gridAlunos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"></div>
             </section>
 
             <!-- SEÇÃO ESCOLA INTEGRADA -->
