@@ -682,19 +682,52 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function atualizarFiltrosTurmas() {
-            const turmasUnicas = [...new Set(alunos.map(a => a.turma))].filter(Boolean).sort();
-            const selTurma = document.getElementById('filterTurma');
-            const selTurmaInt = document.getElementById('filterTurmaIntegrada');
+       function aoMudarTurno() {
+    atualizarFiltrosTurmas();
+    renderizarAlunos();
+}
 
-            selTurma.innerHTML = '<option value="">Todas as Turmas</option>';
-            selTurmaInt.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
+function atualizarFiltrosTurmas() {
+    const turnoSelecionado = document.getElementById('filterTurno')?.value || '';
+    const selTurma = document.getElementById('filterTurma');
+    const turmaAnterior = selTurma ? selTurma.value : '';
 
-            turmasUnicas.forEach(t => {
-                selTurma.innerHTML += `<option value="${t}">${t}</option>`;
-                selTurmaInt.innerHTML += `<option value="${t}">${t}</option>`;
-            });
+    // Filtra apenas alunos ativos pertencentes ao turno selecionado
+    const alunosDoTurno = alunos.filter(a => !a.inativo && (!turnoSelecionado || a.turno === turnoSelecionado));
+    
+    // Lista apenas as turmas existentes para esse turno
+    const turmasDisponiveis = [...new Set(alunosDoTurno.map(a => a.turma))].filter(Boolean).sort();
+
+    if (selTurma) {
+        selTurma.innerHTML = '<option value="">Todas as Turmas</option>';
+        turmasDisponiveis.forEach(t => {
+            selTurma.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+
+        // Preserva a turma selecionada se ela existir no novo turno
+        if (turmasDisponiveis.includes(turmaAnterior)) {
+            selTurma.value = turmaAnterior;
+        } else {
+            selTurma.value = '';
         }
+    }
+
+    // Atualiza o filtro da aba da Escola Integrada
+    const selTurmaInt = document.getElementById('filterTurmaIntegrada');
+    if (selTurmaInt) {
+        const turmasIntegrada = [...new Set(alunos.filter(a => !a.inativo && a.integrada === 'Sim').map(a => a.turma))].filter(Boolean).sort();
+        const turmaIntAnterior = selTurmaInt.value;
+        selTurmaInt.innerHTML = '<option value="">Todas as Turmas da Integrada</option>';
+        turmasIntegrada.forEach(t => {
+            selTurmaInt.innerHTML += `<option value="${t}">${t}</option>`;
+        });
+        if (turmasIntegrada.includes(turmaIntAnterior)) {
+            selTurmaInt.value = turmaIntAnterior;
+        } else {
+            selTurmaInt.value = '';
+        }
+    }
+}
 
         function renderizarAlunos() {
             const fTurma = document.getElementById('filterTurma').value;
