@@ -744,30 +744,33 @@
     const podeProntuario = temPermissao('prontuario');
 
     return `
-        <div class="group relative rounded-2xl border p-4 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${bgClass}">
-            <div>
-                <!-- Visível por padrão: Foto, Nome e Turma -->
-                <div class="flex items-center space-x-3">
-                    <div class="relative flex-shrink-0">
-                        <img src="${aluno.foto || 'https://via.placeholder.com/60?text=Foto'}" class="w-14 h-14 rounded-full object-cover border-2 border-emerald-800/20 shadow-xs transition-transform duration-300 group-hover:scale-105">
-                    </div>
-                    <div class="overflow-hidden">
-                        <h4 class="font-extrabold text-emerald-950 text-sm truncate" title="${aluno.nome}">${aluno.nome}</h4>
-                        <span class="inline-block bg-emerald-800 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${aluno.turma || 'Sem Turma'} - ${aluno.turno || ''}</span>
-                    </div>
+        <div class="group relative rounded-2xl border p-5 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-xl ${bgClass}">
+            <!-- Topo e Meio: Foto Centralizada Grande + Nome e Turma -->
+            <div class="flex flex-col items-center text-center">
+                <!-- Foto do Aluno Centralizada e Expandida -->
+                <div class="relative mb-3">
+                    <img src="${aluno.foto || 'https://via.placeholder.com/150?text=Foto'}" class="w-28 h-28 rounded-full object-cover border-4 border-emerald-800/20 shadow-md transition-transform duration-300 group-hover:scale-105">
                 </div>
 
-                <!-- Oculto por padrão: Expande e aparece ao passar o mouse -->
-                <div class="opacity-0 max-h-0 overflow-hidden group-hover:opacity-100 group-hover:max-h-40 transition-all duration-300 ease-in-out text-xs text-slate-600 group-hover:mt-3 space-y-1">
+                <!-- Nome do Aluno -->
+                <h4 class="font-extrabold text-emerald-950 text-base leading-tight w-full truncate" title="${aluno.nome}">${aluno.nome}</h4>
+                
+                <!-- Tag da Turma -->
+                <span class="mt-2 inline-block bg-emerald-800 text-amber-300 text-xs font-bold px-3 py-1 rounded-full shadow-xs">
+                    ${aluno.turma || 'Sem Turma'} ${aluno.turno ? '• ' + aluno.turno : ''}
+                </span>
+
+                <!-- Detalhes Extras Revelados no Hover -->
+                <div class="opacity-0 max-h-0 overflow-hidden group-hover:opacity-100 group-hover:max-h-48 transition-all duration-300 ease-in-out text-xs text-slate-700 group-hover:mt-3 space-y-1 w-full text-left bg-slate-50/90 p-3 rounded-xl border border-slate-200/80">
                     <p class="truncate"><strong>Resp:</strong> ${aluno.responsavel || 'Não informado'}</p>
                     <p><strong>Tel:</strong> ${aluno.telefone || 'N/A'}</p>
                     ${aluno.endereco ? `<p class="truncate"><strong>End:</strong> ${aluno.endereco}</p>` : ''}
-                    ${aluno.ne ? `<p class="text-amber-800 font-bold bg-amber-200/50 px-1.5 py-0.5 rounded text-[11px] truncate mt-1">NE: ${aluno.ne}</p>` : ''}
+                    ${aluno.ne ? `<p class="text-amber-900 font-bold bg-amber-200/80 px-2 py-0.5 rounded text-[11px] truncate mt-1">NE: ${aluno.ne}</p>` : ''}
                 </div>
             </div>
 
-            <!-- Rodapé Fixo: Prontuário, Editar e Desligar/Arquivar -->
-            <div class="border-t border-slate-200/60 pt-2.5 mt-3 flex items-center justify-between text-xs">
+            <!-- Rodapé com os Botões de Ação -->
+            <div class="border-t border-slate-200/70 pt-3 mt-4 flex items-center justify-between text-xs w-full">
                 ${podeProntuario ? `
                     <button onclick="abrirModalProntuario('${aluno.id}')" class="text-emerald-800 hover:text-emerald-950 font-bold flex items-center space-x-1">
                         <i data-lucide="clipboard-list" class="w-4 h-4"></i>
