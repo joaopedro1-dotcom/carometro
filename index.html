@@ -958,23 +958,7 @@ function atualizarFiltrosTurmas() {
             }
         }
 
-        async function salvarOcorrencia(e) {
-            e.preventDefault();
-            const idAluno = document.getElementById('prontuarioAlunoId').value;
-            const data = document.getElementById('ocorrenciaData').value;
-            const tipo = document.getElementById('ocorrenciaTipo').value;
-            const texto = document.getElementById('ocorrenciaTexto').value.trim();
-
-            const docId = 'oc_' + Date.now();
-            await setDoc(doc(db, "alunos", idAluno, "ocorrencias", docId), {
-                data, tipo, texto,
-                autor: usuarioAtual.username,
-                criadoEm: new Date().toISOString()
-            });
-
-            document.getElementById('ocorrenciaTexto').value = '';
-            await carregarOcorrencias(idAluno);
-        }
+       
 
         function abrirModalImportacao() {
             document.getElementById('modalImportacao').classList.remove('hidden');
