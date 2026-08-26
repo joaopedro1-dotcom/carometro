@@ -134,12 +134,12 @@
                         <select id="filterTurma" onchange="renderizarAlunos()" class="px-3 py-2 border rounded-lg outline-none bg-slate-50 text-sm font-medium">
                             <option value="">Todas as Turmas</option>
                         </select>
-                        <select id="filterTurno" onchange="renderizarAlunos()" class="px-3 py-2 border rounded-lg outline-none bg-slate-50 text-sm font-medium">
-                            <option value="">Todos os Turnos</option>
-                            <option value="Manhã">Manhã</option>
-                            <option value="Tarde">Tarde</option>
-                            <option value="Integral">Integral</option>
-                        </select>
+                       <select id="filterTurno" onchange="aoMudarTurno()" class="px-3 py-2 border rounded-lg outline-none bg-slate-50 text-sm font-medium">
+    <option value="">Todos os Turnos</option>
+    <option value="Manhã">Manhã</option>
+    <option value="Tarde">Tarde</option>
+    <option value="Integral">Integral</option>
+</select>
                         <input type="text" id="searchAluno" oninput="renderizarAlunos()" placeholder="Buscar aluno por nome..." class="flex-1 px-3 py-2 border rounded-lg outline-none text-sm">
                     </div>
                     <button onclick="imprimirCarometro()" class="bg-emerald-900 hover:bg-emerald-800 text-amber-300 font-bold px-4 py-2 rounded-lg text-sm flex items-center space-x-2 border border-amber-400/40">
