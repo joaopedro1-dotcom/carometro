@@ -1184,7 +1184,49 @@ function atualizarFiltrosTurmas() {
     `);
     janelaImpressao.document.close();
 }
+// --- FUNÇÕES DE STATUS E MODAIS ---
+async function alternarStatusAluno(id, inativo) {
+    const acao = inativo ? 'desligar/arquivar' : 'reativar';
+    if (!confirm(`Deseja ${acao} este aluno? O histórico do prontuário será preservado.`)) return;
 
+    try {
+        await setDoc(doc(db, "alunos", id), { 
+            inativo: inativo,
+            dataStatus: new Date().toISOString()
+        }, { merge: true });
+
+        await carregarDadosNuvem();
+        alert(`Aluno ${inativo ? 'desligado' : 'reativado'} com sucesso!`);
+    } catch (err) {
+        console.error("Erro ao alterar status:", err);
+        alert("Erro ao alterar status do aluno.");
+    }
+}
+
+async function abrirModalProntuario(id) {
+    alunoProntuarioAtual = alunos.find(a => a.id === id);
+    if (!alunoProntuarioAtual) return;
+
+    document.getElementById('prontuarioAlunoId').value = id;
+    document.getElementById('prontuarioNomeAluno').textContent = alunoProntuarioAtual.nome;
+    document.getElementById('prontuarioInfoAluno').textContent = `${alunoProntuarioAtual.turma || ''} • Responsável: ${alunoProntuarioAtual.responsavel || 'N/A'}`;
+    document.getElementById('ocorrenciaData').value = new Date().toISOString().split('T')[0];
+
+    await carregarOcorrencias(id);
+    document.getElementById('modalProntuario').classList.remove('hidden');
+}
+
+function fecharModalProntuario() {
+    document.getElementById('modalProntuario').classList.add('hidden');
+}
+
+function abrirModalImportacao() {
+    document.getElementById('modalImportacao').classList.remove('hidden');
+}
+
+function fecharModalImportacao() {
+    document.getElementById('modalImportacao').classList.add('hidden');
+}
         window.handleLogin = handleLogin;
         window.logout = logout;
         window.trocarAba = trocarAba;
