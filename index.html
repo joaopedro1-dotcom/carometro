@@ -738,51 +738,57 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function criarCardAluno(aluno, isInativo = false) {
-            const bgClass = aluno.corCard || 'bg-white border-slate-200';
-            const podeEditar = temPermissao('editarAlunos');
-            const podeProntuario = temPermissao('prontuario');
+ function criarCardAluno(aluno, isInativo = false) {
+    const bgClass = aluno.corCard || 'bg-white border-slate-200';
+    const podeEditar = temPermissao('editarAlunos');
+    const podeProntuario = temPermissao('prontuario');
 
-            return `
-                <div class="rounded-2xl border p-4 shadow-sm flex flex-col justify-between transition hover:shadow-md ${bgClass}">
-                    <div>
-                        <div class="flex items-center space-x-3 mb-3">
-                            <img src="${aluno.foto || 'https://via.placeholder.com/60?text=Foto'}" class="w-14 h-14 rounded-full object-cover border-2 border-emerald-800/20">
-                            <div class="overflow-hidden">
-                                <h4 class="font-extrabold text-emerald-950 text-sm truncate" title="${aluno.nome}">${aluno.nome}</h4>
-                                <span class="inline-block bg-emerald-800 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${aluno.turma || 'Sem Turma'} - ${aluno.turno || ''}</span>
-                            </div>
-                        </div>
-
-                        <div class="space-y-1 text-xs text-slate-600 mb-3">
-                            <p class="truncate"><strong>Resp:</strong> ${aluno.responsavel || 'Não informado'}</p>
-                            <p><strong>Tel:</strong> ${aluno.telefone || 'N/A'}</p>
-                            ${aluno.ne ? `<p class="text-amber-800 font-bold bg-amber-200/50 px-1.5 py-0.5 rounded text-[11px] truncate">NE: ${aluno.ne}</p>` : ''}
-                        </div>
+    return `
+        <div class="group relative rounded-2xl border p-4 shadow-sm flex flex-col justify-between transition-all duration-300 hover:shadow-lg ${bgClass}">
+            <div>
+                <!-- Visível por padrão: Foto, Nome e Turma -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative flex-shrink-0">
+                        <img src="${aluno.foto || 'https://via.placeholder.com/60?text=Foto'}" class="w-14 h-14 rounded-full object-cover border-2 border-emerald-800/20 shadow-xs transition-transform duration-300 group-hover:scale-105">
                     </div>
-
-                    <div class="border-t border-slate-200/60 pt-2.5 flex items-center justify-between text-xs">
-                        ${podeProntuario ? `
-                            <button onclick="abrirModalProntuario('${aluno.id}')" class="text-emerald-800 hover:text-emerald-950 font-bold flex items-center space-x-1">
-                                <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-                                <span>Prontuário</span>
-                            </button>
-                        ` : '<span></span>'}
-
-                        <div class="flex items-center space-x-1">
-                            ${podeEditar ? `
-                                <button onclick="abrirModalAluno('${aluno.id}')" class="text-slate-500 hover:text-emerald-800 p-1" title="Editar">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i>
-                                </button>
-                                <button onclick="alternarStatusAluno('${aluno.id}', ${!isInativo})" class="text-slate-500 hover:text-amber-800 p-1" title="${isInativo ? 'Reativar' : 'Desligar'}">
-                                    <i data-lucide="${isInativo ? 'user-check' : 'user-x'}" class="w-4 h-4"></i>
-                                </button>
-                            ` : ''}
-                        </div>
+                    <div class="overflow-hidden">
+                        <h4 class="font-extrabold text-emerald-950 text-sm truncate" title="${aluno.nome}">${aluno.nome}</h4>
+                        <span class="inline-block bg-emerald-800 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full">${aluno.turma || 'Sem Turma'} - ${aluno.turno || ''}</span>
                     </div>
                 </div>
-            `;
-        }
+
+                <!-- Oculto por padrão: Expande e aparece ao passar o mouse -->
+                <div class="opacity-0 max-h-0 overflow-hidden group-hover:opacity-100 group-hover:max-h-40 transition-all duration-300 ease-in-out text-xs text-slate-600 group-hover:mt-3 space-y-1">
+                    <p class="truncate"><strong>Resp:</strong> ${aluno.responsavel || 'Não informado'}</p>
+                    <p><strong>Tel:</strong> ${aluno.telefone || 'N/A'}</p>
+                    ${aluno.endereco ? `<p class="truncate"><strong>End:</strong> ${aluno.endereco}</p>` : ''}
+                    ${aluno.ne ? `<p class="text-amber-800 font-bold bg-amber-200/50 px-1.5 py-0.5 rounded text-[11px] truncate mt-1">NE: ${aluno.ne}</p>` : ''}
+                </div>
+            </div>
+
+            <!-- Rodapé Fixo: Prontuário, Editar e Desligar/Arquivar -->
+            <div class="border-t border-slate-200/60 pt-2.5 mt-3 flex items-center justify-between text-xs">
+                ${podeProntuario ? `
+                    <button onclick="abrirModalProntuario('${aluno.id}')" class="text-emerald-800 hover:text-emerald-950 font-bold flex items-center space-x-1">
+                        <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                        <span>Prontuário</span>
+                    </button>
+                ` : '<span></span>'}
+
+                <div class="flex items-center space-x-1">
+                    ${podeEditar ? `
+                        <button onclick="abrirModalAluno('${aluno.id}')" class="text-slate-500 hover:text-emerald-800 p-1" title="Editar">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="alternarStatusAluno('${aluno.id}', ${!isInativo})" class="text-slate-500 hover:text-amber-800 p-1" title="${isInativo ? 'Reativar' : 'Desligar/Arquivar'}">
+                            <i data-lucide="${isInativo ? 'user-check' : 'user-x'}" class="w-4 h-4"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
 
         function abrirModalAluno(id = null) {
             document.getElementById('formAluno').reset();
