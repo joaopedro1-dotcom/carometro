@@ -646,28 +646,29 @@
             }
         }
 
-        async function carregarDadosNuvem() {
-            try {
-                const snapshotAlunos = await getDocs(collection(db, "alunos"));
-                alunos = snapshotAlunos.docs.map(d => ({ id: d.id, ...d.data() }));
+        async function async function carregarDadosNuvem() {
+    const spinner = document.getElementById('loadingSpinner');
+    const grid = document.getElementById('gridAlunos');
+    
+    if (spinner) spinner.classList.remove('hidden');
+    if (grid) grid.classList.add('hidden');
 
-                const docCfg = await getDoc(doc(db, "configuracoes", "escola"));
-                if (docCfg.exists()) configGeral = docCfg.data();
+    try {
+        const snap = await getDocs(collection(db, "alunos"));
+        alunos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                if (usuarioAtual?.isAdmin) {
-                    const snapshotUsers = await getDocs(collection(db, "usuarios"));
-                    usuarios = snapshotUsers.docs.map(d => d.data());
-                    renderizarUsuarios();
-                }
-
-                atualizarFiltrosTurmas();
-                renderizarAlunos();
-                renderizarAlunosIntegrada();
-                renderizarAlunosInativos();
-            } catch (err) {
-                console.error("Erro na sincronização:", err);
-            }
-        }
+        atualizarFiltrosTurmas();
+        renderizarAlunos();
+        renderizarAlunosIntegrada();
+        renderizarAlunosInativos();
+    } catch (err) {
+        console.error("Erro ao carregar dados da nuvem:", err);
+        alert("Erro ao sincronizar dados com o servidor.");
+    } finally {
+        if (spinner) spinner.classList.add('hidden');
+        if (grid) grid.classList.remove('hidden');
+    }
+}
 
         function trocarAba(aba) {
             ['secTurmas', 'secIntegrada', 'secInativos', 'secUsuarios'].forEach(s => {
