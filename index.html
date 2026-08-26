@@ -903,8 +903,7 @@ function atualizarFiltrosTurmas() {
             criadoEm: new Date().toISOString()
         });
 
-        // Recarrega os dados do prontuário e limpa o campo de texto
-        abrirModalProntuario(alunoProntuarioAtual.id);
+        await carregarOcorrencias(alunoProntuarioAtual.id);
         document.getElementById('ocorrenciaTexto').value = '';
     } catch (err) {
         console.error("Erro ao salvar ocorrência:", err);
