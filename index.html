@@ -927,22 +927,7 @@ function atualizarFiltrosTurmas() {
     }
 }
 
-        async function abrirModalProntuario(id) {
-            alunoProntuarioAtual = alunos.find(a => a.id === id);
-            if (!alunoProntuarioAtual) return;
-
-            document.getElementById('prontuarioAlunoId').value = id;
-            document.getElementById('prontuarioNomeAluno').textContent = alunoProntuarioAtual.nome;
-            document.getElementById('prontuarioInfoAluno').textContent = `${alunoProntuarioAtual.turma} • Responsável: ${alunoProntuarioAtual.responsavel || 'N/A'}`;
-            document.getElementById('ocorrenciaData').value = new Date().toISOString().split('T')[0];
-
-            await carregarOcorrencias(id);
-            document.getElementById('modalProntuario').classList.remove('hidden');
-        }
-
-        function fecharModalProntuario() {
-            document.getElementById('modalProntuario').classList.add('hidden');
-        }
+        
 
         async function carregarOcorrencias(alunoId) {
             const listDiv = document.getElementById('listaOcorrencias');
