@@ -887,12 +887,30 @@ function atualizarFiltrosTurmas() {
             await carregarDadosNuvem();
         }
 
-        async function alternarStatusAluno(id, inativo) {
-            if (confirm(`Deseja ${inativo ? 'desligar/arquivar' : 'reativar'} este aluno?`)) {
-                await setDoc(doc(db, "alunos", id), { inativo }, { merge: true });
-                await carregarDadosNuvem();
-            }
-        }
+      async function salvarOcorrencia(event) {
+    event.preventDefault();
+    if (!alunoProntuarioAtual) return;
+
+    const dataInput = document.getElementById('ocorrenciaData').value;
+    const tipo = document.getElementById('ocorrenciaTipo').value;
+    const texto = document.getElementById('ocorrenciaTexto').value;
+
+    try {
+        await addDoc(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"), {
+            data: dataInput,
+            tipo: tipo,
+            texto: texto,
+            criadoEm: new Date().toISOString()
+        });
+
+        // Recarrega os dados do prontuário e limpa o campo de texto
+        abrirModalProntuario(alunoProntuarioAtual.id);
+        document.getElementById('ocorrenciaTexto').value = '';
+    } catch (err) {
+        console.error("Erro ao salvar ocorrência:", err);
+        alert("Erro ao registrar ocorrência.");
+    }
+}
 
         async function abrirModalProntuario(id) {
             alunoProntuarioAtual = alunos.find(a => a.id === id);
