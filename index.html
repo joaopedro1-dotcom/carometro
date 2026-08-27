@@ -554,37 +554,48 @@
             verificarSessao();
         });
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const userIn = document.getElementById('loginUsername').value.trim();
-            const passIn = document.getElementById('loginPassword').value.trim();
-            const errDiv = document.getElementById('loginError');
+    async function handleLogin(e) {
+    if (e) e.preventDefault();
+    
+    const userIn = document.getElementById('loginUsername').value.trim();
+    const passIn = document.getElementById('loginPassword').value.trim();
+    const errDiv = document.getElementById('loginError');
 
-            try {
-                if (userIn === 'admin' && passIn === '123456') {
-                    usuarioAtual = { 
-                        username: 'admin', 
-                        isAdmin: true,
-                        permissoes: { turmas: true, editarAlunos: true, integrada: true, inativos: true, prontuario: true, importar: true, imprimir: true }
-                    };
-                } else {
-                    const userDoc = await getDoc(doc(db, "usuarios", userIn));
-                    if (!userDoc.exists() || userDoc.data().senha !== passIn) {
-                        errDiv.textContent = "Usuário ou senha incorretos.";
-                        errDiv.classList.remove('hidden');
-                        return;
-                    }
-                    usuarioAtual = userDoc.data();
+    try {
+        // userIn.toLowerCase() garante acesso com 'admin' ou 'Admin'
+        if (userIn.toLowerCase() === 'admin' && passIn === '123456') {
+            usuarioAtual = {
+                username: 'admin',
+                isAdmin: true,
+                permissoes: { 
+                    turmas: true, 
+                    editarAlunos: true, 
+                    integrada: true, 
+                    inativos: true, 
+                    prontuario: true, 
+                    importar: true, 
+                    imprimir: true 
                 }
-
-                sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
-                errDiv.classList.add('hidden');
-                verificarSessao();
-            } catch (err) {
-                errDiv.textContent = "Erro de conexão ao validar login.";
+            };
+        } else {
+            const userDoc = await getDoc(doc(db, "usuarios", userIn));
+            if (!userDoc.exists() || userDoc.data().senha !== passIn) {
+                errDiv.textContent = "Usuário ou senha incorretos.";
                 errDiv.classList.remove('hidden');
+                return;
             }
+            usuarioAtual = userDoc.data();
         }
+
+        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+        errDiv.classList.add('hidden');
+        verificarSessao();
+    } catch (err) {
+        console.error("Erro no login:", err);
+        errDiv.textContent = "Erro de conexão ao validar login.";
+        errDiv.classList.remove('hidden');
+    }
+}
 
         function temPermissao(chave) {
             if (!usuarioAtual) return false;
