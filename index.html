@@ -547,7 +547,14 @@ import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSn
         let usuarios = [];
         let configGeral = { nomeDiretora: '', cargoDiretora: '' };
         let alunoProntuarioAtual = null;
-
+onSnapshot(collection(db, "usuarios"), (snapshot) => {
+    usuarios = snapshot.docs.map(doc => doc.data());
+    if (typeof renderizarUsuarios === 'function') {
+        renderizarUsuarios();
+    }
+}, (error) => {
+    console.error("Erro ao ler usuários:", error);
+});
         window.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             verificarSessao();
