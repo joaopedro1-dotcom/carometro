@@ -1005,27 +1005,50 @@ function atualizarFiltrosTurmas() {
             alert("Configurações atualizadas!");
         }
 
-        async function salvarUsuario(e) {
-            e.preventDefault();
-            const username = document.getElementById('novoUsername').value.trim();
-            const senha = document.getElementById('novaSenha').value.trim();
+    async function salvarUsuario(e) {
+    e.preventDefault();
+    
+    const username = document.getElementById('novoUsername').value.trim();
+    const senha = document.getElementById('novaSenha').value.trim();
 
-            const permissoes = {
-                turmas: document.getElementById('p_turmas').checked,
-                editarAlunos: document.getElementById('p_editarAlunos').checked,
-                integrada: document.getElementById('p_integrada').checked,
-                inativos: document.getElementById('p_inativos').checked,
-                prontuario: document.getElementById('p_prontuario').checked,
-                importar: document.getElementById('p_importar').checked,
-                imprimir: document.getElementById('p_imprimir').checked
-            };
+    if (!username || !senha) {
+        alert("Preencha o nome de usuário e a senha.");
+        return;
+    }
 
-            await setDoc(doc(db, "usuarios", username), {
-                username,
-                senha,
-                isAdmin: false,
-                permissoes
-            });
+    // O uso de ?.checked impede que o código trave caso algum ID não exista no HTML
+    const permissoes = {
+        turmas: document.getElementById('p_turmas')?.checked || false,
+        editarAlunos: document.getElementById('p_editarAlunos')?.checked || false,
+        integrada: document.getElementById('p_integrada')?.checked || false,
+        inativos: document.getElementById('p_inativos')?.checked || false,
+        prontuario: document.getElementById('p_prontuario')?.checked || false,
+        importar: document.getElementById('p_importar')?.checked || false,
+        imprimir: document.getElementById('p_imprimir')?.checked || false
+    };
+
+    try {
+        await setDoc(doc(db, "usuarios", username), {
+            username,
+            senha,
+            isAdmin: false,
+            permissoes
+        });
+
+        alert("Usuário cadastrado com sucesso!");
+        
+        // Limpa o formulário após salvar
+        document.getElementById('formUsuario').reset();
+        
+        // Recarrega os dados da nuvem para atualizar a lista de usuários na tela
+        if (typeof carregarDadosNuvem === 'function') {
+            await carregarDadosNuvem();
+        }
+    } catch (err) {
+        console.error("Erro ao salvar usuário:", err);
+        alert("Erro ao salvar usuário no banco de dados.");
+    }
+}
 
             document.getElementById('formUsuario').reset();
             await carregarDadosNuvem();
