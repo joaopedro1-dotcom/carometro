@@ -554,15 +554,15 @@
             verificarSessao();
         });
 
-    async function handleLogin(e) {
+  async function handleLogin(e) {
     if (e) e.preventDefault();
-    
+
     const userIn = document.getElementById('loginUsername').value.trim();
     const passIn = document.getElementById('loginPassword').value.trim();
     const errDiv = document.getElementById('loginError');
 
     try {
-        // userIn.toLowerCase() garante acesso com 'admin' ou 'Admin'
+        // Validação do Admin (aceita 'admin' ou 'Admin')
         if (userIn.toLowerCase() === 'admin' && passIn === '123456') {
             usuarioAtual = {
                 username: 'admin',
@@ -578,6 +578,7 @@
                 }
             };
         } else {
+            // Validação de outros usuários no Firebase
             const userDoc = await getDoc(doc(db, "usuarios", userIn));
             if (!userDoc.exists() || userDoc.data().senha !== passIn) {
                 errDiv.textContent = "Usuário ou senha incorretos.";
@@ -587,13 +588,27 @@
             usuarioAtual = userDoc.data();
         }
 
+        // Grava sessão
         sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
-        errDiv.classList.add('hidden');
-        verificarSessao();
+        if (errDiv) errDiv.classList.add('hidden');
+
+        // Oculta a tela/modal de login se ela existir no DOM
+        const telaLogin = document.getElementById('loginModal') || document.getElementById('modalLogin') || document.getElementById('telaLogin');
+        if (telaLogin) telaLogin.classList.add('hidden');
+
+        // Executa a atualização de interface
+        if (typeof verificarSessao === 'function') {
+            verificarSessao();
+        } else {
+            window.location.reload();
+        }
+
     } catch (err) {
         console.error("Erro no login:", err);
-        errDiv.textContent = "Erro de conexão ao validar login.";
-        errDiv.classList.remove('hidden');
+        if (errDiv) {
+            errDiv.textContent = "Erro ao validar credenciais.";
+            errDiv.classList.remove('hidden');
+        }
     }
 }
 
