@@ -529,8 +529,7 @@
     <!-- LÓGICA DO SISTEMA COM AS CHAVES DO FIREBASE DA ESCOLA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyCwVQzQ-_cpk_H_bBSsXX9SoEkaB5uWRxQ",
             authDomain: "carometro-escola.firebaseapp.com",
