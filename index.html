@@ -579,10 +579,10 @@ async function handleLogin(e) {
                 }
             };
         } else {
-            // 2. Busca outros usuários no Firebase (tenta nome exato e em minúsculas)
+            // 2. Busca outros usuários no Firebase
             let userDoc = await getDoc(doc(db, "usuarios", userIn));
             if (!userDoc.exists()) {
-                userDoc = await getDoc(doc(db, "usuarios", userIn.toLowerCase()));
+                userDoc = await getDoc(doc(doc(db, "usuarios", userIn.toLowerCase())));
             }
 
             if (!userDoc.exists() || String(userDoc.data().senha).trim() !== passIn) {
@@ -601,7 +601,7 @@ async function handleLogin(e) {
             };
         }
 
-        // Grava sessão e atualiza tela
+        // Grava sessão
         sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
         if (errDiv) errDiv.classList.add('hidden');
 
@@ -619,25 +619,21 @@ async function handleLogin(e) {
         alert("Erro ao processar o login.");
     }
 }
-        // Grava a sessão do usuário
-        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
-        if (errDiv) errDiv.classList.add('hidden');
 
-        // Oculta tela/modal de login
-        const telaLogin = document.getElementById('loginModal') || document.getElementById('modalLogin') || document.getElementById('telaLogin');
-        if (telaLogin) telaLogin.classList.add('hidden');
+function temPermissao(chave) {
+    if (!usuarioAtual) return false;
+    if (usuarioAtual.isAdmin) return true;
+    if (!usuarioAtual.permissoes) return false;
 
-        // Atualiza a interface
-        if (typeof verificarSessao === 'function') {
-            verificarSessao();
-        } else {
-            window.location.reload();
-        }
-
-    } catch (err) {
-        console.error("Erro ao realizar login:", err);
-        alert("Erro ao conectar com o banco de dados.");
+    if (chave === 'imprimir') {
+        return !!(usuarioAtual.permissoes.imprimir || usuarioAtual.permissoes.imprimirDiarios || usuarioAtual.permissoes.imprimirProntuarios);
     }
+
+    if (Array.isArray(usuarioAtual.permissoes)) {
+        return usuarioAtual.permissoes.includes(chave);
+    }
+    return !!usuarioAtual.permissoes[chave];
+}
 }
 
     } catch (err) {
