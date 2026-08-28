@@ -551,7 +551,7 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
             verificarSessao();
         });
 
- async function handleLogin(e) {
+async function handleLogin(e) {
     if (e) e.preventDefault();
 
     const userIn = document.getElementById('loginUsername').value.trim();
@@ -579,13 +579,12 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
                 }
             };
         } else {
-            // 2. Busca usuário no Firebase (tenta nome exato e minúsculo)
+            // 2. Busca outros usuários no Firebase (tenta nome exato e em minúsculas)
             let userDoc = await getDoc(doc(db, "usuarios", userIn));
             if (!userDoc.exists()) {
                 userDoc = await getDoc(doc(db, "usuarios", userIn.toLowerCase()));
             }
 
-            // Se não encontrou ou a senha não confere
             if (!userDoc.exists() || String(userDoc.data().senha).trim() !== passIn) {
                 if (errDiv) {
                     errDiv.textContent = "Usuário ou senha incorretos.";
@@ -596,13 +595,30 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
                 return;
             }
 
-            // Define o usuário logado com id e dados completos
             usuarioAtual = {
                 id: userDoc.id,
                 ...userDoc.data()
             };
         }
 
+        // Grava sessão e atualiza tela
+        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+        if (errDiv) errDiv.classList.add('hidden');
+
+        const telaLogin = document.getElementById('loginModal') || document.getElementById('modalLogin') || document.getElementById('telaLogin');
+        if (telaLogin) telaLogin.classList.add('hidden');
+
+        if (typeof verificarSessao === 'function') {
+            verificarSessao();
+        } else {
+            window.location.reload();
+        }
+
+    } catch (err) {
+        console.error("Erro no login:", err);
+        alert("Erro ao processar o login.");
+    }
+}
         // Grava a sessão do usuário
         sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
         if (errDiv) errDiv.classList.add('hidden');
