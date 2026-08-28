@@ -551,7 +551,7 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
             verificarSessao();
         });
 
-  async function handleLogin(e) {
+ async function handleLogin(e) {
     if (e) e.preventDefault();
 
     const userIn = document.getElementById('loginUsername').value.trim();
@@ -559,50 +559,70 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
     const errDiv = document.getElementById('loginError');
 
     try {
-        // Validação do Admin (aceita 'admin' ou 'Admin')
+        // 1. Validação do Admin (aceita 'admin' ou 'Admin')
         if (userIn.toLowerCase() === 'admin' && passIn === '123456') {
             usuarioAtual = {
                 username: 'admin',
                 isAdmin: true,
-               permissoes: {
-            turmas: true,
-            integrada: true,
-            prontuario: true,
-            ocorrencias: true,
-            imprimirDiarios: true,
-            imprimirProntuarios: true,
-            imprimir: true,
-            editarAlunos: true,
-            inativos: true,
-            importar: true,
-            configuracoes: true
-        }
+                permissoes: {
+                    turmas: true,
+                    integrada: true,
+                    prontuario: true,
+                    ocorrencias: true,
+                    imprimirDiarios: true,
+                    imprimirProntuarios: true,
+                    imprimir: true,
+                    editarAlunos: true,
+                    inativos: true,
+                    importar: true,
+                    configuracoes: true
+                }
             };
         } else {
-            // Validação de outros usuários no Firebase
-            const userDoc = await getDoc(doc(db, "usuarios", userIn));
-            if (!userDoc.exists() || userDoc.data().senha !== passIn) {
-                errDiv.textContent = "Usuário ou senha incorretos.";
-                errDiv.classList.remove('hidden');
+            // 2. Busca usuário no Firebase (tenta nome exato e minúsculo)
+            let userDoc = await getDoc(doc(db, "usuarios", userIn));
+            if (!userDoc.exists()) {
+                userDoc = await getDoc(doc(db, "usuarios", userIn.toLowerCase()));
+            }
+
+            // Se não encontrou ou a senha não confere
+            if (!userDoc.exists() || String(userDoc.data().senha).trim() !== passIn) {
+                if (errDiv) {
+                    errDiv.textContent = "Usuário ou senha incorretos.";
+                    errDiv.classList.remove('hidden');
+                } else {
+                    alert("Usuário ou senha incorretos.");
+                }
                 return;
             }
-            usuarioAtual = userDoc.data();
+
+            // Define o usuário logado com id e dados completos
+            usuarioAtual = {
+                id: userDoc.id,
+                ...userDoc.data()
+            };
         }
 
-        // Grava sessão
+        // Grava a sessão do usuário
         sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
         if (errDiv) errDiv.classList.add('hidden');
 
-        // Oculta a tela/modal de login se ela existir no DOM
+        // Oculta tela/modal de login
         const telaLogin = document.getElementById('loginModal') || document.getElementById('modalLogin') || document.getElementById('telaLogin');
         if (telaLogin) telaLogin.classList.add('hidden');
 
-        // Executa a atualização de interface
+        // Atualiza a interface
         if (typeof verificarSessao === 'function') {
             verificarSessao();
         } else {
             window.location.reload();
         }
+
+    } catch (err) {
+        console.error("Erro ao realizar login:", err);
+        alert("Erro ao conectar com o banco de dados.");
+    }
+}
 
     } catch (err) {
         console.error("Erro no login:", err);
