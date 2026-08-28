@@ -952,19 +952,25 @@ function atualizarFiltrosTurmas() {
     if (!alunoProntuarioAtual) return;
 
     const dataInput = document.getElementById('ocorrenciaData').value;
-    const tipo = document.getElementById('ocorrenciaTipo').value;
-    const texto = document.getElementById('ocorrenciaTexto').value;
+        const tipo = document.getElementById('ocorrenciaTipo').value;
+        const texto = document.getElementById('ocorrenciaTexto').value;
+        const professor = document.getElementById('ocorrenciaProf')?.value.trim() || 'Não informado';
+        const materia = document.getElementById('ocorrenciaMateria')?.value.trim() || 'Não informada';
 
-    try {
-        await addDoc(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"), {
-            data: dataInput,
-            tipo: tipo,
-            texto: texto,
-            criadoEm: new Date().toISOString()
-        });
+        try {
+            await addDoc(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"), {
+                data: dataInput,
+                tipo: tipo,
+                texto: texto,
+                professor: professor,
+                materia: materia,
+                criadoEm: new Date().toISOString()
+            });
 
-        await carregarOcorrencias(alunoProntuarioAtual.id);
-        document.getElementById('ocorrenciaTexto').value = '';
+            await carregarOcorrencias(alunoProntuarioAtual.id);
+            document.getElementById('ocorrenciaTexto').value = '';
+            if (document.getElementById('ocorrenciaProf')) document.getElementById('ocorrenciaProf').value = '';
+            if (document.getElementById('ocorrenciaMateria')) document.getElementById('ocorrenciaMateria').value = '';
     } catch (err) {
         console.error("Erro ao salvar ocorrência:", err);
         alert("Erro ao registrar ocorrência.");
