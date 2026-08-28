@@ -582,7 +582,7 @@ async function handleLogin(e) {
             // 2. Busca outros usuários no Firebase
             let userDoc = await getDoc(doc(db, "usuarios", userIn));
             if (!userDoc.exists()) {
-                userDoc = await getDoc(doc(doc(db, "usuarios", userIn.toLowerCase())));
+                userDoc = await getDoc(doc(db, "usuarios", userIn.toLowerCase()));
             }
 
             if (!userDoc.exists() || String(userDoc.data().senha).trim() !== passIn) {
@@ -625,32 +625,6 @@ function temPermissao(chave) {
     if (usuarioAtual.isAdmin) return true;
     if (!usuarioAtual.permissoes) return false;
 
-    if (chave === 'imprimir') {
-        return !!(usuarioAtual.permissoes.imprimir || usuarioAtual.permissoes.imprimirDiarios || usuarioAtual.permissoes.imprimirProntuarios);
-    }
-
-    if (Array.isArray(usuarioAtual.permissoes)) {
-        return usuarioAtual.permissoes.includes(chave);
-    }
-    return !!usuarioAtual.permissoes[chave];
-}
-}
-
-    } catch (err) {
-        console.error("Erro no login:", err);
-        if (errDiv) {
-            errDiv.textContent = "Erro ao validar credenciais.";
-            errDiv.classList.remove('hidden');
-        }
-    }
-}
-
-     function temPermissao(chave) {
-    if (!usuarioAtual) return false;
-    if (usuarioAtual.isAdmin) return true;
-    if (!usuarioAtual.permissoes) return false;
-
-    // Trata compatibilidade para a ação de imprimir
     if (chave === 'imprimir') {
         return !!(usuarioAtual.permissoes.imprimir || usuarioAtual.permissoes.imprimirDiarios || usuarioAtual.permissoes.imprimirProntuarios);
     }
