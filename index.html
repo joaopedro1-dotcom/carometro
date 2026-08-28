@@ -1000,26 +1000,30 @@ function atualizarFiltrosTurmas() {
 }
 
 
-        function renderizarUsuarios() {
-            const list = document.getElementById('listaUsuarios');
-            list.innerHTML = usuarios.map(u => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 border rounded-lg text-xs">
-                    <div>
-                        <strong class="text-emerald-950">${u.username}</strong> 
-                        <span class="text-slate-500">(${u.isAdmin ? 'Admin Principal' : 'Usuário Personalizado'})</span>
-                    </div>
-                    ${!u.isAdmin ? `<button onclick="deletarUsuario('${u.username}')" class="text-rose-600 hover:text-rose-800 font-bold">Excluir</button>` : '<span class="text-[10px] text-emerald-700 font-bold">Protegido</span>'}
-                </div>
-            `).join('');
-        }
+       function renderizarUsuarios() {
+    const list = document.getElementById('listaUsuarios');
+    if (!list) return;
+    
+    list.innerHTML = usuarios.map(u => {
+        const tipoUsuario = u.isAdmin ? 'Admin Principal' : 'Usuário Personalizado';
+        const btnExcluir = !u.isAdmin ? '<button onclick="deletarUsuario(\'' + u.username + '\')" class="text-rose-600 hover:underline">Excluir</button>' : '';
 
-        async function deletarUsuario(u) {
-            if (confirm(`Remover o usuário ${u}?`)) {
-                await deleteDoc(doc(db, "usuarios", u));
-                await carregarDadosNuvem();
-            }
-        }
+        return '<div class="flex items-center justify-between p-3 bg-slate-50 border rounded-lg text-xs">' +
+                    '<div>' +
+                        '<strong class="text-emerald-950">' + u.username + '</strong> ' +
+                        '<span class="text-slate-500">(' + tipoUsuario + ')</span>' +
+                    '</div>' +
+                    btnExcluir +
+               '</div>';
+    }).join('');
+}
 
+async function deletarUsuario(u) {
+    if (confirm("Remover o usuário " + u + "?")) {
+        await deleteDoc(doc(db, "usuarios", u));
+        await carregardadosNuvem();
+    }
+}
         function imprimirCarometro() { 
             if (temPermissao('imprimir')) window.print();
             else alert("Você não tem permissão para imprimir.");
