@@ -600,11 +600,16 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
     }
 }
 
-        function temPermissao(chave) {
-            if (!usuarioAtual) return false;
-            if (usuarioAtual.isAdmin) return true;
-            return !!(usuarioAtual.permissoes && usuarioAtual.permissoes[chave]);
-        }
+       function temPermissao(chave) {
+    if (!usuarioAtual) return false;
+    if (usuarioAtual.isAdmin) return true;
+    if (!usuarioAtual.permissoes) return false;
+
+    if (Array.isArray(usuarioAtual.permissoes)) {
+        return usuarioAtual.permissoes.includes(chave);
+    }
+    return !!usuarioAtual.permissoes[chave];
+}
 
         function verificarSessao() {
             if (!usuarioAtual) {
