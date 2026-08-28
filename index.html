@@ -1039,15 +1039,18 @@ function atualizarFiltrosTurmas() {
     }
 
     // O uso de ?.checked impede que o código trave caso algum ID não exista no HTML
-    const permissoes = {
-        turmas: document.getElementById('p_turmas')?.checked || false,
-        editarAlunos: document.getElementById('p_editarAlunos')?.checked || false,
-        integrada: document.getElementById('p_integrada')?.checked || false,
-        inativos: document.getElementById('p_inativos')?.checked || false,
-        prontuario: document.getElementById('p_prontuario')?.checked || false,
-        importar: document.getElementById('p_importar')?.checked || false,
-        imprimir: document.getElementById('p_imprimir')?.checked || false
-    };
+   const permissoes = {
+    turmas: document.getElementById('perm_turmas')?.checked || false,
+    integrada: document.getElementById('perm_integrada')?.checked || false,
+    prontuario: document.getElementById('perm_prontuario')?.checked || false,
+    ocorrencias: document.getElementById('perm_ocorrencias')?.checked || false,
+    imprimirDiarios: document.getElementById('perm_imprimirDiarios')?.checked || false,
+    imprimirProntuarios: document.getElementById('perm_imprimirProntuarios')?.checked || false,
+    editarAlunos: document.getElementById('perm_editarAlunos')?.checked || false,
+    inativos: document.getElementById('perm_inativos')?.checked || false,
+    importar: document.getElementById('perm_importar')?.checked || false,
+    configuracoes: document.getElementById('perm_configuracoes')?.checked || false
+};
 
     try {
         await setDoc(doc(db, "usuarios", username), {
