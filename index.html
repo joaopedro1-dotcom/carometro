@@ -1044,16 +1044,17 @@ async function deletarUsuario(u) {
     const snap = await getDocs(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"));
     const ocs = snap.docs.map(d => d.data()).sort((a,b) => (b.data || '').localeCompare(a.data || ''));
 
-    const janelaImpressao = window.open('', '_blank');
+   const janelaImpressao = window.open('', '_blank');
 
-    janelaImpressao.document.write(`
-        <!DOCTYPE html>
-        <html lang="pt-BR">
-        <head>
-            <meta charset="UTF-8">
-            <title>Prontuário - ${alunoProntuarioAtual.nome}</title>
-            <style>
-                body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #0f172a; }
+  janelaImpressao.document.write(`
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Prontuário - ${alunoProntuarioAtual.nome || ''}</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #0f172a; }
+        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }
                 .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }
                 .header-text { flex: 1; text-align: center; }
                 .header-text h2 { margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase; color: #064e3b; }
