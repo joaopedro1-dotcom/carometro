@@ -644,7 +644,15 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
             document.getElementById('tabBtnInativos').classList.toggle('hidden', !temPermissao('inativos'));
             document.getElementById('tabBtnImportar').classList.toggle('hidden', !temPermissao('importar'));
             document.getElementById('tabBtnUsuarios').classList.toggle('hidden', !usuarioAtual.isAdmin);
+// Oculta botão de cadastrar/editar alunos se não tiver permissão
+const btnNovoAluno = document.getElementById('btnNovoAluno');
+if (btnNovoAluno) {
+    btnNovoAluno.classList.toggle('hidden', !temPermissao('editarAlunos'));
+}
 
+document.querySelectorAll('.btn-editar-aluno').forEach(btn => {
+    btn.classList.toggle('hidden', !temPermissao('editarAlunos'));
+});
             carregarDadosNuvem();
         }
 
