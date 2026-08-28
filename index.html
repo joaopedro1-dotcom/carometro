@@ -994,15 +994,18 @@ function atualizarFiltrosTurmas() {
                     return;
                 }
 
-                listDiv.innerHTML = ocs.map(o => `
-                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg text-xs space-y-1">
-                        <div class="flex justify-between font-bold text-emerald-950">
-                            <span>${o.tipo}</span>
-                            <span class="text-slate-500 text-[11px]">${o.data.split('-').reverse().join('/')}</span>
-                        </div>
-                        <p class="text-slate-700 whitespace-pre-line">${o.texto}</p>
-                        <p class="text-[10px] text-slate-400 italic text-right">Reg. por: ${o.autor || 'Sistema'}</p>
-                    </div>
+               listDiv.innerHTML = ocs.map(o => `
+        <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg text-xs space-y-1">
+            <div class="flex justify-between font-bold text-emerald-950">
+                <span>${o.tipo}</span>
+                <span class="text-slate-500 text-[11px]">${o.data.split('-').reverse().join('/')}</span>
+            </div>
+            <div class="text-[11px] font-semibold text-emerald-800">
+                Prof(a): ${o.professor || 'Não informado'} | Matéria: ${o.materia || 'Não informada'}
+            </div>
+            <p class="text-slate-700 whitespace-pre-line">${o.texto}</p>
+        </div>
+    `).join('');
                 `).join('');
             } catch (err) {
                 listDiv.innerHTML = '<p class="text-xs text-rose-500">Erro ao carregar prontuário.</p>';
