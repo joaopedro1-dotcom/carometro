@@ -271,36 +271,18 @@
 
                         <div>
                             <label class="block text-xs font-bold text-emerald-900 uppercase mb-2">Permissões do Usuário:</label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_turmas" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Ver Turmas & Carômetro</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_editarAlunos" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Cadastrar e Editar Alunos</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_integrada" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Acessar Escola Integrada</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_inativos" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Ver Alunos Desligados</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_prontuario" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Acessar Prontuário e Registrar Ocorrências</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_importar" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Importar Alunos em Lote</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                    <input type="checkbox" id="p_imprimir" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
-                                    <span>Imprimir Diários e Prontuários</span>
-                                </label>
-                            </div>
+                           <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-semibold text-slate-700 bg-slate-50 p-3 rounded-lg border">
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_turmas" checked> Ver Turmas & Carômetro</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_integrada"> Acessar Escola Integrada</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_prontuario"> Acessar Prontuário</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_ocorrencias"> Registrar Ocorrências</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_imprimirDiarios"> Imprimir Diários</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_imprimirProntuarios"> Imprimir Prontuários</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_editarAlunos"> Cadastrar e Editar Alunos</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_inativos"> Ver Alunos Desligados</label>
+    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_importar"> Importar Alunos em Lote</label>
+    <label class="flex items-center gap-2 cursor-pointer text-rose-700 font-bold"><input type="checkbox" id="perm_configuracoes"> Configuração & Usuários</label>
+</div>
                         </div>
 
                         <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
