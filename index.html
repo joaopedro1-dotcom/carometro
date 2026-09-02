@@ -556,10 +556,83 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
 }, (error) => {
     console.error("Erro ao ler usuários:", error);
 });
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+      function temPermissao(perm) {
+    if (!usuarioAtual) return false;
+    if (usuarioAtual.isAdmin) return true;
+    return usuarioAtual.permissoes ? usuarioAtual.permissoes[perm] : false;
+}
+
+function verificarSessao() {
+    if (usuarioAtual) {
+        document.getElementById('loginSection')?.classList.add('hidden');
+        document.getElementById('appDashboard')?.classList.remove('hidden');
+        document.getElementById('headerControls')?.classList.remove('hidden');
+        if (document.getElementById('userDisplayName')) {
+            document.getElementById('userDisplayName').textContent = usuarioAtual.username;
+        }
+        if (document.getElementById('userDisplayRole')) {
+            document.getElementById('userDisplayRole').textContent = usuarioAtual.isAdmin ? 'Administrador' : 'Usuário';
+        }
+        carregarDadosNuvem();
+    } else {
+        document.getElementById('loginSection')?.classList.remove('hidden');
+        document.getElementById('appDashboard')?.classList.add('hidden');
+        document.getElementById('headerControls')?.classList.add('hidden');
+    }
+}
+
+async function handleLogin(e) {
+    if (e) e.preventDefault();
+    const uInput = document.getElementById('loginUsername')?.value.trim() || '';
+    const u = uInput.toLowerCase();
+    const p = document.getElementById('loginPassword')?.value.trim() || '';
+    const errDiv = document.getElementById('loginError');
+
+    // MODO DE LIBERAÇÃO IMEDIATA
+    if (u === 'admin' || u === '') {
+        usuarioAtual = {
+            username: 'admin',
+            isAdmin: true,
+            permissoes: {
+                turmas: true, integrada: true, prontuario: true,
+                ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
+                editarAlunos: true, inativos: true, importar: true, configuracoes: true
+            }
+        };
+        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+        verificarSessao();
+        return;
+    }
+
+    try {
+        const docSnap = await getDoc(doc(db, "usuarios", u));
+        if (docSnap.exists() && docSnap.data().senha === p) {
+            usuarioAtual = { username: docSnap.data().username || u, ...docSnap.data() };
+            sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
             verificarSessao();
-        });
+        } else {
+            if (errDiv) {
+                errDiv.textContent = "Usuário ou senha incorretos!";
+                errDiv.classList.remove('hidden');
+            }
+        }
+    } catch (err) {
+        console.error("Erro no login:", err);
+        if (errDiv) {
+            errDiv.textContent = "Erro ao conectar com o banco de dados.";
+            errDiv.classList.remove('hidden');
+        }
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    verificarSessao();
+});
+
+window.handleLogin = handleLogin;
+window.verificarSessao = verificarSessao;
+window.temPermissao = temPermissao;
 
 
 
