@@ -587,28 +587,46 @@
             }
         }
 
-        async function handleLogin(e) {
-            e.preventDefault();
-            const u = document.getElementById('loginUsername').value.trim();
-            const p = document.getElementById('loginPassword').value.trim();
-            const errDiv = document.getElementById('loginError');
+       async function handleLogin(e) {
+    e.preventDefault();
+    const uInput = document.getElementById('loginUsername').value.trim();
+    const u = uInput.toLowerCase();
+    const p = document.getElementById('loginPassword').value.trim();
+    const errDiv = document.getElementById('loginError');
 
-            try {
-                const docSnap = await getDoc(doc(db, "usuarios", u));
-                if (docSnap.exists() && docSnap.data().senha === p) {
-                    usuarioAtual = { username: u, ...docSnap.data() };
-                    sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
-                    verificarSessao();
-                } else {
-                    errDiv.textContent = "Usuário ou senha incorretos!";
-                    errDiv.classList.remove('hidden');
+    try {
+        let docSnap = await getDoc(doc(db, "usuarios", u));
+
+        // CRIADOR AUTOMÁTICO DE ADMIN MESTRE (Se o banco estiver sem admin)
+        if (!docSnap.exists() && u === 'admin' && p === 'admin123') {
+            const adminMestre = {
+                username: 'admin',
+                senha: 'admin123',
+                isAdmin: true,
+                permissoes: {
+                    turmas: true, integrada: true, prontuario: true,
+                    ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
+                    editarAlunos: true, inativos: true, importar: true, configuracoes: true
                 }
-            } catch (err) {
-                console.error("Erro no login:", err);
-                errDiv.textContent = "Erro ao efetuar login no banco de dados.";
-                errDiv.classList.remove('hidden');
-            }
+            };
+            await setDoc(doc(db, "usuarios", "admin"), adminMestre);
+            docSnap = await getDoc(doc(db, "usuarios", "admin"));
         }
+
+        if (docSnap.exists() && docSnap.data().senha === p) {
+            usuarioAtual = { username: docSnap.data().username || u, ...docSnap.data() };
+            sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+            verificarSessao();
+        } else {
+            errDiv.textContent = "Usuário ou senha incorretos!";
+            errDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error("Erro no login:", err);
+        errDiv.textContent = "Erro ao efetuar login no banco de dados. Verifique o console ou as Regras do Firestore!";
+        errDiv.classList.remove('hidden');
+    }
+}
 
         function logout() {
             sessionStorage.removeItem('usuarioLogado');
