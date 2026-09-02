@@ -532,7 +532,17 @@ import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSn
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
+// CÓDIGO TEMPORÁRIO PARA RECRIAR O ADMIN
+setDoc(doc(db, "usuarios", "admin"), {
+    username: "admin",
+    senha: "123",
+    isAdmin: true,
+    permissoes: {
+        turmas: true, integrada: true, prontuario: true,
+        ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
+        editarAlunos: true, inativos: true, importar: true, configuracoes: true
+    }
+});
         let usuarioAtual = JSON.parse(sessionStorage.getItem('usuarioLogado')) || null;
         let alunos = [];
         let usuarios = [];
