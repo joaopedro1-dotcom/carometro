@@ -594,21 +594,46 @@
     const p = document.getElementById('loginPassword').value.trim();
     const errDiv = document.getElementById('loginError');
 
-    try {
-        let docSnap = await getDoc(doc(db, "usuarios", u));
+    // MODO DE EMERGÊNCIA: Entra direto sem consultar o banco
+    if (u === 'admin' && p === 'admin123') {
+        usuarioAtual = {
+            username: 'admin',
+            isAdmin: true,
+            permissoes: {
+                turmas: true, integrada: true, prontuario: true,
+                ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
+                editarAlunos: true, inativos: true, importar: true, configuracoes: true
+            }
+        };
+        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+        
+        // Força a exibição do painel
+        document.getElementById('loginSection')?.classList.add('hidden');
+        document.getElementById('appDashboard')?.classList.remove('hidden');
+        document.getElementById('headerControls')?.classList.remove('hidden');
+        
+        // Tenta carregar os dados se as funções existirem
+        if (typeof carregarDadosNuvem === 'function') carregarDadosNuvem();
+        return;
+    }
 
-        // FORÇA O RESET DA SENHA SE TENTAR LOGAR COM admin / admin123
-        if (u === 'admin' && p === 'admin123') {
-            const adminMestre = {
-                username: 'admin',
-                senha: 'admin123',
-                isAdmin: true,
-                permissoes: {
-                    turmas: true, integrada: true, prontuario: true,
-                    ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
-                    editarAlunos: true, inativos: true, importar: true, configuracoes: true
-                }
-            };
+    // Consulta normal do banco para outros usuários
+    try {
+        const docSnap = await getDoc(doc(db, "usuarios", u));
+        if (docSnap.exists() && docSnap.data().senha === p) {
+            usuarioAtual = { username: docSnap.data().username || u, ...docSnap.data() };
+            sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+            verificarSessao();
+        } else {
+            errDiv.textContent = "Usuário ou senha incorretos!";
+            errDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error("Erro no login:", err);
+        errDiv.textContent = "Erro ao efetuar login no banco de dados.";
+        errDiv.classList.remove('hidden');
+    }
+}
             await setDoc(doc(db, "usuarios", "admin"), adminMestre, { merge: true });
             docSnap = await getDoc(doc(db, "usuarios", "admin"));
         }
