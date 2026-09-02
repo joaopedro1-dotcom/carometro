@@ -587,7 +587,7 @@
             }
         }
 
-       async function handleLogin(e) {
+      async function handleLogin(e) {
     e.preventDefault();
     const uInput = document.getElementById('loginUsername').value.trim();
     const u = uInput.toLowerCase();
@@ -597,8 +597,8 @@
     try {
         let docSnap = await getDoc(doc(db, "usuarios", u));
 
-        // CRIADOR AUTOMÁTICO DE ADMIN MESTRE (Se o banco estiver sem admin)
-        if (!docSnap.exists() && u === 'admin' && p === 'admin123') {
+        // FORÇA O RESET DA SENHA SE TENTAR LOGAR COM admin / admin123
+        if (u === 'admin' && p === 'admin123') {
             const adminMestre = {
                 username: 'admin',
                 senha: 'admin123',
@@ -609,6 +609,24 @@
                     editarAlunos: true, inativos: true, importar: true, configuracoes: true
                 }
             };
+            await setDoc(doc(db, "usuarios", "admin"), adminMestre, { merge: true });
+            docSnap = await getDoc(doc(db, "usuarios", "admin"));
+        }
+
+        if (docSnap.exists() && docSnap.data().senha === p) {
+            usuarioAtual = { username: docSnap.data().username || u, ...docSnap.data() };
+            sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+            verificarSessao();
+        } else {
+            errDiv.textContent = "Usuário ou senha incorretos!";
+            errDiv.classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error("Erro no login:", err);
+        errDiv.textContent = "Erro ao efetuar login no banco de dados. Verifique o console ou as Regras do Firestore!";
+        errDiv.classList.remove('hidden');
+    }
+}
             await setDoc(doc(db, "usuarios", "admin"), adminMestre);
             docSnap = await getDoc(doc(db, "usuarios", "admin"));
         }
