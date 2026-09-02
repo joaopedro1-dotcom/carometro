@@ -555,15 +555,19 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
             usuarioAtual = {
                 username: 'admin',
                 isAdmin: true,
-                permissoes: { 
-                    turmas: true, 
-                    editarAlunos: true, 
-                    integrada: true, 
-                    inativos: true, 
-                    prontuario: true, 
-                    importar: true, 
-                    imprimir: true 
-                }
+               permissoes: {
+            turmas: true,
+            integrada: true,
+            prontuario: true,
+            ocorrencias: true,
+            imprimirDiarios: true,
+            imprimirProntuarios: true,
+            imprimir: true,
+            editarAlunos: true,
+            inativos: true,
+            importar: true,
+            configuracoes: true
+        }
             };
         } else {
             // Validação de outros usuários no Firebase
