@@ -600,10 +600,15 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
     }
 }
 
-       function temPermissao(chave) {
+     function temPermissao(chave) {
     if (!usuarioAtual) return false;
     if (usuarioAtual.isAdmin) return true;
     if (!usuarioAtual.permissoes) return false;
+
+    // Trata compatibilidade para a ação de imprimir
+    if (chave === 'imprimir') {
+        return !!(usuarioAtual.permissoes.imprimir || usuarioAtual.permissoes.imprimirDiarios || usuarioAtual.permissoes.imprimirProntuarios);
+    }
 
     if (Array.isArray(usuarioAtual.permissoes)) {
         return usuarioAtual.permissoes.includes(chave);
