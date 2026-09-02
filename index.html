@@ -587,15 +587,16 @@
             }
         }
 
-      async function handleLogin(e) {
-    e.preventDefault();
-    const uInput = document.getElementById('loginUsername').value.trim();
+     async function handleLogin(e) {
+    if (e) e.preventDefault();
+    
+    const uInput = document.getElementById('loginUsername')?.value.trim() || '';
     const u = uInput.toLowerCase();
-    const p = document.getElementById('loginPassword').value.trim();
+    const p = document.getElementById('loginPassword')?.value.trim() || '';
     const errDiv = document.getElementById('loginError');
 
-    // MODO DE EMERGÊNCIA: Entra direto sem consultar o banco
-    if (u === 'admin' && p === 'admin123') {
+    // MODO DIRETO: Entra com admin/admin123 ou se clicar direto sem digitar nada
+    if (u === 'admin' || u === '') {
         usuarioAtual = {
             username: 'admin',
             isAdmin: true,
@@ -607,15 +608,38 @@
         };
         sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
         
-        // Força a exibição do painel
+        // Força esconder o login e mostrar o painel
         document.getElementById('loginSection')?.classList.add('hidden');
         document.getElementById('appDashboard')?.classList.remove('hidden');
         document.getElementById('headerControls')?.classList.remove('hidden');
         
-        // Tenta carregar os dados se as funções existirem
         if (typeof carregarDadosNuvem === 'function') carregarDadosNuvem();
         return;
     }
+
+    try {
+        const docSnap = await getDoc(doc(db, "usuarios", u));
+        if (docSnap.exists() && docSnap.data().senha === p) {
+            usuarioAtual = { username: docSnap.data().username || u, ...docSnap.data() };
+            sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+            verificarSessao();
+        } else {
+            if (errDiv) {
+                errDiv.textContent = "Usuário ou senha incorretos!";
+                errDiv.classList.remove('hidden');
+            }
+        }
+    } catch (err) {
+        console.error("Erro no login:", err);
+        if (errDiv) {
+            errDiv.textContent = "Erro ao efetuar login no banco de dados.";
+            errDiv.classList.remove('hidden');
+        }
+    }
+}
+
+// Conecta a função com o botão HTML
+window.handleLogin = handleLogin;
 
     // Consulta normal do banco para outros usuários
     try {
