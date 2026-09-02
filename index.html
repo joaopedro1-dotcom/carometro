@@ -271,18 +271,36 @@
 
                         <div>
                             <label class="block text-xs font-bold text-emerald-900 uppercase mb-2">Permissões do Usuário:</label>
-                           <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-semibold text-slate-700 bg-slate-50 p-3 rounded-lg border">
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_turmas" checked> Ver Turmas & Carômetro</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_integrada"> Acessar Escola Integrada</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_prontuario"> Acessar Prontuário</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_ocorrencias"> Registrar Ocorrências</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_imprimirDiarios"> Imprimir Diários</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_imprimirProntuarios"> Imprimir Prontuários</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_editarAlunos"> Cadastrar e Editar Alunos</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_inativos"> Ver Alunos Desligados</label>
-    <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="perm_importar"> Importar Alunos em Lote</label>
-    <label class="flex items-center gap-2 cursor-pointer text-rose-700 font-bold"><input type="checkbox" id="perm_configuracoes"> Configuração & Usuários</label>
-</div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_turmas" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Ver Turmas & Carômetro</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_editarAlunos" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Cadastrar e Editar Alunos</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_integrada" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Acessar Escola Integrada</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_inativos" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Ver Alunos Desligados</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_prontuario" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Acessar Prontuário e Registrar Ocorrências</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_importar" class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Importar Alunos em Lote</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                    <input type="checkbox" id="p_imprimir" checked class="rounded border-slate-300 text-emerald-700 focus:ring-emerald-600">
+                                    <span>Imprimir Diários e Prontuários</span>
+                                </label>
+                            </div>
                         </div>
 
                         <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-emerald-950 font-bold py-2.5 rounded-lg transition shadow-md">
@@ -446,16 +464,7 @@
                         </select>
                     </div>
                 </div>
-<div class="grid grid-cols-2 gap-3 mt-3 mb-3">
-    <div>
-        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Professor(a)</label>
-        <input type="text" id="ocorrenciaProf" placeholder="Nome do professor" class="w-full px-3 py-1.5 border rounded-lg text-xs">
-    </div>
-    <div>
-        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Disciplina / Matéria</label>
-        <input type="text" id="ocorrenciaMateria" placeholder="Ex: Matemática" class="w-full px-3 py-1.5 border rounded-lg text-xs">
-    </div>
-</div>
+
                 <div>
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Relato Detalhado</label>
                     <textarea id="ocorrenciaTexto" rows="3" required placeholder="Digite os fatos ocorridos, observações ou combinados..." class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none focus:ring-2 focus:ring-emerald-600"></textarea>
@@ -532,17 +541,7 @@ import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSn
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-// CÓDIGO TEMPORÁRIO PARA RECRIAR O ADMIN
-setDoc(doc(db, "usuarios", "admin"), {
-    username: "admin",
-    senha: "123",
-    isAdmin: true,
-    permissoes: {
-        turmas: true, integrada: true, prontuario: true,
-        ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
-        editarAlunos: true, inativos: true, importar: true, configuracoes: true
-    }
-});
+
         let usuarioAtual = JSON.parse(sessionStorage.getItem('usuarioLogado')) || null;
         let alunos = [];
         let usuarios = [];
@@ -556,85 +555,106 @@ onSnapshot(collection(db, "usuarios"), (snapshot) => {
 }, (error) => {
     console.error("Erro ao ler usuários:", error);
 });
-      function temPermissao(perm) {
-    if (!usuarioAtual) return false;
-    if (usuarioAtual.isAdmin) return true;
-    return usuarioAtual.permissoes ? usuarioAtual.permissoes[perm] : false;
-}
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            verificarSessao();
+        });
 
-function verificarSessao() {
-    if (usuarioAtual) {
-        document.getElementById('loginSection')?.classList.add('hidden');
-        document.getElementById('appDashboard')?.classList.remove('hidden');
-        document.getElementById('headerControls')?.classList.remove('hidden');
-        if (document.getElementById('userDisplayName')) {
-            document.getElementById('userDisplayName').textContent = usuarioAtual.username;
-        }
-        if (document.getElementById('userDisplayRole')) {
-            document.getElementById('userDisplayRole').textContent = usuarioAtual.isAdmin ? 'Administrador' : 'Usuário';
-        }
-        carregarDadosNuvem();
-    } else {
-        document.getElementById('loginSection')?.classList.remove('hidden');
-        document.getElementById('appDashboard')?.classList.add('hidden');
-        document.getElementById('headerControls')?.classList.add('hidden');
-    }
-}
-
-async function handleLogin(e) {
+  async function handleLogin(e) {
     if (e) e.preventDefault();
-    const uInput = document.getElementById('loginUsername')?.value.trim() || '';
-    const u = uInput.toLowerCase();
-    const p = document.getElementById('loginPassword')?.value.trim() || '';
+
+    const userIn = document.getElementById('loginUsername').value.trim();
+    const passIn = document.getElementById('loginPassword').value.trim();
     const errDiv = document.getElementById('loginError');
 
-    // MODO DE LIBERAÇÃO IMEDIATA
-    if (u === 'admin' || u === '') {
-        usuarioAtual = {
-            username: 'admin',
-            isAdmin: true,
-            permissoes: {
-                turmas: true, integrada: true, prontuario: true,
-                ocorrencias: true, imprimirDiarios: true, imprimirProntuarios: true,
-                editarAlunos: true, inativos: true, importar: true, configuracoes: true
-            }
-        };
-        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
-        verificarSessao();
-        return;
-    }
-
     try {
-        const docSnap = await getDoc(doc(db, "usuarios", u));
-        if (docSnap.exists() && docSnap.data().senha === p) {
-            usuarioAtual = { username: docSnap.data().username || u, ...docSnap.data() };
-            sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+        // Validação do Admin (aceita 'admin' ou 'Admin')
+        if (userIn.toLowerCase() === 'admin' && passIn === '123456') {
+            usuarioAtual = {
+                username: 'admin',
+                isAdmin: true,
+                permissoes: { 
+                    turmas: true, 
+                    editarAlunos: true, 
+                    integrada: true, 
+                    inativos: true, 
+                    prontuario: true, 
+                    importar: true, 
+                    imprimir: true 
+                }
+            };
+        } else {
+            // Validação de outros usuários no Firebase
+            const userDoc = await getDoc(doc(db, "usuarios", userIn));
+            if (!userDoc.exists() || userDoc.data().senha !== passIn) {
+                errDiv.textContent = "Usuário ou senha incorretos.";
+                errDiv.classList.remove('hidden');
+                return;
+            }
+            usuarioAtual = userDoc.data();
+        }
+
+        // Grava sessão
+        sessionStorage.setItem('usuarioLogado', JSON.stringify(usuarioAtual));
+        if (errDiv) errDiv.classList.add('hidden');
+
+        // Oculta a tela/modal de login se ela existir no DOM
+        const telaLogin = document.getElementById('loginModal') || document.getElementById('modalLogin') || document.getElementById('telaLogin');
+        if (telaLogin) telaLogin.classList.add('hidden');
+
+        // Executa a atualização de interface
+        if (typeof verificarSessao === 'function') {
             verificarSessao();
         } else {
-            if (errDiv) {
-                errDiv.textContent = "Usuário ou senha incorretos!";
-                errDiv.classList.remove('hidden');
-            }
+            window.location.reload();
         }
+
     } catch (err) {
         console.error("Erro no login:", err);
         if (errDiv) {
-            errDiv.textContent = "Erro ao conectar com o banco de dados.";
+            errDiv.textContent = "Erro ao validar credenciais.";
             errDiv.classList.remove('hidden');
         }
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    verificarSessao();
+        function temPermissao(chave) {
+            if (!usuarioAtual) return false;
+            if (usuarioAtual.isAdmin) return true;
+            return !!(usuarioAtual.permissoes && usuarioAtual.permissoes[chave]);
+        }
+
+        function verificarSessao() {
+            if (!usuarioAtual) {
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('appDashboard').classList.add('hidden');
+                document.getElementById('headerControls').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('appDashboard').classList.remove('hidden');
+            document.getElementById('headerControls').classList.remove('hidden');
+
+            document.getElementById('userDisplayName').textContent = usuarioAtual.username;
+            document.getElementById('userDisplayRole').textContent = usuarioAtual.isAdmin ? "Administrador" : "Usuário";
+
+            document.getElementById('tabBtnTurmas').classList.toggle('hidden', !temPermissao('turmas'));
+            document.getElementById('tabBtnIntegrada').classList.toggle('hidden', !temPermissao('integrada'));
+            document.getElementById('tabBtnInativos').classList.toggle('hidden', !temPermissao('inativos'));
+            document.getElementById('tabBtnImportar').classList.toggle('hidden', !temPermissao('importar'));
+            document.getElementById('tabBtnUsuarios').classList.toggle('hidden', !usuarioAtual.isAdmin);
+// Oculta botão de cadastrar/editar alunos se não tiver permissão
+const btnNovoAluno = document.getElementById('btnNovoAluno');
+if (btnNovoAluno) {
+    btnNovoAluno.classList.toggle('hidden', !temPermissao('editarAlunos'));
+}
+
+document.querySelectorAll('.btn-editar-aluno').forEach(btn => {
+    btn.classList.toggle('hidden', !temPermissao('editarAlunos'));
 });
-
-window.handleLogin = handleLogin;
-window.verificarSessao = verificarSessao;
-window.temPermissao = temPermissao;
-
-
+            carregarDadosNuvem();
+        }
 
         function logout() {
             sessionStorage.removeItem('usuarioLogado');
@@ -928,25 +948,19 @@ function atualizarFiltrosTurmas() {
     if (!alunoProntuarioAtual) return;
 
     const dataInput = document.getElementById('ocorrenciaData').value;
-        const tipo = document.getElementById('ocorrenciaTipo').value;
-        const texto = document.getElementById('ocorrenciaTexto').value;
-        const professor = document.getElementById('ocorrenciaProf')?.value.trim() || 'Não informado';
-        const materia = document.getElementById('ocorrenciaMateria')?.value.trim() || 'Não informada';
+    const tipo = document.getElementById('ocorrenciaTipo').value;
+    const texto = document.getElementById('ocorrenciaTexto').value;
 
-        try {
-            await addDoc(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"), {
-                data: dataInput,
-                tipo: tipo,
-                texto: texto,
-                professor: professor,
-                materia: materia,
-                criadoEm: new Date().toISOString()
-            });
+    try {
+        await addDoc(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"), {
+            data: dataInput,
+            tipo: tipo,
+            texto: texto,
+            criadoEm: new Date().toISOString()
+        });
 
-            await carregarOcorrencias(alunoProntuarioAtual.id);
-            document.getElementById('ocorrenciaTexto').value = '';
-            if (document.getElementById('ocorrenciaProf')) document.getElementById('ocorrenciaProf').value = '';
-            if (document.getElementById('ocorrenciaMateria')) document.getElementById('ocorrenciaMateria').value = '';
+        await carregarOcorrencias(alunoProntuarioAtual.id);
+        document.getElementById('ocorrenciaTexto').value = '';
     } catch (err) {
         console.error("Erro ao salvar ocorrência:", err);
         alert("Erro ao registrar ocorrência.");
@@ -970,18 +984,15 @@ function atualizarFiltrosTurmas() {
                     return;
                 }
 
-               listDiv.innerHTML = ocs.map(o => `
-        <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg text-xs space-y-1">
-            <div class="flex justify-between font-bold text-emerald-950">
-                <span>${o.tipo}</span>
-                <span class="text-slate-500 text-[11px]">${o.data.split('-').reverse().join('/')}</span>
-            </div>
-            <div class="text-[11px] font-semibold text-emerald-800">
-                Prof(a): ${o.professor || 'Não informado'} | Matéria: ${o.materia || 'Não informada'}
-            </div>
-            <p class="text-slate-700 whitespace-pre-line">${o.texto}</p>
-        </div>
-    `).join('');
+                listDiv.innerHTML = ocs.map(o => `
+                    <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg text-xs space-y-1">
+                        <div class="flex justify-between font-bold text-emerald-950">
+                            <span>${o.tipo}</span>
+                            <span class="text-slate-500 text-[11px]">${o.data.split('-').reverse().join('/')}</span>
+                        </div>
+                        <p class="text-slate-700 whitespace-pre-line">${o.texto}</p>
+                        <p class="text-[10px] text-slate-400 italic text-right">Reg. por: ${o.autor || 'Sistema'}</p>
+                    </div>
                 `).join('');
             } catch (err) {
                 listDiv.innerHTML = '<p class="text-xs text-rose-500">Erro ao carregar prontuário.</p>';
@@ -1018,7 +1029,7 @@ function atualizarFiltrosTurmas() {
                 }
             }
 
-           alert(inseridos + " alunos importados com sucesso!");
+            alert(`${inseridos} alunos importados com sucesso!`);
             fecharModalImportacao();
             document.getElementById('txtAreaImportacao').value = '';
             await carregarDadosNuvem();
@@ -1046,18 +1057,15 @@ function atualizarFiltrosTurmas() {
     }
 
     // O uso de ?.checked impede que o código trave caso algum ID não exista no HTML
-   const permissoes = {
-    turmas: document.getElementById('perm_turmas')?.checked || false,
-    integrada: document.getElementById('perm_integrada')?.checked || false,
-    prontuario: document.getElementById('perm_prontuario')?.checked || false,
-    ocorrencias: document.getElementById('perm_ocorrencias')?.checked || false,
-    imprimirDiarios: document.getElementById('perm_imprimirDiarios')?.checked || false,
-    imprimirProntuarios: document.getElementById('perm_imprimirProntuarios')?.checked || false,
-    editarAlunos: document.getElementById('perm_editarAlunos')?.checked || false,
-    inativos: document.getElementById('perm_inativos')?.checked || false,
-    importar: document.getElementById('perm_importar')?.checked || false,
-    configuracoes: document.getElementById('perm_configuracoes')?.checked || false
-};
+    const permissoes = {
+        turmas: document.getElementById('p_turmas')?.checked || false,
+        editarAlunos: document.getElementById('p_editarAlunos')?.checked || false,
+        integrada: document.getElementById('p_integrada')?.checked || false,
+        inativos: document.getElementById('p_inativos')?.checked || false,
+        prontuario: document.getElementById('p_prontuario')?.checked || false,
+        importar: document.getElementById('p_importar')?.checked || false,
+        imprimir: document.getElementById('p_imprimir')?.checked || false
+    };
 
     try {
         await setDoc(doc(db, "usuarios", username), {
@@ -1083,30 +1091,26 @@ function atualizarFiltrosTurmas() {
 }
 
 
-       function renderizarUsuarios() {
-    const list = document.getElementById('listaUsuarios');
-    if (!list) return;
-    
-    list.innerHTML = usuarios.map(u => {
-        const tipoUsuario = u.isAdmin ? 'Admin Principal' : 'Usuário Personalizado';
-        const btnExcluir = !u.isAdmin ? '<button onclick="deletarUsuario(\'' + u.username + '\')" class="text-rose-600 hover:underline">Excluir</button>' : '';
+        function renderizarUsuarios() {
+            const list = document.getElementById('listaUsuarios');
+            list.innerHTML = usuarios.map(u => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 border rounded-lg text-xs">
+                    <div>
+                        <strong class="text-emerald-950">${u.username}</strong> 
+                        <span class="text-slate-500">(${u.isAdmin ? 'Admin Principal' : 'Usuário Personalizado'})</span>
+                    </div>
+                    ${!u.isAdmin ? `<button onclick="deletarUsuario('${u.username}')" class="text-rose-600 hover:text-rose-800 font-bold">Excluir</button>` : '<span class="text-[10px] text-emerald-700 font-bold">Protegido</span>'}
+                </div>
+            `).join('');
+        }
 
-        return '<div class="flex items-center justify-between p-3 bg-slate-50 border rounded-lg text-xs">' +
-                    '<div>' +
-                        '<strong class="text-emerald-950">' + u.username + '</strong> ' +
-                        '<span class="text-slate-500">(' + tipoUsuario + ')</span>' +
-                    '</div>' +
-                    btnExcluir +
-               '</div>';
-    }).join('');
-}
+        async function deletarUsuario(u) {
+            if (confirm(`Remover o usuário ${u}?`)) {
+                await deleteDoc(doc(db, "usuarios", u));
+                await carregarDadosNuvem();
+            }
+        }
 
-async function deletarUsuario(u) {
-    if (confirm("Remover o usuário " + u + "?")) {
-        await deleteDoc(doc(db, "usuarios", u));
-        await carregardadosNuvem();
-    }
-}
         function imprimirCarometro() { 
             if (temPermissao('imprimir')) window.print();
             else alert("Você não tem permissão para imprimir.");
@@ -1127,26 +1131,25 @@ async function deletarUsuario(u) {
     const snap = await getDocs(collection(db, "alunos", alunoProntuarioAtual.id, "ocorrencias"));
     const ocs = snap.docs.map(d => d.data()).sort((a,b) => (b.data || '').localeCompare(a.data || ''));
 
-  const janelaImpressao = window.open('', '_blank');
+    const janelaImpressao = window.open('', '_blank');
 
     janelaImpressao.document.write(`
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Prontuário - ${alunoProntuarioAtual ? alunoProntuarioAtual.nome : ''}</title>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #0f172a; }
-        .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }
-        .header-text { flex: 1; text-align: center; }
-        .header-text h2 { margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase; color: #064e3b; }
-        .header-text p { margin: 4px 0 0; font-size: 14px; font-weight: 600; color: #334155; }
-        .foto-header { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; border: 2px solid #064e3b; margin-left: 15px; }
-
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; background: #f8fafc; padding: 12px; border-radius: 8px; }
-        .info-grid p { margin: 2px 0; }
-
-        .section-title { font-size: 14px; font-weight: bold; color: #064e3b; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 15px; text-transform: uppercase; }       
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <title>Prontuário - ${alunoProntuarioAtual.nome}</title>
+            <style>
+                body { font-family: 'Segoe UI', Arial, sans-serif; margin: 30px; color: #0f172a; }
+                .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }
+                .header-text { flex: 1; text-align: center; }
+                .header-text h2 { margin: 0; font-size: 20px; font-weight: 800; text-transform: uppercase; color: #064e3b; }
+                .header-text p { margin: 4px 0 0; font-size: 14px; font-weight: 600; color: #334155; }
+                .foto-header { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; border: 2px solid #064e3b; margin-left: 15px; }
+                
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e2e8f0; }
+                .info-grid p { margin: 2px 0; }
+                
                 .section-title { font-size: 14px; font-weight: bold; color: #064e3b; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 15px; text-transform: uppercase; }
                 
                 .ocorrencia-item { font-size: 12px; margin-bottom: 10px; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; }
